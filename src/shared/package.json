@@ -1,0 +1,33 @@
+{
+  "name": "finn.shared",
+  "version": "1.0.0",
+  "description": "Shared libraries",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jarvis Badgley <chiper@chipersoft.com> (http://chipersoft.com/)",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "~2.9.33",
+    "busmq": "~0.11.1",
+    "debug": "~2.2.0",
+    "ioredis": "~1.6.1",
+    "lodash": "~3.10.0",
+    "mysql": "~2.8.0",
+    "nodemailer": "~1.4.0",
+    "nodemailer-html-to-text": "~1.0.2",
+    "nodemailer-smtp-transport": "~1.0.3",
+    "proxmis": "~0.2.0",
+    "rc": "~1.1.0"
+  },
+  "devDependencies": {
+    "forever-monitor": "~1.6.0",
+    "gulp": "~3.9.0",
+    "gulp-eslint": "~1.0.0",
+    "gulp-jscs": "~2.0.0",
+    "merge-stream": "~1.0.0",
+    "nodemailer-pickup-transport": "~0.1.1"
+  }
+}
