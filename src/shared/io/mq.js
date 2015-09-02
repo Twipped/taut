@@ -30,7 +30,7 @@ bus.on('online', function () {
 	ready();
 });
 bus.on('offline', function () {
-	debug.error('bus has gone offline, redis unavailable?');
+	debug('bus has gone offline');
 	notReady();
 	queues = {};
 });
@@ -44,9 +44,9 @@ function getQueue (name) {
 	}
 
 	return exports.ready.then(function () {
-		var queue = queues[name] = bus.queue(name);
 		return new Promise(function (resolve) {
-			queue.on('attached', function () {
+			var queue = queues[name] = bus.queue(name);
+			queue.once('attached', function () {
 				resolve(queue);
 			});
 			queue.attach();
@@ -54,11 +54,22 @@ function getQueue (name) {
 	});
 }
 
+exports.getQueue = getQueue;
+
+exports.getLength = function (queueName) {
+	return getQueue(queueName).then(function (queue) {
+		return Promise.fromNode(function (p) {
+			queue.count(p);
+		});
+	});
+};
 
 exports.emit = function (queueName) {
 	var args = Array.prototype.slice.call(arguments, 1);
 	return getQueue(queueName).then(function (queue) {
-		queue.push(args);
+		return Promise.fromNode(function (p) {
+			queue.push(JSON.stringify(args), p);
+		});
 	});
 };
 
@@ -97,10 +108,13 @@ exports.subscribe = function (queueName, handler) {
 		},
 
 		process: function (message) {
+			message = JSON.parse(message);
+
 			if (!Array.isArray(message)) {
 				message = [message];
 			}
 
+			// create the done callback for determining jobs in progress
 			var done = proxmis();
 			done.then(function () {
 				wrapper.processing--;
@@ -118,7 +132,7 @@ exports.subscribe = function (queueName, handler) {
 		close: function () {
 			wrapper.stop();
 			if (wrapper.processing > 0) {
-				return (wrapper.closing = proxmis());
+				return (wrapper._closing = wrapper._closing || proxmis());
 			}
 			return Promise.resolve();
 		}
@@ -129,22 +143,28 @@ exports.subscribe = function (queueName, handler) {
 };
 
 exports.shutdown = function () {
-	var allSubscribers = Object.keys(subscribers).map(function (queueName) {
-		return subscribers[queueName].close();
-	});
+	debug('shutting down');
 
-	var allQueues = Object.keys(queues).map(function (queueName) {
-		return queues[queueName];
-	});
+	function settleSubscribers () {
+		debug('settling subscribers');
+		return Promise.settle(Object.keys(subscribers).map(function (queueName) {
+			return subscribers[queueName].close();
+		}));
+	}
 
-	return Promise.all(allSubscribers).then(function () {
-		return Promise.map(allQueues, function (queue) {
+	function settleQueues () {
+		debug('settling queues');
+		return Promise.settle(Object.keys(queues).map(function (queueName) {
+			var queue = queues[queueName];
 			return new Promise(function (resolve) {
 				queue.once('detached', resolve);
 				queue.detach();
 			});
-		});
-	}).then(function () {
+		}));
+	}
+
+	return exports.ready.then(settleSubscribers).then(settleQueues).then(function () {
+		debug('disconnecting bus');
 		return new Promise(function (resolve) {
 			bus.once('offline', resolve);
 			bus.disconnect();
