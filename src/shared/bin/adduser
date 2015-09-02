@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+
+var user = require('../models/user');
+var argv = require('minimist')(process.argv.slice(2));
+
+var login = argv._[0].trim();
+
+delete argv._;
+
+if (login) {
+	user.create(login).then(function (userid) {
+		console.log('Account created for ' + login + ':', userid);
+		if (Object.keys(argv).length) {
+			return user.set(userid, argv).then(function () {
+				console.log('Account attributes set: ', argv);
+				process.exit(0);
+			});
+		} else {
+			return process.exit(0);
+		}
+	});
+} else {
+	console.error('Missing login.');
+	process.exit(1);
+}

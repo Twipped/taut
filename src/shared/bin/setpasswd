@@ -1,0 +1,17 @@
+#!/usr/bin/env node
+
+var savePassword = require('../models/login').save;
+var args = process.argv.slice(2);
+
+var login = args[0];
+var pass = args[1];
+
+if (login && pass) {
+	savePassword(login, pass).then(function () {
+		console.log('Password written for', login);
+		process.exit(0);
+	});
+} else {
+	console.error('Missing login or password.');
+	process.exit(1);
+}
