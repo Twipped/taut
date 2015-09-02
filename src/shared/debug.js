@@ -8,7 +8,7 @@
 
 var config = require('./config');
 
-if (!process.env.DEBUG) process.env.DEBUG = config.name + '*';
+if (process.env.DEBUG === undefined) process.env.DEBUG = config.name + '*';
 
 var debug = require('debug');
 
