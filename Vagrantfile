@@ -14,7 +14,7 @@ Vagrant.configure("2") do |config|
 	config.vm.network :private_network, ip: "192.168.56.160"
 	config.vm.network "forwarded_port", guest:  3306, host:  3306 # mysql
 	config.vm.network "forwarded_port", guest:  9200, host:  9200 # elasticsearch
-	config.vm.network "forwarded_port", guest:  6380, host:  6380 # redis
+	config.vm.network "forwarded_port", guest:  6379, host:  6379 # redis
 	#config.vm.network "forwarded_port", guest: 11211, host: 11211 # memcached
 	#config.vm.hostname = "finn.dev"
 

@@ -1,11 +1,11 @@
 'use strict';
 
 var config = require('../config');
-var debug = require('../debug');
+var debug = require('../debug')('mysql');
 
 var Promise = require('bluebird');
 
-var mysql = require('mysql2').createPool(config.mysql);
+var mysql = require('mysql2').createPool(config.io.mysql);
 
 debug('initialized');
 

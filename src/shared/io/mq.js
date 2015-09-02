@@ -20,7 +20,7 @@ var queues = {};
 var subscribers = {};
 
 
-var bus = require('busmq').create(config.mq);
+var bus = require('busmq').create(config.io.mq);
 
 bus.on('error', function (err) {
 	debug.error('bus error', err);

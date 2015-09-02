@@ -1,12 +1,12 @@
 'use strict';
 
 var config = require('../config');
-var debug = require('../debug');
+var debug = require('../debug')('redis');
 
 var Redis = require('ioredis');
 var Promise = require('bluebird');
 
-var redis = new Redis(config.redis);
+var redis = new Redis(config.io.redis);
 
 debug('initialized');
 

@@ -10,26 +10,28 @@ var pkg = require('./pkg');
 var config = require('rc')(pkg.name, {
 	name: pkg.name,
 	version: pkg.version,
-	redis: {
-		port: 6380,
-		host: '127.0.0.1',
-		auth: false
-	},
-	mysql: {
-		host: '127.0.0.1',
-		user: 'finn',
-		password: 'finn',
-		database: 'finn',
-		connectionLimit: 2
-	},
-	email: {
-		method: 'test',
-		options: {
-			directory: '/srv/logs/mail'
+	io: {
+		redis: {
+			port: 6379,
+			host: '127.0.0.1',
+			auth: false
+		},
+		mysql: {
+			host: '127.0.0.1',
+			user: 'finn',
+			password: 'finn',
+			database: 'finn',
+			connectionLimit: 2
+		},
+		email: {
+			method: 'test',
+			options: {
+				directory: '/srv/logs/mail'
+			}
+		},
+		mq: {
+			redis: ['redis://127.0.0.1:6379']
 		}
-	},
-	mq: {
-		redis: ['redis://127.0.0.1:6380']
 	}
 });
 
