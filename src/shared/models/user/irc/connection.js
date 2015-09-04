@@ -1,7 +1,8 @@
 
 // var Promise = require('bluebird');
-var config = require('finn.shared/config');
-var redis = require('finn.shared/io/redis');
+var config = require('../../../config');
+var redis = require('../../../io/redis');
+var debug = require('../../../debug')('models:user:irc:connection');
 
 exports.get = function (userid) {
 	var key = 'user:' + userid + ':irc:connection';
@@ -11,7 +12,8 @@ exports.get = function (userid) {
 
 exports.set = function (userid, connid) {
 	var key = 'user:' + userid + ':irc:connection';
-	var expire = config.conman.heartbeat;
+	var expire = config.conman.heartbeat + 5 || 35;
 
-	return redis.set(key, connid, expire);
+	debug('setting', key, connid);
+	return redis.set(key, connid, 'EX', expire);
 };
