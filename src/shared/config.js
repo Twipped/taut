@@ -32,6 +32,10 @@ var config = require('rc')(pkg.name, {
 		mq: {
 			redis: ['redis://127.0.0.1:6379']
 		}
+	},
+
+	conman: {
+		heartbeat: 30
 	}
 });
 

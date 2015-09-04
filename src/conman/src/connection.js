@@ -1,15 +1,21 @@
 'use strict';
 
 var assign = require('lodash/object/assign');
+var each = require('lodash/collection/each');
 var debug = require('finn.shared/debug')('controller');
-var random = require('finn.shared/random');
+var random = require('finn.shared/lib/random');
 var IRC = require('ircsock');
-var mq = require('finn.shared/db/mq');
+var mq = require('finn.shared/io/mq');
 var Timer = require('finn.shared/lib/timer');
 
+var modelUserIrcConnection = require('finn.shared/models/user/irc/connection');
+
 var nickservPatterns = {
-	request: /^This nickname is registered. Please choose a different nickname/,
-	confirm: /^You are now identified for (.+)\.$/
+	requested: /^This nickname is registered. Please choose a different nickname/,
+	success: /^You are now identified for (.+)\.$/,
+	failed:  /^Invalid password for (.+)\./,
+	failureCount: /(\d+) failed login since last login\./,
+	lastFailed: /^Last failed attempt from: (.+) on (.+)\./
 };
 
 var connectionsByUser = {};
@@ -17,14 +23,26 @@ var connectionsByUser = {};
 module.exports = exports = function (user) {
 	var connid = random(10);
 
-	var irc = new IRC(user);
+	debug('created', connid, user);
+
+	var irc = new IRC(assign({
+		name: 'Freenode',
+		host: 'irc.freenode.net',
+		port: 6667,
+		ssl: false,
+		nickname: 'finner' + Math.round(Math.random() * 100),
+		username: 'username',
+		realname: 'realname',
+		password: null
+	}, user));
 	irc.id = connid;
 	irc.user = user;
 
 	connectionsByUser[user.id] = irc;
 
 	var heartbeat = new Timer(30000, function () {
-
+		debug('heartbeat', irc.nick);
+		modelUserIrcConnection.set(user.id, connid);
 	}).repeating();
 
 	var receiver = mq.subscribe('irc:outgoing:' + user.id, function (command) {
@@ -42,6 +60,7 @@ module.exports = exports = function (user) {
 		return assign({
 			userid: user.id,
 			connid: connid,
+			timestamp: Date.now
 		}, data);
 	}
 
@@ -59,6 +78,9 @@ module.exports = exports = function (user) {
 		debug('received system ' + event, irc.nick, data);
 		mq.emit('irc:incoming', 'system', event, scopeData(data));
 	}
+
+	irc.on('connecting', debug.bind('connecting', connid));
+	irc.on('connect', debug.bind('connected', connid));
 
 	irc.on('welcome', function (nickname) {
 		heartbeat.start(true);
@@ -103,7 +125,7 @@ module.exports = exports = function (user) {
 
 	irc.on('notice', function (ev) {
 		if (ev.server) { // server broadcast
-			emitPrivate('notice');
+			emitPrivate('notice', ev);
 		} else if (ev.toSelf) { // private query
 			emitPrivate('notice', ev);
 		} else { // channel message
@@ -166,16 +188,23 @@ module.exports = exports = function (user) {
 	irc.on('privmsg', function (ev) {
 		if (!ev.toSelf || ev.nick !== 'nickserv' || ev.username !== 'NickServ') {return false;}
 
-		if (ev.message.match(nickservPatterns.request)) {
-			if (user.nickserv[irc.nick]) {
-				irc.emit('nickserv:sending', irc.nick);
-				return irc.privmsg('nickserv', 'identify ' + user.nickserv[irc.nick]);
-			}
-		}
+		// loop through the nickserv message patterns and emit any matches as nickserv:<patternName> events
+		each(nickservPatterns, function (key) {
+			var pattern = nickservPatterns[key];
+			var match = ev.message.match(pattern);
+			if (!match) return;
 
-		var match;
-		if ((match = ev.message.match(nickservPatterns.confim))) {
-			irc.emit('nickserv:authed', match[1]);
+			var args = ['nickserv:' + key].concat(Array.prototype.slice.call(match, 1));
+			emitPrivate.apply(null, args);
+			irc.emit.apply(irc, args);
+		});
+	});
+
+	irc.on('nickserv:requested', function () {
+		if (user.nickserv && user.nickserv[irc.nick]) {
+			irc.emit('nickserv:sending', irc.nick);
+			emitPrivate('nickserv:sending', irc.nick);
+			return irc.privmsg('nickserv', 'identify ' + user.nickserv[irc.nick]);
 		}
 	});
 
@@ -185,7 +214,7 @@ module.exports = exports = function (user) {
 			irc.emit('ready', 'timeout');
 		}, 10000);
 
-		if (user.nickserv[irc.nick]) {
+		if (user.nickserv && user.nickserv[irc.nick]) {
 			irc.once('nickserv:authed', function () {
 				clearTimeout(timeout);
 				irc.emit('ready');
@@ -212,4 +241,19 @@ module.exports.get = function (user) {
 	if (!irc) return false;
 
 	return irc;
+};
+
+module.exports.shutdownAll = function (cb) {
+	var total = Object.keys(connectionsByUser).length;
+	function decr () {
+		total--;
+		if (total <= 0) return cb && cb();
+	}
+
+	each(connectionsByUser, function (irc) {
+		irc.once('end', decr);
+		irc.quit('Process Terminated');
+	});
+
+	decr();
 };
