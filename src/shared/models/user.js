@@ -12,7 +12,10 @@ function key (userid) {
 
 exports.get = function (userid, hashkey) {
 	if (hashkey) {
-		return redis.hget(key(userid), hashkey);
+		return redis.hget(key(userid), hashkey).then(function (user) {
+			if (!user.id) user.id = userid;
+			return user;
+		});
 	}
 
 	return redis.hgetall(key(userid));

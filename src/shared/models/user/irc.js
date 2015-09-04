@@ -6,7 +6,10 @@ function key (userid) {
 }
 
 exports.get = function (userid) {
-	return redis.hgetall(key(userid));
+	return redis.hgetall(key(userid)).then(function (user) {
+		if (!user.id) user.id = userid;
+		return user;
+	});
 };
 
 exports.set = function (userid, hashkey, value) {
