@@ -49,7 +49,7 @@ function getQueue (name) {
 			queue.once('attached', function () {
 				resolve(queue);
 			});
-			queue.attach();
+			queue.attach({ttl: 60 * 60});
 		});
 	});
 }
