@@ -47,6 +47,7 @@ module.exports = exports = function (user) {
 
 	var receiver = mq.subscribe('irc:outgoing:' + user.id, function (command) {
 		var args = Array.prototype.slice.call(arguments, 1);
+
 		if (typeof irc[command] !== 'function') {
 			debug.error('Received outgoing command that does not exist.', command);
 			return;
@@ -56,8 +57,9 @@ module.exports = exports = function (user) {
 		debug.apply(null, ['sent ' + command].concat(args));
 	});
 
-	function scopeData (data) {
+	function scopeData (event, data) {
 		return assign({
+			event: event,
 			userid: user.id,
 			connid: connid,
 			timestamp: Date.now
@@ -66,17 +68,17 @@ module.exports = exports = function (user) {
 
 	function emitPublic (event, data) {
 		debug('received public ' + event, irc.nick, data);
-		mq.emit('irc:incoming', 'public', event, data.target, scopeData(data));
+		mq.emit('irc:incoming', 'public', event, data.target, scopeData(event, data));
 	}
 
 	function emitPrivate (event, data) {
 		debug('received private ' + event, irc.nick, data);
-		mq.emit('irc:incoming', 'private', event, user.id, scopeData(data));
+		mq.emit('irc:incoming', 'private', event, user.id, scopeData(event, data));
 	}
 
 	function emitSystem (event, data) {
 		debug('received system ' + event, irc.nick, data);
-		mq.emit('irc:incoming', 'system', event, scopeData(data));
+		mq.emit('irc:incoming', 'system', event, scopeData(event, data));
 	}
 
 	irc.on('connecting', debug.bind('connecting', connid));
