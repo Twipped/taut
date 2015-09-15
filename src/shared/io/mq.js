@@ -123,10 +123,21 @@ exports.subscribe = function (queueName, handler) {
 				}
 			});
 
-			message.push(done);
-
 			wrapper.processing++;
-			wrapper.handler.apply(null, message);
+
+			try {
+				var p = wrapper.handler.apply(null, message);
+				// if we get a thenable back from the handler, use it.
+				// otherwise assume handler is syncronous
+				if (p && typeof p.then === 'function') {
+					p.then(done);
+				} else {
+					done();
+				}
+			} catch (e) {
+				debug.error(e);
+				done();
+			}
 		},
 
 		close: function () {
@@ -171,4 +182,3 @@ exports.shutdown = function () {
 		});
 	});
 };
-

@@ -48,12 +48,10 @@ test('message queues', function (t) {
 
 		var digister = mq.subscribe('testQueue', function () {
 			var args = Array.prototype.slice.call(arguments);
-			var done = args.pop();
 
 			t.ok(++iteration < expectedArgs.length, 'testQueue received ' + iteration);
 			t.same(args, expectedArgs[iteration]);
 
-			done();
 			if (iteration === expectedArgs.length - 1) {
 				t.end();
 			}
