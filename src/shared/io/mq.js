@@ -68,7 +68,10 @@ exports.getLength = function (queueName) {
 
 exports.emit = function (queueName) {
 	var args = Array.prototype.slice.call(arguments, 1);
+
 	return getQueue(queueName).then(function (queue) {
+		debug('emitting', queueName, args);
+
 		return Promise.fromNode(function (p) {
 			queue.push(JSON.stringify(args), p);
 		});
@@ -79,10 +82,12 @@ exports.emit = function (queueName) {
 exports.subscribe = function (queueName, handler) {
 
 	if (subscribers[queueName]) {
+		debug('replacing subscriber', queueName);
 		subscribers[queueName].handler = handler;
 		return subscribers[queueName];
 	}
 
+	debug('creating subscriber', queueName);
 	var wrapper = {
 		name:       queueName,
 		handler:    handler,
@@ -93,6 +98,7 @@ exports.subscribe = function (queueName, handler) {
 			if (wrapper.queue) {
 				return;
 			}
+			debug('starting subscriber', queueName);
 			return getQueue(queueName).then(function (queue) {
 				wrapper.queue = queue;
 				queue.on('message', wrapper.process);
@@ -101,6 +107,7 @@ exports.subscribe = function (queueName, handler) {
 		},
 
 		stop: function () {
+			debug('stopping subscriber', queueName);
 			if (!wrapper.queue) {
 				return;
 			}
@@ -115,6 +122,8 @@ exports.subscribe = function (queueName, handler) {
 			if (!Array.isArray(message)) {
 				message = [message];
 			}
+
+			debug('received message', queueName, message);
 
 			// create the done callback for determining jobs in progress
 			var done = proxmis();
@@ -143,6 +152,7 @@ exports.subscribe = function (queueName, handler) {
 		},
 
 		close: function () {
+			debug('closing subscriber', queueName);
 			wrapper.stop();
 			if (wrapper.processing > 0) {
 				return (wrapper._closing = wrapper._closing || proxmis());
