@@ -160,7 +160,11 @@ module.exports = exports = function (user) {
 	});
 
 	irc.on('topic', function (ev) {
-		emitSystem('topic', ev);
+		if (ev.nick) {
+			emitPublic('topic', ev);
+		} else {
+			emitSystem('topic', ev);
+		}
 	});
 
 	irc.on('topic:time', function (ev) {
