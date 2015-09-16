@@ -6,6 +6,7 @@ var ircConnection = require('./src/connection');
 var argv          = require('minimist')(process.argv.slice(2));
 var UserModel     = require('finn.shared/models/user');
 var UserIRCModel  = require('finn.shared/models/user/irc');
+var UserChannelsModel = require('finn.shared/models/user/irc/channels');
 var Promise       = require('bluebird');
 
 if (argv.userid) {
@@ -17,13 +18,20 @@ if (argv.userid) {
 }
 
 function launchWithUserid (userid) {
-	return UserIRCModel.get(userid)
-		.then(ircConnection)
-		.then(function (irc) {
+	return Promise.all([
+			UserIRCModel.get(userid),
+			UserChannelsModel.get(userid)
+		])
+		.then(function (results) {
+			var user = results[0];
+			user.activeChannels = results[1];
+
+			var irc = ircConnection(user);
 			irc.connect(function (err) {
 				if (err) console.error(err);
 			});
-		});
+		})
+		.catch(console.error);
 }
 
 var terminating = false;
