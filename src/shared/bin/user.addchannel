@@ -1,0 +1,45 @@
+#!/usr/bin/env node
+
+var user = require('../models/user');
+var ircChannels = require('../models/user/irc/channels');
+var Promise = require('bluebird');
+var argv = require('minimist')(process.argv.slice(2));
+var mq = require('../io/mq');
+
+var login = argv._.shift();
+var channels = argv._;
+
+if (!login || !channels) {
+	console.error('Missing user and/or channels');
+	process.exit(1);
+}
+
+user.getUserIDByEmail(login).then(function (userid) {
+	if (!userid) {
+		console.error('Login not found.');
+		return process.exit(1);
+	}
+
+	return Promise.map(channels, function (channel) {
+		channel = channel.trim();
+		if (channel[0] !== '#') channel = '#' + channel;
+
+		return Promise.all([
+			ircChannels.add(userid, channel),
+
+			mq.emit('irc:outgoing:' + userid, {
+				command: 'join',
+				arguments: channel,
+
+				//expire after 10 seconds, so it doesn't try to run it if
+				//this user isn't currently online
+				expires: Date.now() + 10000
+			})
+		]);
+	});
+})
+.catch(console.error)
+.then(mq.shutdown)
+.then(function () {
+	process.exit(0);
+});
