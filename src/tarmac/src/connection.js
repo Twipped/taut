@@ -45,8 +45,11 @@ module.exports = exports = function (user) {
 		modelUserIrcConnection.set(user.id, connid);
 	}).repeating();
 
-	var receiver = mq.subscribe('irc:outgoing:' + user.id, function (command) {
-		var args = Array.prototype.slice.call(arguments, 1);
+	var receiver = mq.subscribe('irc:outgoing:' + user.id, function (action) {
+		var command = action.command;
+		var args = action.arguments;
+
+		if (action.expires && action.expires < Date.now()) return;
 
 		if (typeof irc[command] !== 'function') {
 			debug.error('Received outgoing command that does not exist.', command);
