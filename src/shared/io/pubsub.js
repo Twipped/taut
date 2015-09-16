@@ -1,27 +1,24 @@
 'use strict';
 
 var config = require('../config');
-var debug = require('../debug')('redis');
+var debug = require('../debug')('pubsub');
 
-var Redis = require('ioredis');
+var RedisEmitter = require('../lib/redis-emitter');
 var Promise = require('bluebird');
 
-var redis = new Redis(config.io.redis);
+var pubsub = new RedisEmitter(config.io.redis);
 
 debug('initialized');
-
-redis.on('error', function (err) {
-	debug.error(err);
-});
 
 process.on('graceful stop', function (promises) {
 	promises.push(new Promise(function (resolve) {
 		try {
-			redis.quit(resolve);
+			pubsub.quit(resolve);
 		} catch (e) {
 			resolve();
 		}
 	}));
 });
 
-module.exports = redis;
+
+module.exports = pubsub;

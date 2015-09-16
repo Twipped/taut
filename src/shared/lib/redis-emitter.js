@@ -1,13 +1,17 @@
 'use strict';
 
+var Redis = require('ioredis');
 var Emitter = require('events').EventEmitter;
 
-function RedisEmitter (redis) {
+function RedisEmitter (redisConfig) {
 	this._emitters = {};
-	this.redis = redis;
+
+	this._incoming = new Redis(redisConfig);
+	this._outgoing = new Redis(redisConfig);
+
 	this.prefix = 'RedisEmitter:';
 
-	redis.on('message', this._receive.bind(this));
+	this._incoming.on('message', this._receive.bind(this));
 }
 
 RedisEmitter.prototype.channel = function (channel) {
@@ -17,15 +21,15 @@ RedisEmitter.prototype.channel = function (channel) {
 RedisEmitter.prototype._makeEmitter = function (channel) {
 	var self = this;
 	var prefix = this.prefix;
-	
+
 	var e = new Emitter();
 	e._emit = e.emit;
 	e.emit = function () {
 		var args = Array.prototype.slice.call(arguments);
-		return self.publish(prefix + channel, JSON.stringify(args));
+		return self._outgoing.publish(prefix + channel, JSON.stringify(args));
 	};
 
-	this.redis.subscribe(prefix + channel);
+	this._incoming.subscribe(prefix + channel);
 
 	return this._emitters[channel] = e;
 };
@@ -52,8 +56,16 @@ RedisEmitter.prototype._receive = function (channel, message) {
 	}
 };
 
-module.exports = function (redis) {
-	return new RedisEmitter(redis);
+RedisEmitter.prototype.quit = function (cb) {
+	var i = 2;
+	function finished () {
+		if (i>0) return;
+
+		if (cb) cb();
+	}
+
+	this._incoming.quit(finished);
+	this._outgoing.quit(finished);
 };
 
-module.exports.RedisEmitter = RedisEmitter;
+module.exports = RedisEmitter;
