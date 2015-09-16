@@ -7,6 +7,8 @@ var hashPrivateMessage = require('./message-cache').hashPrivateMessage;
 
 exports.system = function (event, data) {
 
+	redis.channel('irc:system:receive').emit(event, data);
+
 };
 
 exports.private = function (event, userid, data) {
