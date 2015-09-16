@@ -40,11 +40,12 @@ var shutdown = function () {
 	terminating = true;
 	debug('Process is terminating, closing connections');
 
-	var promises = [
-		mq.shutdown()
-	];
 
 	ircConnection.shutdownAll(function () {
+		var promises = [
+			mq.shutdown()
+		];
+
 		process.emit('graceful stop', promises);
 
 		Promise.settle(promises).then(function () {
