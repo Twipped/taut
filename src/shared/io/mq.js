@@ -40,13 +40,15 @@ bus.connect();
 
 function getQueue (name) {
 	if (queues[name]) {
-		return Promise.resolve(queues[name]);
+		return queues[name];
 	}
 
-	return exports.ready.then(function () {
+	return queues[name] = exports.ready.then(function () {
 		return new Promise(function (resolve) {
-			var queue = queues[name] = bus.queue(name);
+			debug('opening queue', name);
+			var queue = bus.queue(name);
 			queue.once('attached', function () {
+				debug('queue attached', name);
 				resolve(queue);
 			});
 			queue.attach({ttl: 60 * 60});
