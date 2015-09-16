@@ -1,4 +1,5 @@
 
+var debug         = require('finn.shared/debug')('message-handler');
 var elastic = require('finn.shared/io/elasticsearch');
 var pubsub = require('finn.shared/io/pubsub');
 
@@ -7,11 +8,14 @@ var hashPrivateMessage = require('./message-cache').hashPrivateMessage;
 
 exports.system = function (event, data) {
 
+	debug('system ' + event);
 	pubsub.channel('irc:system:receive').emit(event, data);
 
 };
 
 exports.private = function (event, userid, data) {
+	debug('private ' + event);
+
 	data.hash = hashPrivateMessage(data);
 
 	pubsub.channel('irc:user:' + userid + ':receive').emit(event, data);
@@ -25,6 +29,8 @@ exports.private = function (event, userid, data) {
 };
 
 exports.public = function (event, channel, data) {
+	debug('public ' + event);
+
 	var isNewMessage = trackPublicMessage(data);
 	if (!isNewMessage) return;
 

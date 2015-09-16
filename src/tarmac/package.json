@@ -4,6 +4,7 @@
   "description": "Connection Manager",
   "main": "index.js",
   "scripts": {
+    "dev": "node index --login=finnery@chipersoft.com",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Jarvis Badgley <chiper@chipersoft.com> (http://chipersoft.com/)",
