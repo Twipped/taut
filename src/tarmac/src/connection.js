@@ -174,8 +174,14 @@ module.exports = exports = function (user) {
 		emitSystem('topic', ev);
 	});
 
-	irc.on('RPL', emitSystem.bind(null, 'reply'));
-	irc.on('ERR', emitSystem.bind(null, 'reply'));
+
+	function handleReply (type, data) {
+		data = assign({type: type}, data);
+		emitSystem('reply', data);
+	}
+
+	irc.on('RPL', handleReply);
+	irc.on('ERR', handleReply);
 
 	irc.on('close', function () {
 		delete connectionsByUser[user.id];
@@ -237,9 +243,14 @@ module.exports = exports = function (user) {
 
 	irc.on('ready', function () {
 		(user.activeChannels || []).forEach(function (channel) {
-			irc.join(channel.name, channel.password);
+			if (typeof channel === 'string') {
+				irc.join(channel);
+			} else {
+				irc.join(channel.name, channel.password);
+			}
 		});
 		emitSystem('ready');
+		receiver.start();
 	});
 
 	return irc;

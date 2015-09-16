@@ -5,7 +5,7 @@ var throttle = require('lodash/function/throttle');
 var TS_ROUND = 60;
 
 var byHash = {};
-var byStack = {};
+var byStack = [];
 
 var cleanup = throttle(function cleanup () {
 	var expire = Date.now() - (TS_ROUND * 2);
@@ -75,7 +75,7 @@ exports.hashPrivateMessage = hashPrivateMessage;
 exports.match = function (message) {
 	var isNew = match(message);
 	cleanup();
-	return isNew();
+	return isNew;
 };
 
 exports.reset = function () {

@@ -13,7 +13,7 @@ mq.subscribe('irc:incoming', function (type) {
 	} else {
 		debug.error('unknown message type', type, args);
 	}
-});
+}).start();
 
 
 
