@@ -5,8 +5,13 @@ var debug = require('../debug')('redis');
 
 var Redis = require('ioredis');
 var Promise = require('bluebird');
+var RedisEmitter = require('../lib/redis-emitter').RedisEmitter;
 
 var redis = new Redis(config.io.redis);
+var remitter = new RedisEmitter(redis);
+
+redis.channel = function () {remitter.apply(remitter, arguments);}
+redis.to = redis.channel;
 
 debug('initialized');
 
