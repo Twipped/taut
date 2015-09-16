@@ -14,6 +14,7 @@
     "bluebird": "~2.9.33",
     "busmq": "~1.0.0",
     "debug": "~2.2.0",
+    "elasticsearch": "~8.1.0",
     "ioredis": "~1.6.1",
     "lodash": "~3.10.0",
     "minimist": "~1.2.0",

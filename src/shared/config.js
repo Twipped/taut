@@ -23,6 +23,9 @@ var config = require('rc')(pkg.name, {
 			database: 'finn',
 			connectionLimit: 2
 		},
+		elasticsearch: {
+			host: 'localhost:9200'
+		},
 		email: {
 			method: 'test',
 			options: {
