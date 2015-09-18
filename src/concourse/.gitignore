@@ -1,0 +1,9 @@
+/app/rev-manifest.json
+/coverage
+/node_modules
+/public/assets/version.js
+/public/build
+/public/rev
+/public/vendor
+*.hbs.js
+npm-debug.log

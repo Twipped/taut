@@ -1,0 +1,11 @@
+@import "../node_modules/bootstrap/scss/variables.scss";
+@import "../node_modules/font-awesome/scss/variables.scss";
+
+// Bootstrap Overrides
+$body-bg: #55acee;
+$body-bg-img: url('/assets/images/bg-texture.png');
+$font-family-base: 'Open Sans', 'Helvetica Neue', Helvetica, sans-serif;
+$font-family-monospace: 'Droid Sans Mono', Menlo, Monaco, Consolas, "Courier New", monospace;
+
+// Font Awesome Overrides
+$fa-font-path:        "/vendor/font-awesome";

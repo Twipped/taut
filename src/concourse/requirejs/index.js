@@ -1,0 +1,4 @@
+
+require([
+	'components/example/main'
+]);

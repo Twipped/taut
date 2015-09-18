@@ -1,0 +1,65 @@
+
+.login-modal {
+	@include dialog;
+	overflow: hidden;
+
+	.login-row {
+		margin-bottom: 10px;
+	}
+
+	label {
+		font-weight: 300;
+	}
+
+	.messages {
+		list-style: none;
+	}
+
+}
+
+.application-error {
+	@include dialog;
+	font-size: 13px;
+	max-width: 800px;
+
+	h1, h2, h3 {
+		font-size: 22px;
+		color: #ddd;
+		margin: 0 0 10px
+	}
+
+	h1 em, h2 em {
+		padding: 0 5px;
+		font-weight: normal;
+	}
+
+	h1 {
+		font-size: 60px;
+	}
+
+	h1 + h2 {
+		margin-top: 10px;
+	}
+
+	ul li {
+		list-style: none;
+	}
+	ul li:hover {
+		color: #2e2e2e;
+	}
+	ul li .path {
+		padding-left: 5px;
+		font-weight: bold;
+	}
+	ul li .line {
+		padding-right: 5px;
+		font-style: italic;
+	}
+	ul li:first-child .path {
+		padding-left: 0;
+	}
+
+	#stacktrace {
+		margin-top: 15px;
+	}
+}

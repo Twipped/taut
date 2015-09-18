@@ -1,0 +1,13 @@
+{{require 'layout/main.hbs'}}{{require 'components/example/main.hbs'}}
+{{#extend 'layout/main.hbs'}}
+
+{{#append 'head'}}<link rel="stylesheet" href="{{rev '/build/pages/index.css'}}" />{{/append}}
+
+{{#content 'body'}}
+	{{data}}
+
+	<div data-component="example">{{>components/example/main.hbs}}</div>
+{{/content}}
+
+{{#append 'end'}}<script src="{{rev '/build/pages/index.js'}}"></script>{{/append}}
+{{/extend}}

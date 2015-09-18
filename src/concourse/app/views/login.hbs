@@ -1,0 +1,24 @@
+{{require "layout/main.hbs"}}
+{{#extend "layout/main.hbs"}}
+
+	{{#append 'head'}}<link rel="stylesheet" href="{{rev '/assets/pages/login.css'}}" />{{/append}}
+
+	{{#content "body"}}
+		<form action="/login" method="post" role="form" class="login-modal">
+			{{#if flash}}<ul class="messages">{{#flash}}<li class="alert alert-danger">{{this}}</li>{{/flash}}</ul>{{/if}}
+			<div class="login-row">
+				<label>Email Address</label>
+				<div><input type="email" class="form-control" name="email"></div>
+			</div>
+			<div class="login-row">
+				<label>Password</label>
+				<div><input type="password" class="form-control" name="password"></div>
+			</div>
+			<div class="login-row">
+				<div><div class="checkbox"><label><input type="checkbox" name="remember"> Remember Me</label></div></div>
+				<div><input type="submit" value="Sign In" class="btn btn-primary pull-right"></div>
+			</div>
+		</form>
+	{{/content}}
+
+{{/extend}}

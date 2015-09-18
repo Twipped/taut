@@ -1,0 +1,13 @@
+{{require "layout/main"}}
+{{#extend "layout/main"}}
+
+	{{#content "body"}}
+	<div class="application-error">
+		{{#if title}}<h1>{{title}}</h1>{{/if}}
+		<h2><em>{{statusCode}}</em> {{error}}</h2>
+		{{#if stack}}<ul id="stacktrace">{{#each stack}}<li>{{this}}</li>{{/each}}</ul>{{/if}}
+		<a href="/">Return to front page.</a>
+	</div>
+	{{/content}}
+
+{{/extend}}
