@@ -36,7 +36,7 @@ function match (message) {
 			return false;
 		}
 
-		match.seenBy[message.connid] = true;
+		match.seenBy[message.connid] = message.timestamp || Date.now();
 		return true;
 	});
 

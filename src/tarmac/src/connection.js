@@ -65,7 +65,7 @@ module.exports = exports = function (user) {
 			event: event,
 			userid: user.id,
 			connid: connid,
-			timestamp: Date.now
+			timestamp: Date.now()
 		}, data);
 	}
 
@@ -101,22 +101,37 @@ module.exports = exports = function (user) {
 	});
 
 	irc.on('join', function (ev) {
+		if (ev.isSelf) {
+			emitSystem('join', ev);
+		}
 		emitPublic('join', ev);
 	});
 
 	irc.on('part', function (ev) {
+		if (ev.isSelf) {
+			emitSystem('part', ev);
+		}
 		emitPublic('part', ev);
 	});
 
 	irc.on('kick', function (ev) {
+		if (ev.isSelf) {
+			emitSystem('kick', ev);
+		}
 		emitPublic('kick', ev);
 	});
 
 	irc.on('quit', function (ev) {
+		if (ev.isSelf) {
+			emitSystem('quit', ev);
+		}
 		emitPublic('quit', ev);
 	});
 
 	irc.on('nick', function (ev) {
+		if (ev.isSelf) {
+			emitSystem('nick', ev);
+		}
 		emitPublic('nick', ev);
 	});
 
@@ -125,6 +140,9 @@ module.exports = exports = function (user) {
 	});
 
 	irc.on('mode:channel', function (ev) {
+		if (ev.isSelf) {
+			emitSystem('mode:channel', ev);
+		}
 		emitPublic('mode:channel', ev);
 	});
 
@@ -267,9 +285,13 @@ module.exports.shutdownAll = function (cb) {
 	var total = Object.keys(connectionsByUser).length;
 	function decr () {
 		total--;
-		if (total <= 0) return cb && cb();
+		if (total <= 0) {
+			debug('all connections closed');
+			return cb && cb();
+		}
 	}
 
+	debug('closing all connections');
 	each(connectionsByUser, function (irc) {
 		irc.once('end', decr);
 		irc.quit('Process Terminated');

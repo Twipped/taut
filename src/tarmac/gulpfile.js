@@ -1,6 +1,6 @@
 'use strict';
 
-var config       = require('finn/config');
+var config       = require('finn.shared/config');
 var forever      = require('forever-monitor');
 var gulp         = require('gulp');
 var merge        = require('merge-stream');

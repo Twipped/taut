@@ -12,7 +12,7 @@ exports.get = function (userid) {
 
 exports.set = function (userid, connid) {
 	var key = 'user:' + userid + ':irc:connection';
-	var expire = config.conman.heartbeat + 5 || 35;
+	var expire = config.tarmac.heartbeat + 5 || 35;
 
 	debug('setting', key, connid);
 	return redis.set(key, connid, 'EX', expire);

@@ -12,13 +12,12 @@ debug('initialized');
 
 process.on('graceful stop', function (promises) {
 	promises.push(new Promise(function (resolve) {
-		try {
-			pubsub.quit(resolve);
-		} catch (e) {
+		debug('disconnecting');
+		pubsub.quit(function () {
+			debug('disconnected');
 			resolve();
-		}
+		});
 	}));
 });
-
 
 module.exports = pubsub;

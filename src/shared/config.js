@@ -37,7 +37,15 @@ var config = require('rc')(pkg.name, {
 		}
 	},
 
-	conman: {
+	concourse: {
+		port: 8000
+	},
+
+	gangway: {
+		heartbeat: 30
+	},
+
+	tarmac: {
 		heartbeat: 30
 	}
 });

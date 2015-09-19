@@ -1,7 +1,9 @@
 'use strict';
 
-var Redis = require('ioredis');
+var debug   = require('../debug')('redis-emitter');
+var Redis   = require('ioredis');
 var Emitter = require('events').EventEmitter;
+
 
 function RedisEmitter (redisConfig) {
 	this._emitters = {};
@@ -22,14 +24,36 @@ RedisEmitter.prototype._makeEmitter = function (channel) {
 	var self = this;
 	var prefix = this.prefix;
 
+	debug('made emitter', channel);
 	var e = new Emitter();
-	e._emit = e.emit;
-	e.emit = function () {
+	e.publish = function () {
 		var args = Array.prototype.slice.call(arguments);
 		return self._outgoing.publish(prefix + channel, JSON.stringify(args));
 	};
 
-	this._incoming.subscribe(prefix + channel);
+	// Don't subscribe to the redis channel until this emitter has listeners.
+	var subscriberCount = 0;
+	e.on('removeListener', function () {
+		subscriberCount--;
+		if (subscriberCount === 0) {
+			debug('unsubscribing', prefix + channel);
+			self._incoming.unsubscribe(prefix + channel);
+		}
+
+		// this shouldn't happen, but just in case...
+		if (subscriberCount < 0) {
+			subscriberCount = 0;
+		}
+	});
+
+	e.on('newListener', function () {
+		if (subscriberCount === 0) {
+			debug('subscribing', prefix + channel);
+			self._incoming.subscribe(prefix + channel);
+		}
+
+		subscriberCount++;
+	});
 
 	return this._emitters[channel] = e;
 };
@@ -50,17 +74,20 @@ RedisEmitter.prototype._receive = function (channel, message) {
 
 	try {
 		message = JSON.parse(message);
-		emitter._emit.apply(emitter, message);
+		emitter.emit.apply(emitter, message);
+		emitter.emit.apply(emitter, ['_all'].concat(message));
 	} catch (e) {
-		emitter._emit('error', new Error('Unparsable message received: "' + message + '" (' + e.message + ')'));
+		emitter.emit('error', new Error('Unparsable message received: "' + message + '" (' + e.message + ')'));
 	}
 };
 
 RedisEmitter.prototype.quit = function (cb) {
+	debug('quitting');
 	var i = 2;
 	function finished () {
 		if (i>0) return;
 
+		debug('quit complete');
 		if (cb) cb();
 	}
 

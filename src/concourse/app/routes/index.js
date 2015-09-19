@@ -8,4 +8,6 @@ router.get('/', function (req, res) {
 	res.render('index.hbs', { title: 'Freenode IRC Network Nexus' });
 });
 
+router.use('/c', require('./c'));
+
 module.exports = router;

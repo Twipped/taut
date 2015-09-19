@@ -1,0 +1,29 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/Users/chiper/.nvm/v0.10.40/bin/node',
+1 verbose cli   '/Users/chiper/.nvm/v0.10.40/bin/npm',
+1 verbose cli   'run',
+1 verbose cli   'dev' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.40
+4 verbose run-script [ 'predev', 'dev', 'postdev' ]
+5 info predev finn.tarmac@1.0.0
+6 info dev finn.tarmac@1.0.0
+7 verbose unsafe-perm in lifecycle true
+8 info finn.tarmac@1.0.0 Failed to exec dev script
+9 error finn.tarmac@1.0.0 dev: `node ./bin/finn.tarmac --login=finnery@chipersoft.com`
+9 error Exit status 8
+10 error Failed at the finn.tarmac@1.0.0 dev script.
+10 error This is most likely a problem with the finn.tarmac package,
+10 error not with npm itself.
+10 error Tell the author that this fails on your system:
+10 error     node ./bin/finn.tarmac --login=finnery@chipersoft.com
+10 error You can get their info via:
+10 error     npm owner ls finn.tarmac
+10 error There is likely additional logging output above.
+11 error System Darwin 13.4.0
+12 error command "/Users/chiper/.nvm/v0.10.40/bin/node" "/Users/chiper/.nvm/v0.10.40/bin/npm" "run" "dev"
+13 error cwd /Users/chiper/ChiperSoft/Finn/src/tarmac
+14 error node -v v0.10.40
+15 error npm -v 1.4.28
+16 error code ELIFECYCLE
+17 verbose exit [ 1, true ]

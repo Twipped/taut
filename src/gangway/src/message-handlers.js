@@ -1,7 +1,7 @@
 
-var debug         = require('finn.shared/debug')('message-handler');
-var elastic = require('finn.shared/io/elasticsearch');
-var pubsub = require('finn.shared/io/pubsub');
+var debug      = require('finn.shared/debug')('message-handler');
+var pubsub     = require('finn.shared/io/pubsub');
+var irchistory = require('finn.shared/models/system/irc/history');
 
 var trackPublicMessage = require('./message-cache').match;
 var hashPrivateMessage = require('./message-cache').hashPrivateMessage;
@@ -9,7 +9,7 @@ var hashPrivateMessage = require('./message-cache').hashPrivateMessage;
 exports.system = function (event, data) {
 
 	debug('system ' + event);
-	pubsub.channel('irc:system:receive').emit(event, data);
+	pubsub.channel('irc:system:receive').publish(event, data);
 
 };
 
@@ -18,29 +18,21 @@ exports.private = function (event, userid, data) {
 
 	data.hash = hashPrivateMessage(data);
 
-	pubsub.channel('irc:user:' + userid + ':receive').emit(event, data);
+	pubsub.channel('irc:user:' + userid + ':receive').publish(event, data);
 
-	return elastic.create({
-		index: 'irc-messages',
-		type: 'private',
-		id: data.hash,
-		body: data
-	});
+	return irchistory.pushPrivate(data);
 };
 
 exports.public = function (event, channel, data) {
 	debug('public ' + event);
 
 	var isNewMessage = trackPublicMessage(data);
-	if (!isNewMessage) return;
+	if (!isNewMessage) {
+		return irchistory.updatePublic(data);
+	}
 
-	pubsub.channel('irc:public:' + channel + ':receive').emit(event, data);
+	pubsub.channel('irc:public:' + channel + ':receive').publish(event, data);
 
-	return elastic.create({
-		index: 'irc-messages',
-		type: 'public',
-		id: data.hash + '-' + data.hashId,
-		body: data
-	});
+	return irchistory.pushPublic(data);
 };
 
