@@ -5,6 +5,12 @@ require([
 	'jquery',
 	'lodash',
 	'backbone',
-	'app/handlebars',
+	'handlebars',
+	'helper-hoard',
 	'require-components'
-]);
+], function () {
+	var handlebars = require('handlebars');
+	var hoard = require('helper-hoard');
+
+	hoard.load(handlebars);
+});

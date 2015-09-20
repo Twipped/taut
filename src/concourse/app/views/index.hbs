@@ -6,7 +6,7 @@
 {{#content 'body'}}
 	{{data}}
 
-	<div data-component="example">{{>components/example/main.hbs}}</div>
+	<div class="js-component" data-component="example">{{>components/example/main.hbs}}</div>
 {{/content}}
 
 {{#append 'end'}}<script src="{{rev '/build/pages/index.js'}}"></script>{{/append}}

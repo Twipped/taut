@@ -1,0 +1,16 @@
+{{require 'layout/main.hbs'}}{{require 'components/example/main.hbs'}}
+{{#extend 'layout/main.hbs'}}
+
+{{#append 'head'}}<link rel="stylesheet" href="{{rev '/build/pages/channel.css'}}" />{{/append}}
+
+{{#content 'body'}}
+	{{data}}
+
+	<div class="js-component" data-component="chatview">
+		<script type="text/json">{{stringify historical.events}}</script>
+		{{{historical.html}}}
+	</div>
+{{/content}}
+
+{{#append 'end'}}<script src="{{rev '/build/pages/channel.js'}}"></script>{{/append}}
+{{/extend}}

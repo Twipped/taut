@@ -4,6 +4,7 @@ var config       = require('finn.shared/config');
 
 var forever      = require('forever-monitor');
 var gulp         = require('gulp');
+var gutil        = require('gulp-util');
 var sequence     = require('run-sequence');
 var merge        = require('merge-stream');
 var concat       = require('gulp-concat-util');
@@ -69,6 +70,7 @@ gulp.task('clean', function (cb) {
 		'public/build',
 		'public/views/**/*.hbs.js',
 		'public/components/**/*.hbs.js',
+		'public/assets/chatview/templates.js'
 	];
 	del(targets).then(function () {cb();});
 });
@@ -79,14 +81,6 @@ gulp.task('clean-rev', function (cb) {
 		'public/rev'
 	];
 	del(targets).then(function () {cb();});
-});
-
-/**
- * Copy the bootstrap 4 UMD files into /vendor
- */
-gulp.task('bootstrap', function () {
-	return gulp.src('./node_modules/bootstrap/dist/js/umd/*.js')
-		.pipe(gulp.dest('public/vendor/bootstrap'));
 });
 
 /**
@@ -107,17 +101,27 @@ gulp.task('jquery', function () {
  * Copies our NPM installed front-end libs into the public folder
  * This is so that we're not exposing all our dependencies to the public.
  */
-gulp.task('vendorcopy', function () {
+gulp.task('vendor', ['jquery', 'lodash'], function () {
 	var libs = [
 		'backbone',
 		'requirejs',
 		'bluebird',
-		'handlebars'
+		'handlebars',
+		'helper-hoard',
+		'moment'
 	].map(function (s) {return './node_modules/' + s + '/**/*.*';});
 
 	libs.push('./node_modules/bootbox/bootbox.js');
 
-	return gulp.src(libs, { base: './node_modules' })
+	var sources = [
+		gulp.src(libs, { base: './node_modules' }),
+		gulp.src('./node_modules/socket.io/node_modules/socket.io-client/socket.io.js', { base: './node_modules/socket.io/node_modules/socket.io-client' }),
+		gulp.src('./node_modules/bootstrap/dist/js/umd/*.js', { base: './node_modules/bootstrap/dist/js/umd/'}).pipe(rename(function (fpath) {
+			fpath.basename = path.join('bootstrap', fpath.basename);
+		}))
+	];
+
+	return merge.apply(null, sources)
 		.pipe(gulp.dest('public/vendor'));
 });
 
@@ -141,6 +145,23 @@ gulp.task('amd-version', function (cb) {
 	});
 });
 
+
+gulp.task('chatview-templates', function () {
+	var templates = {};
+	return gulp.src('./public/assets/chatview/templates/**/*.hbs')
+		.pipe(through2.obj(function (file, enc, done) {
+			templates[path.basename(file.path, path.extname(file.path))] = file.contents.toString();
+			done();
+		}, function (done) {
+			this.push(new gutil.File({
+				path: 'templates.js',
+				contents: new Buffer(JSON.stringify(templates, null, 2))
+			}));
+			done();
+		}))
+		.pipe(defineModule('hybrid'))
+		.pipe(gulp.dest('./public/assets/chatview/'));
+});
 
 /**
  * Compile all RequireJS dependencies into a single file and minify.
@@ -338,7 +359,7 @@ gulp.task('views-be', function () {
 gulp.task('views-fe', function () {
 	return gulp.src(['public/views/**/*.hbs.html', 'public/views/**/*.hbs'])
 		.pipe(handlebars({handlebars: require('handlebars')}))
-		.pipe(defineModule('hybrid', { require: { Handlebars: 'app/handlebars' } }))
+		.pipe(defineModule('hybrid', { require: { Handlebars: 'handlebars' } }))
 		.pipe(rename(function (fpath) {
 			if (fpath.basename.indexOf('.hbs') === -1) fpath.basename += '.hbs';
 		}))
@@ -349,7 +370,7 @@ gulp.task('views-fe', function () {
 gulp.task('views-components', function () {
 	return gulp.src(['public/components/**/*.hbs'])
 		.pipe(handlebars({handlebars: require('handlebars')}))
-		.pipe(defineModule('hybrid', { require: { Handlebars: 'app/handlebars' } }))
+		.pipe(defineModule('hybrid', { require: { Handlebars: 'handlebars' } }))
 		.pipe(rename(function (fpath) {
 			if (fpath.basename.indexOf('.hbs') === -1) fpath.basename += '.hbs';
 		}))
@@ -395,15 +416,16 @@ gulp.task('rev', function () {
  * Watch task. Updates LESS builds and launches the server.
  * Uses forever to restart server on changes.
  */
-gulp.task('watch', ['clean-rev', 'requirejs-dev', 'scss-dev', 'views', 'amd-version'], function () {
+gulp.task('watch', ['clean-rev', 'requirejs-dev', 'scss-dev', 'chatview-templates', 'views', 'amd-version'], function () {
 	var server = new forever.Monitor('bin/finn.concourse', {
 		env: { DEBUG_COLORS:1 },
 		killSignal: 'SIGUSR2',
 		watch: false
 	});
 
+	gulp.watch(['./public/assets/chatview/templates/**/*.hbs'], ['chatview-templates']);
 	gulp.watch(['./scss/variables.scss', './scss/mixins.scss'], ['scss-dev']);
-	gulp.watch(['./scss/*.scss', '!./scss/variables.scss', '!./scss/mixins.scss', './public/components/**/main.scss'], ['scss-main-dev']);
+	gulp.watch(['./scss/*.scss', '!./scss/variables.scss', '!./scss/mixins.scss', './public/components/**/main.scss'], ['scss-main-dev', 'scss-pages-dev']);
 	gulp.watch(['./scss/pages/**/*.scss'], ['scss-pages-dev']);
 	gulp.watch(['./requirejs/_config.js'], ['requirejs-dev']);
 	gulp.watch(['./requirejs/**/*.js', '!./requirejs/_config.js'], ['requirejs-pages-dev']);
@@ -414,6 +436,8 @@ gulp.task('watch', ['clean-rev', 'requirejs-dev', 'scss-dev', 'views', 'amd-vers
 	gulp.watch([
 		'./app/**/*.js',
 		'./io/**/*.js',
+		'./public/assets/chatview/index.js',
+		'./public/assets/chatview/templates.json',
 		'./public/components/**/*.hbs.js'
 	], function (change) {
 		console.log(change.path, 'changed.');
@@ -440,7 +464,14 @@ gulp.task('default', function (cb) {
 	sequence(
 		'lint-js',
 		'clean',
-		['scss', 'vendorcopy', 'jquery', 'lodash', 'bootstrap', 'fontawesome', 'views', 'amd-version'],
+		[
+			'scss',
+			'vendor',
+			'fontawesome',
+			'views',
+			'chatview-templates',
+			'amd-version'
+		],
 		'requirejs',
 		'rev',
 		cb

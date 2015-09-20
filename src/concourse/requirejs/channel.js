@@ -1,0 +1,4 @@
+
+require([
+	'components/chatview/main'
+]);

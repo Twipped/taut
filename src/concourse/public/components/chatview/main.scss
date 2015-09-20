@@ -1,0 +1,62 @@
+
+.js-component[data-component="chatview"] {
+	background: white;
+	font-size: 14px;
+	padding: 0;
+
+	.chat-row {
+		overflow: hidden;
+		line-height: 16px;
+
+		.timestamp {
+			// padding-left: 4px;
+			text-align: center;
+			color: #999;
+			float: left;
+			width: 65px;
+			font-size: 0.8em;
+		}
+
+		.timestamp-aligned {
+			margin-left: 65px;
+		}
+
+		&[data-type="joinLeave"] {
+			padding-top: 3px;
+			padding-bottom: 3px;
+
+			.timestamp-aligned {
+				color: #999;
+				font-size: 0.8em;
+				font-style: italic;
+			}
+
+			.nick {
+				text-decoration: underline;
+			}
+		}
+
+		&[data-type="privmsg"] {
+			background: #fcfcfc;
+			border-bottom: 4px solid #f6f6f6;
+			padding-top: 6px;
+			padding-bottom: 2px;
+
+			.timestamp-aligned {
+				margin-bottom: 4px;
+			}
+
+			.nick {
+				font-weight: bold;
+				display: block;
+				margin-bottom: 4px;
+			}
+		}
+
+		.message {
+			// margin-left: 10px;
+		}
+	}
+
+
+}

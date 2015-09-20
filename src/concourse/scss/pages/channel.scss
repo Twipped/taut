@@ -1,0 +1,6 @@
+@import "../variables";
+@import "../mixins";
+
+@if ($env = "production") {
+	@import "../../public/components/chatview/main.scss";
+}
