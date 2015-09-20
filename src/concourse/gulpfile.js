@@ -396,6 +396,12 @@ gulp.task('rev', function () {
  * Uses forever to restart server on changes.
  */
 gulp.task('watch', ['clean-rev', 'requirejs-dev', 'scss-dev', 'views', 'amd-version'], function () {
+	var server = new forever.Monitor('bin/finn.concourse', {
+		env: { DEBUG_COLORS:1 },
+		killSignal: 'SIGUSR2',
+		watch: false
+	});
+
 	gulp.watch(['./scss/variables.scss', './scss/mixins.scss'], ['scss-dev']);
 	gulp.watch(['./scss/*.scss', '!./scss/variables.scss', '!./scss/mixins.scss', './public/components/**/main.scss'], ['scss-main-dev']);
 	gulp.watch(['./scss/pages/**/*.scss'], ['scss-pages-dev']);
@@ -405,14 +411,16 @@ gulp.task('watch', ['clean-rev', 'requirejs-dev', 'scss-dev', 'views', 'amd-vers
 	gulp.watch(['./public/views/**/*.hbs.html', './public/views/**/*.hbs'], ['views-fe']);
 	gulp.watch(['./app/views/**/*.hbs.html', './app/views/**/*.hbs'], ['views-be']);
 
-	new forever.Monitor('bin/finn.concourse', {
-		env: { DEBUG_COLORS:1 },
-		killSignal: 'SIGUSR2',
-		watch: true,
-		watchDirectory: __dirname,
-		watchIgnoreDotFiles: true,
-		watchIgnorePatterns: ['!**/*.js', 'public/build/**/*.*', 'public/assets/**/*.*', 'public/**/*.!(js))', 'gulpfile.js', 'requirejs/**/*.*']
-	}).start();
+	gulp.watch([
+		'./app/**/*.js',
+		'./io/**/*.js',
+		'./public/components/**/*.hbs.js'
+	], function (change) {
+		console.log(change.path, 'changed.');
+		server.restart();
+	});
+
+	server.start();
 });
 
 
