@@ -331,7 +331,7 @@ gulp.task('views-be', function () {
 		.pipe(rename(function (fpath) {
 			if (fpath.basename.indexOf('.hbs') === -1) fpath.basename += '.hbs';
 		}))
-		.pipe(gulp.dest('views/'));
+		.pipe(gulp.dest('app/views/'));
 });
 
 // Frontend templates
