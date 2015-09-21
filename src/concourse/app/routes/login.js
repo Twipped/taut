@@ -2,13 +2,14 @@
 
 var config     = require('finn.shared/config');
 var checkLogin = require('finn.shared/models/login').check;
+var redis          = require('finn.shared/io/redis');
 
 var express        = require('express');
 var pitstop        = require('pitstop');
 var expressSession = require('express-session');
 var bodyParser     = require('body-parser').urlencoded({ extended: false });
 var cookieParser   = require('cookie-parser')();
-var FileStore      = require('session-file-store')(expressSession);
+var RedisStore     = require('connect-redis')(expressSession);
 
 /* Setup Passport
 ***********************************************************************************************/
@@ -60,7 +61,9 @@ pit.condition(function (req, res, next) {
 });
 
 pit.use(expressSession({
-	store: config.sessions && config.sessions.store || new FileStore(),
+	store: config.sessions && config.sessions.store || new RedisStore({
+		client: redis
+	}),
 	secret: config.sessions && config.sessions.secret || 'secret',
 	key: config.sessions && config.sessions.cookieKey || 'session',
 	resave: true,
