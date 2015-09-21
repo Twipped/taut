@@ -437,6 +437,8 @@ gulp.task('watch', ['clean-rev', 'requirejs-dev', 'scss-dev', 'chatview-template
 	gulp.watch([
 		'./app/**/*.js',
 		'./io/**/*.js',
+		'./controllers/**/*.js',
+		'./bin/**/*',
 		'./public/assets/chatview/index.js',
 		'./public/assets/chatview/templates.json',
 		'./public/components/**/*.hbs.js'
