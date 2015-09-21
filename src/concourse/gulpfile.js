@@ -1,6 +1,7 @@
 /* eslint max-len: 0, strict:0 */
 
 var config       = require('finn.shared/config');
+var pkg          = require('./package.json');
 
 var forever      = require('forever-monitor');
 var gulp         = require('gulp');
@@ -138,7 +139,7 @@ gulp.task('fontawesome', function () {
  * Writes out the package.json version number to an amd loadable file.
  */
 gulp.task('amd-version', function (cb) {
-	var contents = "define(function () {\n\treturn '" + config.version + "';\n});\n";
+	var contents = "define(function () {\n\treturn '" + pkg.version + "';\n});\n";
 	var target = path.join(__dirname, 'public/build/version.js');
 	fs.mkdir(path.dirname(target), function () {
 		fs.writeFile(target, contents, cb);
