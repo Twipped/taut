@@ -28,13 +28,15 @@ exports.removeSubscriber = function (channel) {
 	// then there is no need to timeout the tracking
 	if (!subscriberCounts[channel]) return;
 
+	debug('remove subscriber', channel);
 	subscriberCounts[channel]--;
 
 	exports.cycleExpireTimer(channel);
 };
 
 exports.addSubscriber = function (channel) {
-	exports.startTracking();
+	debug('add subscriber', channel);
+	exports.startTracking(channel);
 
 	// subscriberCounts[channel] might be undefined, so we can't just ++
 	subscriberCounts[channel] = (subscriberCounts[channel] || 0) + 1;

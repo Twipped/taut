@@ -12,22 +12,34 @@ io.on('connection', function (socket) {
 	debug('socket connection', socket.id);
 	var subscribed = {};
 
-	socket.on('subscribe to channel', function (channel) {
-		if (subscribed[channel]) return;
-		subscribed[channel] = true;
+	socket.on('feed.subscribe', function (feed) {
+		//if this socket is already subbed to that feed, ignore the request
+		if (subscribed[feed]) return;
+		subscribed[feed] = true;
 
-		channelTracking.addSubscriber(channel);
+		debug('feed.subscribe', feed, socket.id);
+		socket.join(feed);
 
-		socket.join('irc:channel:' + channel);
+		if (feed.substr(0, 12) === 'irc:channel:') {
+			var channel = feed.substr(12);
 
-		socket.emit('channel events', channelCache.get(channel));
+			channelTracking.addSubscriber(channel);
+			channelCache.get(channel).forEach(function (event) {
+				socket.emit(feed, event);
+			});
+		}
+
 	});
 
-	socket.on('disconnect', function (socket) {
+	socket.on('disconnect', function () {
 		debug('socket disconnected', socket.id);
 
-		each(subscribed, function (channel) {
-			channelTracking.removeSubscriber(channel);
+		each(subscribed, function (t, feed) {
+			if (!t) return;
+
+			if (feed.substr(0, 12) === 'irc:channel:') {
+				channelTracking.removeSubscriber(feed.substr(12));
+			}
 		});
 	});
 

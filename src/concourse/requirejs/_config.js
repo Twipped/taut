@@ -19,9 +19,10 @@ require.config({
 		'handlebars'         : '../vendor/handlebars/dist/amd/handlebars',
 		'handlebars.runtime' : '../vendor/handlebars/dist/amd/handlebars.runtime',
 		'helper-hoard'       : '../vendor/helper-hoard/build/hoard.all',
-		'socket.io'          : '../vendor/socket.io.js',
+		'socket.io'          : '../vendor/socket.io',
 
-		'components'         : '../components'
+		'components'         : '../components',
+		'build'              : '../build'
 	},
 
 	map: {

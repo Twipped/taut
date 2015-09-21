@@ -7,7 +7,8 @@ require([
 	'backbone',
 	'handlebars',
 	'helper-hoard',
-	'require-components'
+	'require-components',
+	'build/version'
 ], function () {
 	var handlebars = require('handlebars');
 	var hoard = require('helper-hoard');

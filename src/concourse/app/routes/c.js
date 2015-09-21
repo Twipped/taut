@@ -17,6 +17,7 @@ router.get('/:channel', function (req, res, next) {
 		cv.add(events);
 
 		res.render('channel.hbs', {
+			channelName: channel,
 			historical: {
 				events: events,
 				html: cv.toString()

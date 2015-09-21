@@ -6,7 +6,7 @@
 {{#content 'body'}}
 	{{data}}
 
-	<div class="js-component" data-component="chatview">
+	<div class="js-component" data-component="chatview" data-feed="irc:channel:{{channelName}}">
 		<script type="text/json">{{stringify historical.events}}</script>
 		{{{historical.html}}}
 	</div>
