@@ -3,7 +3,6 @@ var config    = require('finn.shared/config');
 var debug     = require('finn.shared/debug')();
 var app       = require('../app');
 var io        = require('../io');
-var concourse = require('../index');
 
 var http       = require('http');
 var Promise   = require('bluebird');
@@ -13,10 +12,8 @@ var port = process.env.PORT || config.concourse.port;
 var server = http.createServer(app);
 io.attach(server);
 
-concourse(app, io).then(function () {
-	server.listen(port, function () {
-		debug('Express server listening at http://127.0.0.1:' + server.address().port);
-	});
+server.listen(port, function () {
+	debug('Express server listening at http://127.0.0.1:' + server.address().port);
 });
 
 var terminating = false;

@@ -2,7 +2,7 @@
 
 var router = module.exports = require('express').Router(); // eslint-disable-line new-cap
 
-var channelTracking = require('../controllers/channel-tracking');
+var channelTracking = require('../../controllers/channel-tracking');
 var Chatview = require('../../public/assets/chatview');
 
 router.get('/:channel', function (req, res, next) {

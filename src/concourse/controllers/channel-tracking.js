@@ -3,7 +3,7 @@ var each       = require('lodash/collection/each');
 var debug      = require('finn.shared/debug')('channel-tracking');
 var pubsub     = require('finn.shared/io/pubsub');
 var irchistory = require('finn.shared/models/system/irc/history');
-var cache      = require('../controllers/rolling-cache');
+var cache      = require('./rolling-cache');
 var Emitter    = require('events').EventEmitter;
 
 var EXPIRE_TRACKING_AFTER = 5 * 60000;
@@ -13,8 +13,17 @@ module.exports = exports = new Emitter();
 
 var subscriberCounts = {};
 
-// we have to listen for removeLister first, so that adding it doesn't trigger newListener
 exports.on('removeListener', function (channel) {
+	if (channel === '_all') return;
+	exports.removeSubscriber(channel);
+});
+
+exports.on('newListener', function (channel) {
+	if (channel === '_all') return;
+	exports.addSubscriber(channel);
+});
+
+exports.removeSubscriber = function (channel) {
 	// if subscriber count for that channel is already 0 or undefined
 	// then there is no need to timeout the tracking
 	if (!subscriberCounts[channel]) return;
@@ -22,17 +31,16 @@ exports.on('removeListener', function (channel) {
 	subscriberCounts[channel]--;
 
 	exports.cycleExpireTimer(channel);
-});
+};
 
-exports.on('newListener', function (channel) {
+exports.addSubscriber = function (channel) {
 	exports.startTracking();
 
 	// subscriberCounts[channel] might be undefined, so we can't just ++
 	subscriberCounts[channel] = (subscriberCounts[channel] || 0) + 1;
 
 	exports.cycleExpireTimer(channel);
-});
-
+};
 
 /********************************************************************************************************************/
 
@@ -67,6 +75,7 @@ exports.startTracking = function (channel) {
 	var cb = trackingCallbacks[channel] = function (event, data) {
 		cache.push(data);
 		exports.emit(data.target, data);
+		exports.emit('_all', data.target, data);
 		// debug('tracked event', data.target);
 	};
 
