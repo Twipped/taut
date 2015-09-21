@@ -12,6 +12,7 @@ var path        = require('path');
 var Handlebars  = require('handlebars');
 var debug       = require('finn.shared/debug')('rendering');
 var cachebuster = require('../cachebuster');
+var assign      = require('lodash/object/assign');
 
 require('helper-hoard').load(Handlebars);
 
@@ -50,7 +51,7 @@ module.exports = function (root, publicRoot) {
 	return function (req, res, next) {
 		res.render = function (view, data) {
 			debug(view);
-			res.send(getTemplate(view)(data));
+			res.send(getTemplate(view)(assign({}, req.locals, res.locals, data)));
 		};
 		next();
 	};
