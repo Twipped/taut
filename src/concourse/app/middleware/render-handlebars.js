@@ -51,7 +51,11 @@ module.exports = function (root, publicRoot) {
 	return function (req, res, next) {
 		res.render = function (view, data) {
 			debug(view);
-			res.send(getTemplate(view)(assign({}, req.locals, res.locals, data)));
+			var html = getTemplate(view)(assign({}, req.locals, res.locals, data));
+
+			if (req.session && req.session.flash) req.session.flash = [];
+
+			res.send(html);
 		};
 		next();
 	};
