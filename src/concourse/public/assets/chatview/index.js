@@ -23,6 +23,9 @@
 
 		//copy from the prototype at creation to avoid a static object
 		this.templates = _.assign({}, this.templates);
+
+		this.onRowUpdate = function () {};
+		this.onRowAppend = function () {};
 	}
 
 	View.makeRow = makeRow;
@@ -73,13 +76,14 @@
 		row.html = this.templates.default(row);
 
 		this.rows.push(row);
+		return this.onRowAppend(row);
 	};
 
 	View.prototype.$privmsg = function (event, previousRow) {
 		if (previousRow && previousRow.type === 'privmsg' && previousRow.nick === event.nick) {
 			previousRow.events.push(event);
 			previousRow.html = this.templates.privmsg(previousRow);
-			return;
+			return this.onRowUpdate(previousRow);
 		}
 
 		var row = makeRow(event);
@@ -87,6 +91,7 @@
 		row.html = this.templates.privmsg(row);
 
 		this.rows.push(row);
+		return this.onRowAppend(row);
 	};
 
 	View.prototype.$joinLeave = function (event, previousRow) {
@@ -98,7 +103,8 @@
 			case 'quit': previousRow.outgoing.push(event); break;
 			}
 			previousRow.html = this.templates.joinLeave(previousRow);
-			return;
+
+			return this.onRowUpdate(previousRow);
 		}
 
 		var row = makeRow(event);
@@ -113,6 +119,7 @@
 		row.html = this.templates.joinLeave(row);
 
 		this.rows.push(row);
+		return this.onRowAppend(row);
 	};
 
 	View.prototype.$join = View.prototype.$joinLeave;

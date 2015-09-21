@@ -1,5 +1,5 @@
 <div class="chat-row" data-hash="{{hash}}" data-timestamp="{{timestamp}}" data-type="joinLeave">
-	<span class="timestamp">{{date 'hh:mm A' timestamp}}</span>
+	<span class="timestamp" title="{{date 'ddd MMM Mo YYYY hh:mm A' timestamp}}">{{date 'hh:mm A' timestamp}}</span>
 	{{#if incoming}}
 	<div class="timestamp-aligned">
 		{{#join incoming ', '}}<span class="nick" data-hash="{{hash}}" data-timestamp="{{timestamp}}" title="{{date 'hh:mm A' timestamp}}">{{nick}}</span>{{/join}} joined the channel.

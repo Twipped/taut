@@ -1,5 +1,5 @@
 <div class="chat-row" data-hash="{{hash}}" data-timestamp="{{timestamp}}" {{#if nick}}data-nick="{{nick}}"{{/if}} data-type="{{type}}">
-	<span class="timestamp">{{date 'hh:mm A' timestamp}}</span>
+	<span class="timestamp" title="{{date 'ddd MMM Mo YYYY hh:mm A' timestamp}}">{{date 'hh:mm A' timestamp}}</span>
 	{{#each events}}
 	<div class="timestamp-aligned">
 		{{#unless @index}}<span class="nick">{{nick}}</span>{{/unless}}
