@@ -46,7 +46,7 @@ io.on('connection', function (socket) {
 });
 
 channelTracking.on('_all', function (channel, event) {
-	io.to('irc:channel:' + channel).emit('channel event', event);
+	io.to('irc:channel:' + channel).emit('irc:channel:' + channel, event);
 });
 
 module.exports = io;
