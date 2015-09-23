@@ -298,8 +298,7 @@ module.exports.shutdownAll = function (cb) {
 
 	debug('closing all connections');
 	each(connectionsByUser, function (irc) {
-		irc.once('end', decr);
-		irc.quit('Process Terminated');
+		irc.quit('Process Terminated', decr);
 	});
 
 	decr();
