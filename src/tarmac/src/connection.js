@@ -1,12 +1,13 @@
 'use strict';
 
 var assign = require('lodash/object/assign');
-var each = require('lodash/collection/each');
-var debug = require('finn.shared/debug')('controller');
+var each   = require('lodash/collection/each');
+var debug  = require('finn.shared/debug')('controller');
 var random = require('finn.shared/lib/random');
-var IRC = require('ircsock');
-var mq = require('finn.shared/io/mq');
-var Timer = require('finn.shared/lib/timer');
+var IRC    = require('ircsock');
+var pluginChannelTracking = require('ircsock/plugins/channels');
+var mq     = require('finn.shared/io/mq');
+var Timer  = require('finn.shared/lib/timer');
 
 var modelUserIrcConnection = require('finn.shared/models/user/irc/connection');
 
@@ -37,6 +38,8 @@ module.exports = exports = function (user) {
 	}, user));
 	irc.id = connid;
 	irc.user = user;
+
+	irc.use(pluginChannelTracking());
 
 	connectionsByUser[user.id] = irc;
 
@@ -121,17 +124,19 @@ module.exports = exports = function (user) {
 		emitPublic('kick', ev);
 	});
 
-	irc.on('quit', function (ev) {
-		if (ev.isSelf) {
-			emitSystem('quit', ev);
-		}
+	irc.on('quit:self', function (ev) {
+		emitSystem('quit', ev);
+	});
+
+	irc.on('quit:channel', function (ev) {
 		emitPublic('quit', ev);
 	});
 
-	irc.on('nick', function (ev) {
-		if (ev.isSelf) {
-			emitSystem('nick', ev);
-		}
+	irc.on('nick:self', function (ev) {
+		emitSystem('nick', ev);
+	});
+
+	irc.on('nick:channel', function (ev) {
 		emitPublic('nick', ev);
 	});
 
