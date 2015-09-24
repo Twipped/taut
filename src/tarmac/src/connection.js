@@ -222,6 +222,12 @@ module.exports = exports = function (user) {
 		emitSystem('disconnect', 'ended');
 	});
 
+	irc.on('tarmac:shutdown', function () {
+		emitSystem('shutdown', {
+			channels: Object.keys(irc.channels)
+		});
+	});
+
 	// setup nickserv handling
 	irc.on('privmsg', function (ev) {
 		if (!ev.toSelf || ev.nick !== 'nickserv' || ev.username !== 'NickServ') {return false;}
@@ -298,6 +304,7 @@ module.exports.shutdownAll = function (cb) {
 
 	debug('closing all connections');
 	each(connectionsByUser, function (irc) {
+		irc.emit('tarmac:shutdown');
 		irc.quit('Process Terminated', decr);
 	});
 
