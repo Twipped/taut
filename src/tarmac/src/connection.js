@@ -206,14 +206,6 @@ module.exports = exports = function (user) {
 	irc.on('RPL', handleReply);
 	irc.on('ERR', handleReply);
 
-	irc.on('close', function () {
-		delete connectionsByUser[user.id];
-
-		heartbeat.stop();
-		receiver.stop();
-		emitSystem('disconnect', 'closed');
-	});
-
 	irc.on('end', function () {
 		delete connectionsByUser[user.id];
 
