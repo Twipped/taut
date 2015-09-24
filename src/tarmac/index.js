@@ -20,4 +20,4 @@ exports.connectUserID = function connectUserID (userid) {
 			});
 		})
 		.catch(console.error);
-}
+};

@@ -6,12 +6,13 @@ exports.pushPublic = function (data) {
 	data = omit(data, [
 		'userid',
 		'connid',
-		'isSelf'
+		'isSelf',
+		'match'
 	]);
 	return elastic.create({
 		index: 'irc-messages',
 		type: 'public',
-		id: data.hash + '-' + data.hashIndex,
+		id: data.hash,
 		body: data
 	});
 };
@@ -20,12 +21,13 @@ exports.updatePublic = function (data) {
 	data = omit(data, [
 		'userid',
 		'connid',
-		'isSelf'
+		'isSelf',
+		'match'
 	]);
 	return elastic.update({
 		index: 'irc-messages',
 		type: 'public',
-		id: data.hash + '-' + data.hashIndex,
+		id: data.hash,
 		body: data
 	});
 };
@@ -52,8 +54,7 @@ exports.fetchPublic = function (target, limit, until) {
 		"size": limit || 500,
 		"sort": [
 			{"timestamp" : {"order": "desc"}},
-			{"hash" : {"order": "desc"}},
-			{"hashIndex" : {"order": "desc"}}
+			{"hash" : {"order": "desc"}}
 		]
 	};
 

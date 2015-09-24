@@ -16,9 +16,10 @@ var cleanup = throttle(function cleanup () {
 }, 10000);
 
 function match (message) {
-	var hash = hashPublicMessage(message);
+	message.hash  = hashPublicMessage(message, true);
+	message.match = hashPublicMessage(message);
 
-	message.hash = hash;
+	var hash = message.match;
 
 	var matches;
 	if (!byHash[hash]) {
@@ -52,9 +53,11 @@ function match (message) {
 	return true;
 }
 
-function hashPublicMessage (message) {
+function hashPublicMessage (message, exact) {
 	var date = parseFloat(message.timestamp);
-	date = date - (date % TS_ROUND);
+	if (!exact) {
+		date = date - (date % TS_ROUND);
+	}
 	date = date.toString(16);
 
 	var hash = [date, message.target, message.event, message.nick, message.message || ''].join('\t');
