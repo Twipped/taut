@@ -9,7 +9,15 @@ var pluginChannelTracking = require('ircsock/plugins/channels');
 var mq     = require('finn.shared/io/mq');
 var Timer  = require('finn.shared/lib/timer');
 
-var modelUserIrcConnection = require('finn.shared/models/user/irc/connection');
+var model = {
+	user: {
+		connection: require('finn.shared/models/user/irc/connection'),
+	},
+	connection: {
+		user: require('finn.shared/models/connection'),
+		channels: require('finn.shared/models/connection/channels')
+	}
+};
 
 var nickservPatterns = {
 	requested: /^This nickname is registered. Please choose a different nickname/,
@@ -45,7 +53,8 @@ module.exports = exports = function (user) {
 
 	var heartbeat = new Timer(30000, function () {
 		debug('heartbeat', irc.nick);
-		modelUserIrcConnection.set(user.id, connid);
+		model.user.connection.set(user.id, connid);
+		model.connection.user.set(connid, user.id);
 	}).repeating();
 
 	var receiver = mq.subscribe('irc:outgoing:' + user.id, function (action) {
@@ -211,10 +220,16 @@ module.exports = exports = function (user) {
 
 		heartbeat.stop();
 		receiver.stop();
+
+		model.user.connection.clear(user.id);
+		model.connection.user.clear(connid);
+
 		emitSystem('disconnect', 'ended');
 	});
 
 	irc.on('tarmac:shutdown', function () {
+		model.user.connection.clear(user.id);
+		model.connection.user.clear(connid);
 		emitSystem('shutdown', {
 			channels: Object.keys(irc.channels)
 		});
