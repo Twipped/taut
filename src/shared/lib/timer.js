@@ -59,6 +59,12 @@ Timer.prototype.start = function (fireBefore) {
 	return this;
 };
 
+Timer.prototype.reset = function (fireBefore) {
+	if (!this._pointer) return;
+
+	this.start(fireBefore);
+};
+
 Timer.prototype.stop = function () {
 	if (!this._pointer) {return this;}
 	clearTimeout(this._pointer);
