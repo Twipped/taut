@@ -1,8 +1,8 @@
 
 // var Promise = require('bluebird');
-var config = require('../../../config');
-var redis = require('../../../io/redis');
-var debug = require('../../../debug')('models:system:irc:connection');
+var config = require('../../config');
+var redis = require('../../io/redis');
+var debug = require('../../debug')('models:system:irc:connection');
 
 function key (connid) {
 	return 'connection:' + connid;
