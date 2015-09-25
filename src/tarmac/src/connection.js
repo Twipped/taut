@@ -78,22 +78,22 @@ module.exports = exports = function (user, doNotConnect) {
 			userid: user.id,
 			connid: connid,
 			timestamp: Date.now()
-		}, data);
+		}, typeof data === 'object' && data || {message: data});
 	}
 
 	function emitPublic (event, data) {
 		debug('received public ' + event, irc.nick, data);
-		mq.emit('irc:incoming', 'public', event, data.target, scopeData(event, data));
+		return mq.emit('irc:incoming', 'public', event, data.target, scopeData(event, data));
 	}
 
 	function emitPrivate (event, data) {
 		debug('received private ' + event, irc.nick, data);
-		mq.emit('irc:incoming', 'private', event, user.id, scopeData(event, data));
+		return mq.emit('irc:incoming', 'private', event, user.id, scopeData(event, data));
 	}
 
 	function emitSystem (event, data) {
 		debug('received system ' + event, irc.nick, data);
-		mq.emit('irc:incoming', 'system', event, scopeData(event, data));
+		return mq.emit('irc:incoming', 'system', event, scopeData(event, data));
 	}
 
 	irc.on('connecting', debug.bind('connecting', connid));
