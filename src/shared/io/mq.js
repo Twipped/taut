@@ -154,6 +154,7 @@ exports.subscribe = function (queueName, handler) {
 		close: function () {
 			debug('closing subscriber', queueName);
 			wrapper.stop();
+			wrapper.handler = null;
 			if (wrapper.processing > 0) {
 				return (wrapper._closing = wrapper._closing || proxmis());
 			}

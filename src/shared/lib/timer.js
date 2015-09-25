@@ -62,12 +62,18 @@ Timer.prototype.start = function (fireBefore) {
 Timer.prototype.stop = function () {
 	if (!this._pointer) {return this;}
 	clearTimeout(this._pointer);
+	this._pointer = undefined;
 	this.emit('stopped');
+};
+
+Timer.prototype.close = function () {
+	this.stop();
+	this._callback = undefined;
 };
 
 Timer.prototype._tick = function () {
 	this._count++;
-	this._pointer = null;
+	this._pointer = undefined;
 
 	this.emit('tick');
 
