@@ -2,7 +2,6 @@
 
 var debug         = require('finn.shared/debug')();
 var mq            = require('finn.shared/io/mq');
-var ircConnection = require('../src/connection');
 var argv          = require('minimist')(process.argv.slice(2));
 var UserModel     = require('finn.shared/models/user');
 var Promise       = require('bluebird');
@@ -26,7 +25,7 @@ var shutdown = function () {
 	debug('Process is terminating, closing connections');
 
 
-	ircConnection.shutdownAll(function () {
+	tarmac.shutdown(function () {
 		var promises = [
 			mq.shutdown()
 		];

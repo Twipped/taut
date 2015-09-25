@@ -2,7 +2,7 @@
 
 var assign = require('lodash/object/assign');
 var each   = require('lodash/collection/each');
-var debug  = require('finn.shared/debug')('controller');
+var debug  = require('finn.shared/debug')('connection');
 var random = require('finn.shared/lib/random');
 var IRC    = require('ircsock');
 var pluginChannelTracking = require('ircsock/plugins/channels');
@@ -27,8 +27,6 @@ var nickservPatterns = {
 	lastFailed: /^Last failed attempt from: (.+) on (.+)\./
 };
 
-var connectionsByUser = {};
-
 module.exports = exports = function (user, doNotConnect) {
 	var connid = random(10);
 
@@ -48,8 +46,6 @@ module.exports = exports = function (user, doNotConnect) {
 	irc.user = user;
 
 	irc.use(pluginChannelTracking());
-
-	connectionsByUser[user.id] = irc;
 
 	var heartbeat = new Timer(30000, function () {
 		debug('heartbeat', irc.nick);
@@ -216,23 +212,13 @@ module.exports = exports = function (user, doNotConnect) {
 	irc.on('ERR', handleReply);
 
 	irc.on('end', function () {
-		delete connectionsByUser[user.id];
-
-		heartbeat.stop();
-		receiver.stop();
+		heartbeat.close();
+		receiver.close();
 
 		model.user.connection.clear(user.id);
 		model.connection.user.clear(connid);
 
-		emitSystem('disconnect', 'ended');
-	});
-
-	irc.on('tarmac:shutdown', function () {
-		model.user.connection.clear(user.id);
-		model.connection.user.clear(connid);
-		emitSystem('shutdown', {
-			channels: Object.keys(irc.channels)
-		});
+		emitSystem('ended');
 	});
 
 	// setup nickserv handling
@@ -289,6 +275,13 @@ module.exports = exports = function (user, doNotConnect) {
 		receiver.start();
 	});
 
+	irc.shutdown = function (msg, fn) {
+		irc.quit(msg, function () {
+			var p = emitSystem('shutdown');
+			if (fn) p.then(fn);
+		});
+	};
+
 	if (!doNotConnect) {
 		irc.connect();
 	}
@@ -296,28 +289,3 @@ module.exports = exports = function (user, doNotConnect) {
 	return irc;
 };
 
-module.exports.get = function (user) {
-	var irc = connectionsByUser[user.id];
-	if (!irc) return false;
-
-	return irc;
-};
-
-module.exports.shutdownAll = function (cb) {
-	var total = Object.keys(connectionsByUser).length;
-	function decr () {
-		total--;
-		if (total <= 0) {
-			debug('all connections closed');
-			return cb && cb();
-		}
-	}
-
-	debug('closing all connections');
-	each(connectionsByUser, function (irc) {
-		irc.emit('tarmac:shutdown');
-		irc.quit('Process Terminated', decr);
-	});
-
-	decr();
-};
