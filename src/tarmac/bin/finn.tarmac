@@ -25,7 +25,7 @@ var shutdown = function () {
 	debug('Process is terminating, closing connections');
 
 
-	tarmac.shutdown(function () {
+	tarmac.shutdown().then(function () {
 		var promises = [
 			mq.shutdown()
 		];
@@ -41,7 +41,7 @@ var shutdown = function () {
 	setTimeout(function () {
 		debug('Shutdown took too long, terminating.');
 		process.exit(0); // eslint-disable-line no-process-exit
-	}, 5000);
+	}, 10000);
 };
 
 process.on('SIGUSR2', shutdown);
