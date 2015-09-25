@@ -29,7 +29,7 @@ var nickservPatterns = {
 
 var connectionsByUser = {};
 
-module.exports = exports = function (user) {
+module.exports = exports = function (user, doNotConnect) {
 	var connid = random(10);
 
 	debug('created', connid, user);
@@ -288,6 +288,10 @@ module.exports = exports = function (user) {
 		emitSystem('ready');
 		receiver.start();
 	});
+
+	if (!doNotConnect) {
+		irc.connect();
+	}
 
 	return irc;
 };

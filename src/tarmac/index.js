@@ -14,10 +14,7 @@ exports.connectUserID = function connectUserID (userid) {
 			var user = results[0];
 			user.activeChannels = results[1];
 
-			var irc = ircConnection(user);
-			irc.connect(function (err) {
-				if (err) console.error(err);
-			});
+			ircConnection(user);
 		})
 		.catch(console.error);
 };
