@@ -1,5 +1,5 @@
 
-var debug = require('../../debug')('models:user:irc:channels');
+var debug = require('../../debug')('models:connection:channels');
 var redis = require('../../io/redis');
 
 var EXPIRES_AFTER = 60 * 60 * 24; //1 day

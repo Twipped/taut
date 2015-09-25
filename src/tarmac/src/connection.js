@@ -1,5 +1,6 @@
 'use strict';
 
+var Promise = require('bluebird');
 var assign = require('lodash/object/assign');
 var each   = require('lodash/collection/each');
 var debug  = require('finn.shared/debug')('connection');
@@ -16,6 +17,9 @@ var model = {
 	connection: {
 		user: require('finn.shared/models/connection'),
 		channels: require('finn.shared/models/connection/channels')
+	},
+	channel: {
+		connections: require('finn.shared/models/channel/connections')
 	}
 };
 
@@ -110,21 +114,36 @@ module.exports = exports = function (user, doNotConnect) {
 
 	irc.on('join', function (ev) {
 		if (ev.isSelf) {
-			emitSystem('join', ev);
+			Promise.all([
+				model.connection.channels.add(connid, ev.target),
+				model.channel.connections.add(ev.target, connid)
+			]).then(function () {
+				emitSystem('join', ev);
+			});
 		}
 		emitPublic('join', ev);
 	});
 
 	irc.on('part', function (ev) {
 		if (ev.isSelf) {
-			emitSystem('part', ev);
+			Promise.all([
+				model.connection.channels.remove(connid, ev.target),
+				model.channel.connections.remove(ev.target, connid)
+			]).then(function () {
+				emitSystem('part', ev);
+			});
 		}
 		emitPublic('part', ev);
 	});
 
 	irc.on('kick', function (ev) {
 		if (ev.isSelf) {
-			emitSystem('kick', ev);
+			Promise.all([
+				model.connection.channels.remove(connid, ev.target),
+				model.channel.connections.remove(ev.target, connid)
+			]).then(function () {
+				emitSystem('kick', ev);
+			});
 		}
 		emitPublic('kick', ev);
 	});
@@ -215,10 +234,18 @@ module.exports = exports = function (user, doNotConnect) {
 		heartbeat.close();
 		receiver.close();
 
-		model.user.connection.clear(user.id);
-		model.connection.user.clear(connid);
-
-		emitSystem('ended');
+		model.connection.channels.get(connid).then(function (channels) {
+			return Promise.map(channels, function (channel) {
+				return model.channel.connections.remove(channel, connid);
+			});
+		}).then(function () {
+			return Promise.all([
+				model.user.connection.clear(user.id),
+				model.connection.user.clear(connid)
+			]);
+		}).then(function () {
+			emitSystem('ended');
+		});
 	});
 
 	// setup nickserv handling
