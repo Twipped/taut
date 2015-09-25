@@ -14,17 +14,17 @@
   "author": "Jarvis Badgley <chiper@chipersoft.com> (http://chipersoft.com/)",
   "license": "MIT",
   "dependencies": {
-    "bluebird": "~2.9.33",
+    "bluebird": "~2.10.1",
     "finn.shared": "*",
-    "lodash": "~3.10.0",
+    "lodash": "~3.10.1",
     "minimist": "~1.2.0",
     "proxmis": "~0.2.0"
   },
   "devDependencies": {
-    "forever-monitor": "~1.6.0",
+    "forever-monitor": "~1.7.0",
     "gulp": "~3.9.0",
     "gulp-eslint": "~1.0.0",
-    "gulp-jscs": "~2.0.0",
+    "gulp-jscs": "~3.0.0",
     "merge-stream": "~1.0.0"
   }
 }
