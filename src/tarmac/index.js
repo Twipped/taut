@@ -10,23 +10,23 @@ var connections = {};
 
 exports.connectUserID = function connectUserID (userid) {
 	return Promise.all([
-			UserIRCModel.get(userid),
-			UserChannelsModel.get(userid)
-		])
-		.then(function (results) {
-			var user = results[0];
-			user.activeChannels = results[1];
+		UserIRCModel.get(userid),
+		UserChannelsModel.get(userid)
+	])
+	.then(function (results) {
+		var user = results[0];
+		user.activeChannels = results[1];
 
-			var irc = connect(user);
+		var irc = connect(user);
 
-			connections[irc.id] = irc;
-			irc.on('end', function () {
-				delete connections[irc.id];
-			});
+		connections[irc.id] = irc;
+		irc.on('end', function () {
+			delete connections[irc.id];
+		});
 
-			return irc;
-		})
-		.catch(console.error);
+		return irc;
+	})
+	.catch(debug.error);
 };
 
 exports.shutdown = function () {
