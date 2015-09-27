@@ -10,6 +10,7 @@
   "author": "Jarvis Badgley <chiper@chipersoft.com> (http://chipersoft.com/)",
   "license": "MIT",
   "dependencies": {
+    "JSONStream": "~1.0.6",
     "bcrypt": "~0.8.5",
     "bluebird": "~2.10.1",
     "busmq": "~1.0.0",
