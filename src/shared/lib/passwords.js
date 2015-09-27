@@ -14,6 +14,7 @@
 
 var proxmis = require('proxmis');
 var bcrypt = require('bcrypt');
+var crypto = require('crypto');
 var SALT_WORK_FACTOR = 10;
 
 exports.create = function (password, cb) {
@@ -43,4 +44,14 @@ exports.check = function (candidatePassword, hash, cb) {
 	});
 
 	return p;
+};
+
+exports.encrypt = function (key, original) {
+	var cipher = crypto.createCipher('aes-256-cbc', key);
+	return cipher.update(original, 'utf8', 'base64') + cipher.final('base64');
+};
+
+exports.decrypt = function (key, encrypted) {
+	var decipher = crypto.createDecipher('aes-256-cbc', key);
+	return decipher.update(encrypted, 'base64', 'utf8') + decipher.final('utf8');
 };

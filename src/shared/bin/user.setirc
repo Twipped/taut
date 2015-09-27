@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-var user = require('../models/user');
-var ircSettings = require('../models/user/irc');
+var LoginEmail = require('../models/user/logins/email');
+var UserIrcSettings = require('../models/user/irc');
 var argv = require('minimist')(process.argv.slice(2));
 
 var login = argv._[0].trim();
@@ -9,26 +9,26 @@ var login = argv._[0].trim();
 delete argv._;
 
 if (!Object.keys(argv).length) {
-	console.error('No properties detected.');
-	process.exit(1);
+	console.error('No properties detected.'); // eslint-disable-line no-console
+	process.exit(1); // eslint-disable-line no-process-exit
 }
 
-if (login) {
-	user.getUserIDByEmail(login).then(function (userid) {
-		if (!userid) {
-			console.error('Login not found.');
-			return process.exit(1);
-		}
+if (!login) {
+	console.error('Missing login.'); // eslint-disable-line no-console
+	process.exit(1); // eslint-disable-line no-process-exit
+}
 
-		return ircSettings.set(userid, argv).then(function () {
-			console.log('IRC attributes for ' + login + ':' + userid + ' set to ', argv);
-			process.exit(0);
-		});
-	}).then(function () {
-		process.exit(0);
+
+LoginEmail.getUserIDByEmail(login).then(function (userid) {
+	if (!userid) {
+		console.error('Login not found.'); // eslint-disable-line no-console
+		return process.exit(1); // eslint-disable-line no-process-exit
+	}
+
+	return UserIrcSettings.set(userid, argv).then(function () {
+		console.log('IRC attributes for ' + login + ':' + userid + ' set to ', argv); // eslint-disable-line no-console
+		process.exit(0); // eslint-disable-line no-process-exit
 	});
-
-} else {
-	console.error('Missing login.');
-	process.exit(1);
-}
+}).then(function () {
+	process.exit(0); // eslint-disable-line no-process-exit
+});

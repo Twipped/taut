@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-var user = require('../models/user');
-var ircChannels = require('../models/user/irc/channels');
+var LoginEmail = require('../models/user/logins/email');
+var UserChannels = require('../models/user/irc/channels');
 var Promise = require('bluebird');
 var argv = require('minimist')(process.argv.slice(2));
 var mq = require('../io/mq');
@@ -10,14 +10,14 @@ var login = argv._.shift();
 var channels = argv._;
 
 if (!login || !channels) {
-	console.error('Missing user and/or channels');
-	process.exit(1);
+	console.error('Missing user and/or channels'); // eslint-disable-line no-console
+	process.exit(1); // eslint-disable-line no-process-exit
 }
 
-user.getUserIDByEmail(login).then(function (userid) {
+LoginEmail.getUserIDByEmail(login).then(function (userid) {
 	if (!userid) {
-		console.error('Login not found.');
-		return process.exit(1);
+		console.error('Login not found.'); // eslint-disable-line no-console
+		return process.exit(1); // eslint-disable-line no-process-exit
 	}
 
 	return Promise.map(channels, function (channel) {
@@ -25,21 +25,21 @@ user.getUserIDByEmail(login).then(function (userid) {
 		if (channel[0] !== '#') channel = '#' + channel;
 
 		return Promise.all([
-			ircChannels.remove(userid, channel),
+			UserChannels.remove(userid, channel),
 
 			mq.emit('irc:outgoing:' + userid, {
 				command: 'part',
 				arguments: channel,
 
-				//expire after 10 seconds, so it doesn't try to run it if
-				//this user isn't currently online
+				// expire after 10 seconds, so it doesn't try to run it if
+				// this user isn't currently online
 				expires: Date.now() + 10000
 			})
 		]);
 	});
 })
-.catch(console.error)
+.catch(console.error) // eslint-disable-line no-console
 .then(mq.shutdown)
 .then(function () {
-	process.exit(0);
+	process.exit(0); // eslint-disable-line no-process-exit
 });

@@ -18,8 +18,8 @@ var config = require('rc')(pkg.name, {
 		},
 		mysql: {
 			host: '127.0.0.1',
-			user: 'finn',
-			password: 'finn',
+			user: 'vagrant',
+			password: 'vagrant',
 			database: 'finn',
 			connectionLimit: 2
 		},
@@ -36,6 +36,8 @@ var config = require('rc')(pkg.name, {
 			redis: ['redis://127.0.0.1:6379']
 		}
 	},
+
+	userEncryptionKey: 'ktiR9MQ87rPH4Kk6dtmLR6A9vpe8Y32T',
 
 	concourse: {
 		port: 8000

@@ -1,25 +1,29 @@
 #!/usr/bin/env node
 
-var user = require('../models/user');
+var User = require('../models/user');
+var LoginEmail = require('../models/user/logins/email');
 var argv = require('minimist')(process.argv.slice(2));
 
-var login = argv._[0].trim();
+var email = argv._[0].trim();
+var userid;
 
 delete argv._;
 
-if (login) {
-	user.create(login).then(function (userid) {
-		console.log('Account created for ' + login + ':', userid);
-		if (Object.keys(argv).length) {
-			return user.set(userid, argv).then(function () {
-				console.log('Account attributes set: ', argv);
-				process.exit(0);
-			});
-		} else {
-			return process.exit(0);
-		}
-	});
-} else {
-	console.error('Missing login.');
-	process.exit(1);
+if (!email) {
+	console.error('Missing email.'); // eslint-disable-line no-console
+	process.exit(1); // eslint-disable-line no-process-exit
 }
+
+LoginEmail.exists(email).then(function (exists) {
+	if (exists) throw new Error('Email ' + email + ' already exists');
+
+	return User.create();
+}).then(function (user) {
+	userid = user.data.userid;
+	return LoginEmail.create(userid, email, argv.password);
+}).then(function () {
+	console.log('Account created for ' + email + ':', userid); // eslint-disable-line no-console
+	process.exit(0); // eslint-disable-line no-process-exit
+}).catch(function (err) {
+	console.error(err); // eslint-disable-line no-console
+});

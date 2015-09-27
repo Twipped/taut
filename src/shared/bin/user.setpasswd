@@ -1,17 +1,19 @@
 #!/usr/bin/env node
 
-var savePassword = require('../models/login').save;
+var LoginEmail = require('../models/user/logins/email');
 var args = process.argv.slice(2);
 
-var login = args[0];
+var email = args[0];
 var pass = args[1];
 
-if (login && pass) {
-	savePassword(login, pass).then(function () {
-		console.log('Password written for', login);
-		process.exit(0);
-	});
-} else {
-	console.error('Missing login or password.');
-	process.exit(1);
+if (!email || !pass) {
+	console.error('Missing login or password.'); // eslint-disable-line no-console
+	process.exit(1); // eslint-disable-line no-process-exit
 }
+
+LoginEmail.get(email).then(function (login) {
+	login.changePassword(pass).then(function () {
+		console.log('Password written for', email); // eslint-disable-line no-console
+		process.exit(0); // eslint-disable-line no-process-exit
+	});
+});

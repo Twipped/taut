@@ -19,11 +19,13 @@
     "ioredis": "~1.9.0",
     "lodash": "~3.10.0",
     "minimist": "~1.2.0",
-    "mysql": "~2.9.0",
+    "mysql2": "~0.15.8",
     "nodemailer": "~1.5.0",
     "nodemailer-html-to-text": "~1.0.2",
     "nodemailer-smtp-transport": "~1.0.3",
     "proxmis": "~0.2.0",
+    "quell": "~0.1.1",
+    "queryize": "~1.1.0",
     "rc": "~1.1.0"
   },
   "devDependencies": {
