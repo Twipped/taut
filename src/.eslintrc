@@ -140,6 +140,7 @@
     "no-this-before-super": 0,
     "no-throw-literal": 1,
     "no-trailing-spaces": 1,
+    "no-undef": 2,
     "no-undef-init": 1,
     "no-undefined": 0,
     "no-underscore-dangle": 0,
