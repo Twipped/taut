@@ -186,7 +186,7 @@
       "words":true,
       "nonwords": false
     }],
-    "strict": [1, "global"],
+    "strict": 0,
     "use-isnan": 1,
     "valid-typeof": 1,
     "vars-on-top": 0,
