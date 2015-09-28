@@ -7,7 +7,22 @@ var pwhash = require('../../../lib/passwords');
 var TABLENAME = 'users_irc_nickserv';
 var PASSWORDKEY = require('../../../config').userEncryptionKey;
 
-exports.get = function (userid) {
+exports.get = function (userid, nick) {
+	if (nick) {
+		return queryize().from(TABLENAME)
+			.select('nickname', 'password')
+			.where({ userid: userid, nickname: nick })
+			.exec(mysql)
+			.then(function (rows) {
+				if (!rows || !rows[0]) return;
+
+				return {
+					nickname: rows[0].nickname,
+					password: pwhash.decrypt(PASSWORDKEY + rows[0].nickname, rows[0].password)
+				};
+			});
+	}
+
 	return queryize().from(TABLENAME)
 		.select('nickname', 'password')
 		.where({ userid: userid })
