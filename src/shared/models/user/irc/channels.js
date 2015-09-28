@@ -34,7 +34,6 @@ exports.add = function (userid, channel, password) {
 			channel: channel,
 			password: password && pwhash.encrypt(PASSWORDKEY + channel, password) || null
 		})
-		.debug()
 		.exec(mysql);
 };
 
