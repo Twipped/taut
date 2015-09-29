@@ -11,6 +11,14 @@ function RedisEmitter (redisConfig) {
 	this._incoming = new Redis(redisConfig);
 	this._outgoing = new Redis(redisConfig);
 
+	this._incoming.on('ready', function () {
+		debug('incoming ready');
+	});
+
+	this._outgoing.on('ready', function () {
+		debug('outgoing ready');
+	});
+
 	this.prefix = 'RedisEmitter:';
 
 	this._incoming.on('message', this._receive.bind(this));
