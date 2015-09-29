@@ -1,11 +1,13 @@
 
+var Promise = require('bluebird');
 var mysql = require('../../io/mysql');
 var quell = require('quell');
+
 var pwhash = require('../../lib/passwords');
 var first = function (arr) {return arr && arr[0];};
 
 var TABLENAME = 'users_irc_settings';
-var PASSWORDKEY = require('../../../config').userEncryptionKey;
+var PASSWORDKEY = require('../../config').userEncryptionKey;
 
 var Settings = quell(TABLENAME, { connection: mysql });
 module.exports = Settings;
@@ -45,4 +47,12 @@ Settings.set = function (userid, hashkey, value) {
 	}
 
 	return user.save();
+};
+
+Settings.getAllKeepAliveUserIds = function () {
+	return Promise.fromNode(function (cb) {
+		mysql.execute('SELECT userid FROM ' + TABLENAME + ' WHERE keepalive = 1', function (err, results) {
+			cb(err, results.map(function (row) {return row.userid;}));
+		});
+	});
 };
