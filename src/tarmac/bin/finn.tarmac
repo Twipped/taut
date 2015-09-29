@@ -1,4 +1,4 @@
-'use strict';
+#!/usr/bin/env node
 
 var debug         = require('finn.shared/debug')();
 var mq            = require('finn.shared/io/mq');
@@ -13,8 +13,6 @@ if (argv.userid) {
 } else if (argv.login) {
 	debug('launching with login', argv.login);
 	UserModel.getUserIDByEmail(argv.login).then(tarmac.connectUserID);
-} else {
-
 }
 
 
