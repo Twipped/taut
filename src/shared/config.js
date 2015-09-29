@@ -6,6 +6,7 @@
  */
 
 var pkg = require('./pkg');
+var path = require('path');
 
 var config = require('rc')(pkg.name, {
 	name: pkg.name,
@@ -40,7 +41,9 @@ var config = require('rc')(pkg.name, {
 	userEncryptionKey: 'ktiR9MQ87rPH4Kk6dtmLR6A9vpe8Y32T',
 
 	concourse: {
-		port: 8000
+		port: 8000,
+		visitorHeartbeat: 30,
+		visitorExpire: 60 * 15
 	},
 
 	gangway: {
@@ -48,7 +51,22 @@ var config = require('rc')(pkg.name, {
 	},
 
 	tarmac: {
-		heartbeat: 30
+		heartbeat: 30,
+		maxConnectionsPerWorker: 1,
+		stdout: path.join(path.dirname(require.main.filename), '..', '..', 'logs', 'tarmac.log'),
+		stderr: path.join(path.dirname(require.main.filename), '..', '..', 'logs', 'tarmac.log')
+	},
+
+	tower: {
+		control: {
+			port: 56001,
+			host: '127.0.0.1'
+		},
+		launchWait: 10,
+		minimumOpenSeats: 1,
+		maximumOpenSeats: 2,
+		maximumTotalSeats: 20,
+		tarmacPath: path.join(path.dirname(require.main.filename), '..', '..', 'tarmac', 'bin', 'finn.tarmac')
 	}
 });
 

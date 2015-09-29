@@ -1,0 +1,72 @@
+
+var config        = require('finn.shared/config');
+var debug         = require('finn.shared/debug')('control');
+var Promise       = require('bluebird');
+var emittersocket = require('finn.shared/lib/emitter-socket');
+var pubsub        = require('finn.shared/io/pubsub');
+var Timer         = require('finn.shared/lib/timer');
+
+var auditAvailableSeats   = require('./src/audits/available-seats');
+var auditActivePassengers = require('./src/audits/active-passengers');
+
+var flights = require('./src/flights');
+
+var auditTimer = new Timer(30000, function () {
+	debug('audit timer');
+	auditAvailableSeats();
+	auditActivePassengers();
+}).repeating();
+
+
+var control;
+exports.start = function () {
+	debug('starting');
+
+	control = emittersocket.createServer(function (socket) {
+		debug('flight spotted');
+		socket.flight = {};
+
+		// if the socket doesn't send its ID within 10 seconds, hang up.
+		var waiting = setTimeout(function () {
+			socket.end();
+		}, 10000);
+
+		var bus = socket.bus;
+		bus.once('identification', function (id, version) { // eslint-disable-line no-unused-vars
+			debug('flight identified', id, version);
+
+			socket.flightid = id;
+			flights.add(id, socket);
+			clearTimeout(waiting);
+			waiting = null;
+
+			socket.bus.send('identified');
+		});
+	});
+
+	control.listen(config.tower.control.port, config.tower.control.host, function () {
+		debug('online', 'waiting' + config.tower.launchWait + ' seconds');
+		pubsub.channel('tower:control').emit('online');
+
+		// wait 30 seconds for all workers to identify, then start assigning connections
+		setTimeout(function () {
+			debug('ready');
+			auditTimer.start(true);
+		}, config.tower.launchWait * 1000);
+	});
+};
+
+function shutdownControl () {
+	return Promise.fromNode(function (cb) {
+		debug('stopping');
+		control.close(cb);
+		flights.all().forEach(function (flight) {
+			flight.end();
+		});
+	}).then(debug.bind(null, 'stopped'));
+}
+
+exports.shutdown = function () {
+	auditTimer.close();
+	return shutdownControl();
+};
