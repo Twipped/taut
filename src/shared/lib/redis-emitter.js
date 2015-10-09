@@ -36,6 +36,7 @@ RedisEmitter.prototype._makeEmitter = function (channel) {
 	var e = new Emitter();
 	e.publish = function () {
 		var args = Array.prototype.slice.call(arguments);
+		debug('>', channel, args[0]);
 		return self._outgoing.publish(prefix + channel, JSON.stringify(args));
 	};
 
@@ -63,7 +64,8 @@ RedisEmitter.prototype._makeEmitter = function (channel) {
 		subscriberCount++;
 	});
 
-	return this._emitters[channel] = e;
+	this._emitters[channel] = e;
+	return e;
 };
 
 RedisEmitter.prototype.to = RedisEmitter.prototype.channel;
@@ -82,6 +84,7 @@ RedisEmitter.prototype._receive = function (channel, message) {
 
 	try {
 		message = JSON.parse(message);
+		debug('<', channel, message[0]);
 		emitter.emit.apply(emitter, message);
 		emitter.emit.apply(emitter, ['_all'].concat(message));
 	} catch (e) {
@@ -93,10 +96,10 @@ RedisEmitter.prototype.quit = function (cb) {
 	debug('quitting');
 	var i = 2;
 	function finished () {
-		if (i>0) return;
+		if (--i > 0) return;
 
 		debug('quit complete');
-		if (cb) cb();
+		if (cb) return cb();
 	}
 
 	this._incoming.quit(finished);
