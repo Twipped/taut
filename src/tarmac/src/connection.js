@@ -2,6 +2,7 @@
 
 var Promise = require('bluebird');
 var assign = require('lodash/object/assign');
+var omit   = require('lodash/object/omit');
 var each   = require('lodash/collection/each');
 var debug  = require('finn.shared/debug')('connection');
 var random = require('finn.shared/lib/random');
@@ -9,6 +10,7 @@ var IRC    = require('ircsock');
 var pluginChannelTracking = require('ircsock/plugins/channels');
 var mq     = require('finn.shared/io/mq');
 var Timer  = require('finn.shared/lib/timer');
+var radio  = require('./radio');
 
 var model = {
 	user: {
@@ -32,11 +34,10 @@ var nickservPatterns = {
 };
 
 module.exports = exports = function (user, doNotConnect) {
-	var connid = random(10);
+	if (user.toJSON) user = user.toJSON();
+	user = omit(user, function (v) {return !Boolean(v);});
 
-	debug('created', connid, user);
-
-	var irc = new IRC(assign({
+	var options = assign({
 		name: 'Freenode',
 		host: 'irc.freenode.net',
 		port: 6667,
@@ -45,7 +46,14 @@ module.exports = exports = function (user, doNotConnect) {
 		username: 'username',
 		realname: 'realname',
 		password: null
-	}, user));
+	}, user);
+
+	var connid = random(10);
+	var userid = user.userid;
+
+	debug('created', connid, user);
+
+	var irc = new IRC(options);
 	irc.id = connid;
 	irc.user = user;
 
@@ -53,11 +61,11 @@ module.exports = exports = function (user, doNotConnect) {
 
 	var heartbeat = new Timer(30000, function () {
 		debug('heartbeat', irc.nick);
-		model.user.connection.set(user.id, connid);
-		model.connection.user.set(connid, user.id);
+		model.user.connection.set(userid, connid);
+		model.connection.user.set(connid, userid);
 	}).repeating();
 
-	var receiver = mq.subscribe('irc:outgoing:' + user.id, function (action) {
+	var receiver = mq.subscribe('irc:outgoing:' + userid, function (action) {
 		var command = action.command;
 		var args = action.arguments;
 
@@ -75,32 +83,34 @@ module.exports = exports = function (user, doNotConnect) {
 	function scopeData (event, data) {
 		return assign({
 			event: event,
-			userid: user.id,
+			userid: userid,
 			connid: connid,
 			timestamp: Date.now()
-		}, typeof data === 'object' && data || {message: data});
+		}, typeof data === 'object' && data || { message: data });
 	}
 
 	function emitPublic (event, data) {
-		debug('received public ' + event, irc.nick, data);
+		debug('received public ' + event, irc.nick, data.target);
 		return mq.emit('irc:incoming', 'public', event, data.target, scopeData(event, data));
 	}
 
 	function emitPrivate (event, data) {
-		debug('received private ' + event, irc.nick, data);
-		return mq.emit('irc:incoming', 'private', event, user.id, scopeData(event, data));
+		debug('received private ' + event, irc.nick);
+		return mq.emit('irc:incoming', 'private', event, userid, scopeData(event, data));
 	}
 
 	function emitSystem (event, data) {
-		debug('received system ' + event, irc.nick, data);
+		debug('received system ' + event, irc.nick);
 		return mq.emit('irc:incoming', 'system', event, scopeData(event, data));
 	}
 
-	irc.on('connecting', debug.bind('connecting', connid));
-	irc.on('connect', debug.bind('connected', connid));
+	irc.on('connecting', debug.bind(null, 'connecting', connid));
+	irc.on('connect', debug.bind(null, 'connected', connid));
+	irc.on('error', debug.bind(null, 'error'));
 
 	irc.on('welcome', function (nickname) {
 		heartbeat.start(true);
+		radio.send('connection:online', userid);
 		emitPrivate('welcome', { nickname: nickname });
 	});
 
@@ -114,6 +124,7 @@ module.exports = exports = function (user, doNotConnect) {
 
 	irc.on('join', function (ev) {
 		if (ev.isSelf) {
+			radio.send('connection:joinChannel', userid, ev.target);
 			Promise.all([
 				model.connection.channels.add(connid, ev.target),
 				model.channel.connections.add(ev.target, connid)
@@ -126,6 +137,7 @@ module.exports = exports = function (user, doNotConnect) {
 
 	irc.on('part', function (ev) {
 		if (ev.isSelf) {
+			radio.send('connection:leaveChannel', userid, ev.target);
 			Promise.all([
 				model.connection.channels.remove(connid, ev.target),
 				model.channel.connections.remove(ev.target, connid)
@@ -138,6 +150,7 @@ module.exports = exports = function (user, doNotConnect) {
 
 	irc.on('kick', function (ev) {
 		if (ev.isSelf) {
+			radio.send('connection:leaveChannel', userid, ev.target);
 			Promise.all([
 				model.connection.channels.remove(connid, ev.target),
 				model.channel.connections.remove(ev.target, connid)
@@ -223,7 +236,7 @@ module.exports = exports = function (user, doNotConnect) {
 
 
 	function handleReply (type, data) {
-		data = assign({type: type}, data);
+		data = assign({ type: type }, data);
 		emitSystem('reply', data);
 	}
 
@@ -233,6 +246,7 @@ module.exports = exports = function (user, doNotConnect) {
 	irc.on('end', function () {
 		heartbeat.close();
 		receiver.close();
+		radio.send('connection:offline', userid);
 
 		model.connection.channels.get(connid).then(function (channels) {
 			return Promise.map(channels, function (channel) {
@@ -240,7 +254,7 @@ module.exports = exports = function (user, doNotConnect) {
 			});
 		}).then(function () {
 			return Promise.all([
-				model.user.connection.clear(user.id),
+				model.user.connection.clear(userid),
 				model.connection.user.clear(connid)
 			]);
 		}).then(function () {
@@ -291,6 +305,7 @@ module.exports = exports = function (user, doNotConnect) {
 	});
 
 	irc.on('ready', function () {
+		radio.send('connection:ready', userid);
 		(user.activeChannels || []).forEach(function (channel) {
 			if (typeof channel === 'string') {
 				irc.join(channel);
@@ -310,7 +325,10 @@ module.exports = exports = function (user, doNotConnect) {
 	};
 
 	if (!doNotConnect) {
-		irc.connect();
+		irc.connect(function (err) {
+			if (err) debug('error', err, options);
+		});
+		radio.send('connection:starting', userid);
 	}
 
 	return irc;

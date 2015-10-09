@@ -6,16 +6,16 @@ var queue = [];
 exports.push = function () {
 	if (arguments.length === 1 && Array.isArray(arguments[0])) {
 		debug('pushed', arguments[0].length + ' Users');
-		return queue.push.apply(queue, arguments[0]);
+		return arguments[0].length && queue.push.apply(queue, arguments[0]);
 	}
 
 	debug('pushed', arguments.length + ' Users');
-	return queue.push.apply(queue, arguments);
+	return arguments.length && queue.push.apply(queue, arguments);
 };
 
 exports.shift = exports.pull = function () {
 	debug('pulled', '1 User');
-	return queue.shift.apply(queue, arguments);
+	return queue.shift();
 };
 
 exports.getLength = function () {

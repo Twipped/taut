@@ -51,6 +51,10 @@ var config = require('rc')(pkg.name, {
 	},
 
 	tarmac: {
+		control: {
+			port: 56001,
+			host: '127.0.0.1'
+		},
 		heartbeat: 30,
 		maxConnectionsPerWorker: 1,
 		stdout: path.join(path.dirname(require.main.filename), '..', '..', 'logs', 'tarmac.log'),

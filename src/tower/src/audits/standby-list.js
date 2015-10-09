@@ -16,7 +16,7 @@ module.exports = function auditStandbyList () {
 
 		var i = flight.metadata.seatsAvailable;
 		var userid;
-		while (i--) {
+		while (i-- && waiting) {
 			userid = standby.shift();
 			waiting--;
 			debug('opening connection for', userid);

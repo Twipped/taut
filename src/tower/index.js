@@ -45,8 +45,8 @@ exports.start = function () {
 	});
 
 	control.listen(config.tower.control.port, config.tower.control.host, function () {
-		debug('online', 'waiting' + config.tower.launchWait + ' seconds');
-		pubsub.channel('tower:control').emit('online');
+		debug('online', 'waiting ' + config.tower.launchWait + ' seconds');
+		pubsub.channel('tower:control').publish('online');
 
 		// wait 30 seconds for all workers to identify, then start assigning connections
 		setTimeout(function () {

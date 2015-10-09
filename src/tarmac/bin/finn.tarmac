@@ -6,6 +6,7 @@ var argv          = require('minimist')(process.argv.slice(2));
 var LoginEmail    = require('finn.shared/models/user/logins/email');
 var Promise       = require('bluebird');
 var tarmac        = require('../index');
+var radio         = require('../src/radio');
 
 if (argv.userid) {
 	debug('launching with userid', argv.userid);
@@ -15,6 +16,7 @@ if (argv.userid) {
 	LoginEmail.getUserIDByEmail(argv.login).then(tarmac.connectUserID);
 }
 
+radio.start();
 
 var terminating = false;
 var shutdown = function () {
@@ -25,7 +27,8 @@ var shutdown = function () {
 
 	tarmac.shutdown().then(function () {
 		var promises = [
-			mq.shutdown()
+			mq.shutdown(),
+			radio.shutdown()
 		];
 
 		process.emit('graceful stop', promises);

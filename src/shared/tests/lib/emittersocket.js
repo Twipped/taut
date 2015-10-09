@@ -45,5 +45,35 @@ test('emitter socket', function (tmain) {
 
 	});
 
+	// test('bus.send callback works', function (t) {
+	// 	var server = emittersocket.createServer(function (socket) {
+	// 		t.pass('server received connection');
+
+	// 		socket.bus.on('step', function () {
+	// 			t.pass('server received from client');
+	// 		});
+
+	// 		socket.on('end', function () {
+	// 			t.pass('client hungup');
+	// 			server.close(t.end);
+	// 		});
+	// 	});
+
+	// 	server.listen(55555, function () {
+	// 		t.pass('server is listening');
+
+	// 		var client = emittersocket.connect(55555, function () {
+	// 			t.pass('client connected');
+
+	// 			client.bus._outgoing.write(['step'], function () {
+	// 				t.pass('send callback completed');
+
+	// 				client.end();
+	// 			});
+	// 		});
+
+	// 	});
+	// });
+
 	tmain.end();
 });

@@ -8,6 +8,7 @@ var channelLoggingStarted = require('./actions/channelLoggingStarted');
 
 var passengers = require('./passengers');
 var channels   = require('./channels');
+var standby   = require('./standby');
 var flights    = {};
 
 exports.get = function (flightid) {
@@ -24,7 +25,7 @@ exports.add = function (flightid, flight) {
 		seatsTotal: 0,
 	};
 
-	flightOnline(flight, flight.metadata, flight.bus);
+	flightOnline(flightid, flight, flight.metadata, flight.bus);
 };
 
 exports.remove = function (flightid) {
@@ -66,25 +67,34 @@ exports.availability = function () {
 
 
 function flightOnline (flightid, socket, metadata, radio) {
-	debug('flight online', flightid);
+	debug('flight is airborn', flightid);
 	metadata.availableSeats = 0;
 
 	radio.on('counts', function (occupied, available) {
+		debug('received counts', flightid, occupied, available);
 		metadata.seatsFilled = occupied;
 		metadata.seatsAvailable = available;
 		metadata.seatsTotal = occupied + available;
 	});
 
 	radio.on('connection:exists', function (userid, userChannels) {
+		debug('seated passenger', flightid, userid, userChannels.length + ' channels');
 		passengers.add(flightid, userid);
 		channels.add(userid, userChannels);
 	});
 
-	radio.on('connection:online', function (userid) {
+	radio.on('connection:starting', function (userid) {
+		debug('passenger boarding', flightid, userid);
 		passengers.add(flightid, userid);
 	});
 
+	radio.on('connection:online', function (userid) {
+		debug('passenger seated', flightid, userid);
+		// passengers.add(flightid, userid);
+	});
+
 	radio.on('connection:joinChannel', function (userid, channelName) {
+		debug('passenger joined channel', flightid, userid, channelName);
 		channels.add(channelName, userid);
 		if (channels.get(channelName).length === 1) {
 			channelLoggingStarted(channelName);
@@ -92,11 +102,13 @@ function flightOnline (flightid, socket, metadata, radio) {
 	});
 
 	radio.on('connection:leaveChannel', function (userid, channelName) {
+		debug('passenger left channel', flightid, userid, channelName);
 		channels.remove(channelName, userid);
 		auditEmptyChannels(channelName);
 	});
 
 	radio.on('connection:offline', function (userid) {
+		debug('passenger disembarked', flightid, userid);
 		passengers.remove(flightid, userid);
 		var occupied = channels.remove(true, userid);
 		auditEmptyChannels(occupied);
