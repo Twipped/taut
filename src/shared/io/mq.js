@@ -43,7 +43,7 @@ function getQueue (name) {
 		return queues[name];
 	}
 
-	return queues[name] = exports.ready.then(function () {
+	return (queues[name] = exports.ready.then(function () {
 		return new Promise(function (resolve) {
 			debug('opening queue', name);
 			var queue = bus.queue(name);
@@ -51,9 +51,9 @@ function getQueue (name) {
 				debug('queue attached', name);
 				resolve(queue);
 			});
-			queue.attach({ttl: 60 * 60});
+			queue.attach({ ttl: 60 * 60 });
 		});
-	});
+	}));
 }
 
 exports.getQueue = getQueue;
@@ -70,7 +70,7 @@ exports.emit = function (queueName) {
 	var args = Array.prototype.slice.call(arguments, 1);
 
 	return getQueue(queueName).then(function (queue) {
-		debug('emitting', queueName, args);
+		debug('emitting', queueName, args[0]);
 
 		return Promise.fromNode(function (p) {
 			queue.push(JSON.stringify(args), p);
