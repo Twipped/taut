@@ -56,9 +56,7 @@ var config = require('rc')(pkg.name, {
 			host: '127.0.0.1'
 		},
 		heartbeat: 30,
-		maxConnectionsPerWorker: 1,
-		stdout: path.join(path.dirname(require.main.filename), '..', '..', 'logs', 'tarmac.log'),
-		stderr: path.join(path.dirname(require.main.filename), '..', '..', 'logs', 'tarmac.log')
+		maxConnectionsPerWorker: 1
 	},
 
 	tower: {
@@ -70,7 +68,14 @@ var config = require('rc')(pkg.name, {
 		minimumOpenSeats: 1,
 		maximumOpenSeats: 2,
 		maximumTotalSeats: 20,
-		tarmacPath: path.join(path.dirname(require.main.filename), '..', '..', 'tarmac', 'bin', 'finn.tarmac')
+		tarmacLaunch: {
+			bin: path.join(path.dirname(require.main.filename), '..', '..', 'tarmac', 'bin', 'finn.tarmac'),
+			out: path.join(path.dirname(require.main.filename), '..', '..', 'logs', 'tarmac.log'),
+			err: path.join(path.dirname(require.main.filename), '..', '..', 'logs', 'tarmac.log'),
+			env: {
+				DEBUG: 'finn.tarmac:*'
+			}
+		}
 	}
 });
 
