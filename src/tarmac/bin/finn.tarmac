@@ -3,7 +3,7 @@
 var debug         = require('finn.shared/debug')();
 var mq            = require('finn.shared/io/mq');
 var argv          = require('minimist')(process.argv.slice(2));
-var UserModel     = require('finn.shared/models/user');
+var LoginEmail    = require('finn.shared/models/user/logins/email');
 var Promise       = require('bluebird');
 var tarmac        = require('../index');
 
@@ -12,7 +12,7 @@ if (argv.userid) {
 	tarmac.connectUserID(argv.userid);
 } else if (argv.login) {
 	debug('launching with login', argv.login);
-	UserModel.getUserIDByEmail(argv.login).then(tarmac.connectUserID);
+	LoginEmail.getUserIDByEmail(argv.login).then(tarmac.connectUserID);
 }
 
 
