@@ -19,6 +19,7 @@ test('emitter socket', function (tmain) {
 
 			socket.on('end', function () {
 				t.pass('client hungup');
+				socket.destroy();
 				server.close(t.end);
 			});
 		});
@@ -37,6 +38,7 @@ test('emitter socket', function (tmain) {
 				t.same(data2, { foo: 'bar' });
 
 				client.end();
+				client.destroy();
 			});
 
 		});
