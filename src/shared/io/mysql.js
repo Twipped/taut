@@ -19,13 +19,15 @@ mysql.on('error', function (err) {
 
 process.on('graceful stop', function (promises) {
 	debug('stopping');
-	promises.push(new Promise(function (resolve) {
-		try {
-			mysql.end(resolve);
-		} catch (e) {
-			resolve();
-		}
-	}).then(debug.bind(null, 'stopped')));
+	promises.push(
+		new Promise(function (resolve) {
+			try {
+				mysql.end(resolve);
+			} catch (e) {
+				resolve();
+			}
+		}).then(function () { debug('stopped'); })
+	);
 });
 
 module.exports = mysql;
