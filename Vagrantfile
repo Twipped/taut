@@ -18,9 +18,9 @@ Vagrant.configure("2") do |config|
 	#config.vm.network "forwarded_port", guest: 11211, host: 11211 # memcached
 	#config.vm.hostname = "finn.dev"
 
-	config.vm.synced_folder "./srv", "/srv",
-		nfs: true,
-		:mount_options => ['actimeo=1']
+	#config.vm.synced_folder "./src”, "/src”,
+	#	nfs: true,
+	#	:mount_options => ['actimeo=1']
 
 	config.vm.provider :virtualbox do |virtualbox|
 		virtualbox.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
