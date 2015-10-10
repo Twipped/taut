@@ -1,5 +1,5 @@
 {
-  "name": "finn.logwatch",
+  "name": "taut.logwatch",
   "version": "1.0.0",
   "description": "Connection logger for debugging",
   "main": "index.js",

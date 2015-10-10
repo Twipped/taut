@@ -1,21 +1,22 @@
 {
-  "name": "finn.tarmac",
+  "name": "taut.tarmac",
   "version": "1.0.0",
   "description": "Connection Manager",
   "main": "index.js",
   "bin": {
-    "finn.tarmac": "./bin/finn.tarmac"
+    "taut-tarmac": "./bin/taut-tarmac"
   },
   "scripts": {
-    "dev": "node ./bin/finn.tarmac --userid=FINNERY",
-    "start": "node ./bin/finn.tarmac",
+    "dev": "node ./bin/taut-tarmac --userid=FINNERY",
+    "start": "node ./bin/taut-tarmac",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Jarvis Badgley <chiper@chipersoft.com> (http://chipersoft.com/)",
   "license": "MIT",
   "dependencies": {
     "bluebird": "~2.10.1",
-    "finn.shared": "*",
+    "taut.shared": "*",
+    "ircsock": "*",
     "lodash": "~3.10.1",
     "minimist": "~1.2.0",
     "proxmis": "~0.2.0"
@@ -26,5 +27,9 @@
     "gulp-eslint": "~1.0.0",
     "gulp-jscs": "~3.0.0",
     "merge-stream": "~1.0.0"
-  }
+  },
+  "bundledDependencies": [
+    "taut.shared",
+    "ircsock"
+  ]
 }

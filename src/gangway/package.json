@@ -1,20 +1,20 @@
 {
-  "name": "finn.gangway",
+  "name": "taut.gangway",
   "version": "1.0.0",
   "description": "Message digester",
   "main": "index.js",
   "bin": {
-    "finn.gangway": "./bin/finn.gangway"
+    "taut-gangway": "./bin/taut-gangway"
   },
   "scripts": {
-    "start": "node ./bin/finn.gangway",
+    "start": "node ./bin/taut-gangway",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Jarvis Badgley <chiper@chipersoft.com> (http://chipersoft.com/)",
   "license": "MIT",
   "dependencies": {
     "bluebird": "~2.10.1",
-    "finn.shared": "*",
+    "taut.shared": "*",
     "lodash": "~3.10.1",
     "proxmis": "~0.2.0"
   },
@@ -24,5 +24,8 @@
     "gulp-eslint": "~1.0.0",
     "gulp-jscs": "~3.0.0",
     "merge-stream": "~1.0.0"
-  }
+  },
+  "bundledDependencies": [
+    "taut.shared"
+  ]
 }

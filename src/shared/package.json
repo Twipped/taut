@@ -1,5 +1,5 @@
 {
-  "name": "finn.shared",
+  "name": "taut.shared",
   "version": "1.0.0",
   "description": "Shared libraries",
   "private": true,
@@ -24,8 +24,8 @@
     "nodemailer-html-to-text": "~1.0.2",
     "nodemailer-smtp-transport": "~1.0.3",
     "proxmis": "~0.2.0",
-    "quell": "~0.1.1",
-    "queryize": "~1.1.0",
+    "quell": "~0.1.2",
+    "queryize": "~1.1.1",
     "rc": "~1.1.0"
   },
   "devDependencies": {

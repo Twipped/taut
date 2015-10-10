@@ -21,7 +21,7 @@ var config = require('rc')(pkg.name, {
 			host: '127.0.0.1',
 			user: 'vagrant',
 			password: 'vagrant',
-			database: 'finn',
+			database: 'taut',
 			connectionLimit: 2
 		},
 		elasticsearch: {
@@ -69,11 +69,11 @@ var config = require('rc')(pkg.name, {
 		maximumOpenSeats: 2,
 		maximumTotalSeats: 20,
 		tarmacLaunch: {
-			bin: path.join(path.dirname(require.main.filename), '..', '..', 'tarmac', 'bin', 'finn.tarmac'),
+			bin: path.join(path.dirname(require.main.filename), '..', '..', 'tarmac', 'bin', 'taut.tarmac'),
 			out: path.join(path.dirname(require.main.filename), '..', '..', 'logs', 'tarmac.log'),
 			err: path.join(path.dirname(require.main.filename), '..', '..', 'logs', 'tarmac.log'),
 			env: {
-				DEBUG: 'finn.tarmac:*'
+				DEBUG: 'taut.tarmac:*'
 			}
 		}
 	}

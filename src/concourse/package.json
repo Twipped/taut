@@ -1,9 +1,12 @@
 {
-  "name": "finn.concourse",
+  "name": "taut.concourse",
   "version": "1.0.0",
   "private": true,
+  "bin": {
+    "taut-concourse": "./bin/taut-concourse"
+  },
   "scripts": {
-    "start": "node ./bin/finn.concourse"
+    "start": "node ./bin/taut-concourse"
   },
   "dependencies": {
     "amdefine": "~1.0.0",
@@ -15,7 +18,7 @@
     "debug": "~2.2.0",
     "express": "~4.13.3",
     "express-session": "~1.11.3",
-    "finn.shared": "*",
+    "taut.shared": "*",
     "flash": "^1.1.0",
     "gnu-terry-pratchett": "0.0.2",
     "handlebars": "~4.0.3",
@@ -62,5 +65,8 @@
     "rewire": "~2.3.4",
     "run-sequence": "~1.1.4",
     "through2": "~2.0.0"
-  }
+  },
+  "bundledDependencies": [
+    "taut.shared"
+  ]
 }
