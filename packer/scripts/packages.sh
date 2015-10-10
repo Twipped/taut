@@ -6,7 +6,7 @@ hostnamectl set-hostname finn.dev
 add-apt-repository ppa:webupd8team/java
 
 wget -qO - https://packages.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
-echo "deb http://packages.elastic.co/elasticsearch/1.6/debian stable main" | sudo tee -a /etc/apt/sources.list.d/elasticsearch-1.6.list
+echo "deb http://packages.elastic.co/elasticsearch/1.7/debian stable main" | sudo tee -a /etc/apt/sources.list.d/elasticsearch-1.7.list
 
 # Reload apt cache and upgrade any missing deps
 apt-get update
@@ -21,7 +21,7 @@ sudo su vagrant -c '. ~vagrant/.nvm/nvm.sh;npm install -g nodeunit'
 # Configure mysql root password and install mysql
 debconf-set-selections <<< 'mysql-server mysql-server/root_password password vagrant'
 debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password vagrant'
-apt-get install -y mysql-client mysql-server
+apt-get install -y mysql-client-5.6 mysql-server-5.6
 
 # Setup vagrant mysql user
 mysql -uroot -pvagrant -e "CREATE USER 'vagrant'@'%' IDENTIFIED BY 'vagrant';GRANT ALL PRIVILEGES ON *.* TO 'vagrant'@'%';FLUSH PRIVILEGES"
