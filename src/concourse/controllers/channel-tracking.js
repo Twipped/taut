@@ -1,8 +1,8 @@
 
 var each       = require('lodash/collection/each');
-var debug      = require('finn.shared/debug')('channel-tracking');
-var pubsub     = require('finn.shared/io/pubsub');
-var irchistory = require('finn.shared/models/system/irc/history');
+var debug      = require('taut.shared/debug')('channel-tracking');
+var pubsub     = require('taut.shared/io/pubsub');
+var irchistory = require('taut.shared/models/system/irc/history');
 var cache      = require('./rolling-cache');
 var Emitter    = require('events').EventEmitter;
 

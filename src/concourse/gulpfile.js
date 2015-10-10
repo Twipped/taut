@@ -1,6 +1,6 @@
 /* eslint max-len: 0, strict:0 */
 
-var config       = require('finn.shared/config');
+var config       = require('taut.shared/config');
 var pkg          = require('./package.json');
 
 var forever      = require('forever-monitor');
@@ -418,7 +418,7 @@ gulp.task('rev', function () {
  * Uses forever to restart server on changes.
  */
 gulp.task('watch', ['clean-rev', 'requirejs-dev', 'scss-dev', 'chatview-templates', 'views', 'amd-version'], function () {
-	var server = new forever.Monitor('bin/finn.concourse', {
+	var server = new forever.Monitor('bin/taut-concourse', {
 		env: { DEBUG_COLORS:1 },
 		killSignal: 'SIGUSR2',
 		watch: false
@@ -452,7 +452,7 @@ gulp.task('watch', ['clean-rev', 'requirejs-dev', 'scss-dev', 'chatview-template
 
 
 gulp.task('live', ['default'], function () {
-	new forever.Monitor('bin/finn.concourse', {
+	new forever.Monitor('bin/taut-concourse', {
 		env: { DEBUG: config.name + '*', DEBUG_COLORS:1, NODE_ENV: 'production' },
 		killSignal: 'SIGUSR2',
 		watch: false

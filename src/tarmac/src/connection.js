@@ -4,24 +4,24 @@ var Promise = require('bluebird');
 var assign = require('lodash/object/assign');
 var omit   = require('lodash/object/omit');
 var each   = require('lodash/collection/each');
-var debug  = require('finn.shared/debug')('connection');
-var random = require('finn.shared/lib/random');
+var debug  = require('taut.shared/debug')('connection');
+var random = require('taut.shared/lib/random');
 var IRC    = require('ircsock');
 var pluginChannelTracking = require('ircsock/plugins/channels');
-var mq     = require('finn.shared/io/mq');
-var Timer  = require('finn.shared/lib/timer');
+var mq     = require('taut.shared/io/mq');
+var Timer  = require('taut.shared/lib/timer');
 var radio  = require('./radio');
 
 var model = {
 	user: {
-		connection: require('finn.shared/models/user/irc/connection'),
+		connection: require('taut.shared/models/user/irc/connection'),
 	},
 	connection: {
-		user: require('finn.shared/models/connection'),
-		channels: require('finn.shared/models/connection/channels')
+		user: require('taut.shared/models/connection'),
+		channels: require('taut.shared/models/connection/channels')
 	},
 	channel: {
-		connections: require('finn.shared/models/channel/connections')
+		connections: require('taut.shared/models/channel/connections')
 	}
 };
 

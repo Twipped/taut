@@ -1,5 +1,5 @@
 
-var sha1 = require('finn.shared/lib/sha1');
+var sha1 = require('taut.shared/lib/sha1');
 var throttle = require('lodash/function/throttle');
 
 var TS_ROUND = 60;

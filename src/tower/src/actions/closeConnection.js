@@ -1,5 +1,5 @@
 
-var debug      = require('finn.shared/debug')('actions:closeConnection');
+var debug      = require('taut.shared/debug')('actions:closeConnection');
 var flights    = require('../flights');
 var passengers = require('../passengers');
 

@@ -1,5 +1,5 @@
 
-var debug           = require('finn.shared/debug')('io');
+var debug           = require('taut.shared/debug')('io');
 var each            = require('lodash/collection/each');
 var channelTracking = require('../controllers/channel-tracking');
 var channelCache    = require('../controllers/rolling-cache');

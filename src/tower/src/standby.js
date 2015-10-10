@@ -1,5 +1,5 @@
 
-var debug = require('finn.shared/debug')('standby');
+var debug = require('taut.shared/debug')('standby');
 
 var queue = [];
 

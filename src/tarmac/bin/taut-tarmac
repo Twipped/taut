@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-var debug         = require('finn.shared/debug')();
-var mq            = require('finn.shared/io/mq');
+var debug         = require('taut.shared/debug')();
+var mq            = require('taut.shared/io/mq');
 var argv          = require('minimist')(process.argv.slice(2));
-var LoginEmail    = require('finn.shared/models/user/logins/email');
+var LoginEmail    = require('taut.shared/models/user/logins/email');
 var Promise       = require('bluebird');
 var tarmac        = require('../index');
 var radio         = require('../src/radio');

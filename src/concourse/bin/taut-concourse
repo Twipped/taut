@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-var config    = require('finn.shared/config');
-var debug     = require('finn.shared/debug')();
+var config    = require('taut.shared/config');
+var debug     = require('taut.shared/debug')();
 var app       = require('../app');
 var io        = require('../io');
 

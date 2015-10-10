@@ -1,5 +1,5 @@
 
-var debug = require('finn.shared/debug')('audit:empty-channels');
+var debug = require('taut.shared/debug')('audit:empty-channels');
 
 var channelLoggingStopped = require('../actions/channelLoggingStopped');
 var channels = require('../channels');

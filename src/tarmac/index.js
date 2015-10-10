@@ -1,8 +1,8 @@
-var config            = require('finn.shared/config');
+var config            = require('taut.shared/config');
 var connect           = require('./src/connection');
-var debug             = require('finn.shared/debug')('index');
-var UserIRCModel      = require('finn.shared/models/user/irc');
-var UserChannelsModel = require('finn.shared/models/user/irc/channels');
+var debug             = require('taut.shared/debug')('index');
+var UserIRCModel      = require('taut.shared/models/user/irc');
+var UserChannelsModel = require('taut.shared/models/user/irc/channels');
 var Promise           = require('bluebird');
 var radio             = require('./src/radio');
 

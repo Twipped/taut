@@ -1,6 +1,6 @@
 
-var debug = require('finn.shared/debug')('actions:launchFlight');
-var config = require('finn.shared/config');
+var debug = require('taut.shared/debug')('actions:launchFlight');
+var config = require('taut.shared/config');
 var assign = require('lodash/object/assign');
 var fs = require('fs');
 

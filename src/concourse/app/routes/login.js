@@ -1,8 +1,8 @@
 'use strict';
 
-var config     = require('finn.shared/config');
-var checkLogin = require('finn.shared/models/login').check;
-var redis          = require('finn.shared/io/redis');
+var config     = require('taut.shared/config');
+var checkLogin = require('taut.shared/models/login').check;
+var redis          = require('taut.shared/io/redis');
 
 var express        = require('express');
 var pitstop        = require('pitstop');

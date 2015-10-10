@@ -1,11 +1,11 @@
 
-var config        = require('finn.shared/config');
-var debug         = require('finn.shared/debug')('radio');
-var pkg           = require('finn.shared/pkg');
-var emittersocket = require('finn.shared/lib/emitter-socket');
-var random        = require('finn.shared/lib/random');
+var config        = require('taut.shared/config');
+var debug         = require('taut.shared/debug')('radio');
+var pkg           = require('taut.shared/pkg');
+var emittersocket = require('taut.shared/lib/emitter-socket');
+var random        = require('taut.shared/lib/random');
 var Emitter       = require('events').EventEmitter;
-var Timer         = require('finn.shared/lib/timer');
+var Timer         = require('taut.shared/lib/timer');
 var Promise       = require('bluebird');
 
 
@@ -72,7 +72,7 @@ exports.start = function () {
 	debug('starting');
 	retryTimer.start(true);
 
-	var pubsub = require('finn.shared/io/pubsub');
+	var pubsub = require('taut.shared/io/pubsub');
 	pubsub.channel('tower:control').on('online', function () {
 		debug('tower says it is online, reconnecting');
 		if (client) {

@@ -10,7 +10,7 @@
 
 var path        = require('path');
 var Handlebars  = require('handlebars');
-var debug       = require('finn.shared/debug')('rendering');
+var debug       = require('taut.shared/debug')('rendering');
 var cachebuster = require('../cachebuster');
 var assign      = require('lodash/object/assign');
 

@@ -1,7 +1,7 @@
 
-var debug      = require('finn.shared/debug')('message-handler');
-var pubsub     = require('finn.shared/io/pubsub');
-var irchistory = require('finn.shared/models/system/irc/history');
+var debug      = require('taut.shared/debug')('message-handler');
+var pubsub     = require('taut.shared/io/pubsub');
+var irchistory = require('taut.shared/models/system/irc/history');
 
 var trackPublicMessage = require('./message-cache').match;
 var hashPrivateMessage = require('./message-cache').hashPrivateMessage;

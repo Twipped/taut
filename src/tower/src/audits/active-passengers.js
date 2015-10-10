@@ -1,11 +1,11 @@
 
-var debug      = require('finn.shared/debug')('audits:active-passengers');
+var debug      = require('taut.shared/debug')('audits:active-passengers');
 var Promise    = require('bluebird');
 var difference = require('lodash/array/difference');
 
-var UserIrcSettings     = require('finn.shared/models/user/irc');
-var UserIsViewing       = require('finn.shared/models/user/is-viewing');
-var ExpectedConnections = require('finn.shared/models/connections/expected');
+var UserIrcSettings     = require('taut.shared/models/user/irc');
+var UserIsViewing       = require('taut.shared/models/user/is-viewing');
+var ExpectedConnections = require('taut.shared/models/connections/expected');
 
 var passengers = require('../passengers');
 var standby    = require('../standby');

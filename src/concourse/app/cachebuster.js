@@ -5,7 +5,7 @@
  */
 
 var isProduction = (process.env.NODE_ENV || 'development') === 'production';
-var debug = require('finn.shared/debug')('cachebuster');
+var debug = require('taut.shared/debug')('cachebuster');
 
 var manifest = {};
 

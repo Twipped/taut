@@ -1,7 +1,7 @@
 
-var debug = require('finn.shared/debug')('audit:available-seats');
+var debug = require('taut.shared/debug')('audit:available-seats');
 
-var config = require('finn.shared/config');
+var config = require('taut.shared/config');
 var flights = require('../flights');
 
 var launchFlight = require('../actions/launchFlight');

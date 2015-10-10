@@ -1,7 +1,7 @@
 
-var debug = require('finn.shared/debug')('flights');
+var debug = require('taut.shared/debug')('flights');
 
-var userConnection = require('finn.shared/models/user/irc/connection');
+var userConnection = require('taut.shared/models/user/irc/connection');
 
 var each = require('lodash/collection/each');
 var map  = require('lodash/collection/map');

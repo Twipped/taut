@@ -1,6 +1,6 @@
 
-var debug           = require('finn.shared/debug')();
-var mq              = require('finn.shared/io/mq');
+var debug           = require('taut.shared/debug')();
+var mq              = require('taut.shared/io/mq');
 var Promise         = require('bluebird');
 var messageHandlers = require('./src/message-handlers');
 

@@ -1,5 +1,5 @@
 
-var debug = require('finn.shared/debug')('audit:standby-list');
+var debug = require('taut.shared/debug')('audit:standby-list');
 var flights = require('../flights');
 var standby = require('../standby');
 

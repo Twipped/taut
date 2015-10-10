@@ -1,5 +1,5 @@
 
-var debug    = require('finn.shared/debug')('channels');
+var debug    = require('taut.shared/debug')('channels');
 var map      = require('lodash/collection/map');
 var keys     = require('lodash/object/keys');
 var channels = {};

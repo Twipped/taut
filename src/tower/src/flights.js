@@ -1,5 +1,5 @@
 
-var debug  = require('finn.shared/debug')('flights');
+var debug  = require('taut.shared/debug')('flights');
 var each   = require('lodash/collection/each');
 var values = require('lodash/object/values');
 

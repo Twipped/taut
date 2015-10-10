@@ -1,10 +1,10 @@
 
-var config        = require('finn.shared/config');
-var debug         = require('finn.shared/debug')('control');
+var config        = require('taut.shared/config');
+var debug         = require('taut.shared/debug')('control');
 var Promise       = require('bluebird');
-var emittersocket = require('finn.shared/lib/emitter-socket');
-var pubsub        = require('finn.shared/io/pubsub');
-var Timer         = require('finn.shared/lib/timer');
+var emittersocket = require('taut.shared/lib/emitter-socket');
+var pubsub        = require('taut.shared/io/pubsub');
+var Timer         = require('taut.shared/lib/timer');
 
 var auditAvailableSeats   = require('./src/audits/available-seats');
 var auditActivePassengers = require('./src/audits/active-passengers');
