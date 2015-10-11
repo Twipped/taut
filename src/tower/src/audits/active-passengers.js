@@ -19,7 +19,7 @@ module.exports = function auditActivePassengers () {
 		expected: ExpectedConnections.get(),
 		current: passengers.all()
 	}).then(function (data) {
-		debug('data', data);
+
 		var missing = difference(data.keepalives, data.expected);
 		var nonKeepAlive = difference(data.expected, data.keepalives);
 
