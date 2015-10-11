@@ -2,3 +2,4 @@
 src/concourse/public/assets/chatview/templates.js
 /packer/packer_cache
 src/logs
+*.tgz
