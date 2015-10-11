@@ -69,7 +69,7 @@ var config = require('rc')(pkg.name, {
 		maximumOpenSeats: 2,
 		maximumTotalSeats: 20,
 		tarmacLaunch: {
-			bin: path.join(path.dirname(require.main.filename), '..', '..', 'tarmac', 'bin', 'taut.tarmac'),
+			bin: path.join(path.dirname(require.main.filename), '..', '..', 'tarmac', 'bin', 'taut-tarmac'),
 			out: path.join(path.dirname(require.main.filename), '..', '..', 'logs', 'tarmac.log'),
 			err: path.join(path.dirname(require.main.filename), '..', '..', 'logs', 'tarmac.log'),
 			env: {
