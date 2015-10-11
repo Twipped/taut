@@ -68,6 +68,10 @@ var config = require('rc')(pkg.name, {
 		minimumOpenSeats: 1,
 		maximumOpenSeats: 2,
 		maximumTotalSeats: 20,
+		maximumReconnect:
+			timeout: 60000 * 5,
+			count: 3
+		},
 		tarmacLaunch: {
 			bin: path.join(path.dirname(require.main.filename), '..', '..', 'tarmac', 'bin', 'taut-tarmac'),
 			out: path.join(path.dirname(require.main.filename), '..', '..', 'logs', 'tarmac.log'),

@@ -2,6 +2,7 @@
 var debug = require('taut.shared/debug')('audit:standby-list');
 var flights = require('../flights');
 var standby = require('../standby');
+var isFrequentFlier = require('../is-frequent-flier');
 
 module.exports = function auditStandbyList () {
 	var waiting = standby.getLength();
@@ -19,8 +20,13 @@ module.exports = function auditStandbyList () {
 		while (i-- && waiting) {
 			userid = standby.shift();
 			waiting--;
-			debug('opening connection for', userid);
-			flight.bus.send('connection:open', userid);
+
+			if (isFrequentFlier(userid)) {
+				debug.error('user has reconnected too many times', userid);
+			} else {
+				debug('opening connection for', userid);
+				flight.bus.send('connection:open', userid);
+			}
 		}
 	}
 };
