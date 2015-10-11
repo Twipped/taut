@@ -127,7 +127,7 @@ function flightOnline (flightid, socket, metadata, radio) {
 		// if the flight announced it was clear then we're fine
 		if (safeShutdown) return;
 
-		debug('flight crashed', flightid);
+		debug.error('flight crashed', flightid);
 
 		// find the passengers lost in that crash
 		var dead = passengers.crashed(flightid);
