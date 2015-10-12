@@ -1,0 +1,18 @@
+{
+  "name": "taut-deployer",
+  "version": "1.0.0",
+  "description": "Taut Deployment Tool",
+  "main": "index.js",
+  "bin": {
+    "taut-deployer": "./index.js"
+  },
+  "author": "Jarvis Badgley <chiper@chipersoft.com> (http://chipersoft.com/)",
+  "license": "MIT",
+  "dependencies": {
+    "amazon-s3-url-signer": "0.0.7",
+    "aws-sdk": "~2.2.9",
+    "bluebird": "~2.10.1",
+    "minimist": "~1.2.0",
+    "rc": "~1.1.2"
+  }
+}
