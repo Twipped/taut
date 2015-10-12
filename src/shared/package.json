@@ -29,7 +29,6 @@
     "rc": "~1.1.0"
   },
   "devDependencies": {
-    "forever-monitor": "~1.7.0",
     "gulp": "~3.9.0",
     "gulp-eslint": "~1.0.0",
     "gulp-jscs": "~3.0.0",
