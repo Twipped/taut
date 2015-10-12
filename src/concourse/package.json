@@ -6,7 +6,8 @@
     "taut-concourse": "./bin/taut-concourse"
   },
   "scripts": {
-    "start": "node ./bin/taut-concourse"
+    "start": "node ./bin/taut-concourse",
+    "build": "gulp"
   },
   "dependencies": {
     "amdefine": "~1.0.0",
