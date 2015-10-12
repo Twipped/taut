@@ -81,8 +81,9 @@ npmPack(target).then(function (output) {
 
 	return readBuild();
 })
-.then(function (index) {
-	build = index;
+.then(function (data) {
+	build = data;
+	build.index++;
 	process.stdout.write('Current build number is ' + build + '\n');
 	process.stdout.write('Uploading build to S3...');
 	
@@ -91,7 +92,7 @@ npmPack(target).then(function (output) {
 		config.s3.bucket,
 		config.s3.key
 			.replace('{{name}}', pkg.name)
-			.replace('{{build}}', build)
+			.replace('{{build}}', process.env.CI_BUILD_NUMBER || build.index)
 	);
 })
 .then(function (res) {
@@ -102,13 +103,12 @@ npmPack(target).then(function (output) {
 }).catch(console.error);
 
 function readBuild () {
-	var build = isFile(buildFilePath) && require(buildFilePath) || {index: 0};
-	return build.index += 1;
+	return isFile(buildFilePath) && require(buildFilePath) || {index: 0};
 }
 
-function writeBuild (index) {
+function writeBuild (data) {
 	return Promise.fromNode(function (callback) {
-		fs.writeFile(buildFilePath, JSON.stringify({index: index}), callback);
+		fs.writeFile(buildFilePath, JSON.stringify(data), callback);
 	});
 }
 
