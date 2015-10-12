@@ -40,12 +40,12 @@ module.exports = function (root, publicRoot) {
 		return (cache[actualpath] = template);
 	}
 
-	Handlebars.registerHelper('require', function (path) {
-		Handlebars.registerPartial(path, getTemplate(path));
+	Handlebars.registerHelper('require', function (template) {
+		Handlebars.registerPartial(template, getTemplate(template));
 	});
 
-	Handlebars.registerHelper('rev', function (path) {
-		return cachebuster(path);
+	Handlebars.registerHelper('rev', function (url) {
+		return cachebuster(url);
 	});
 
 	return function (req, res, next) {

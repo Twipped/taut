@@ -1,4 +1,4 @@
-/* eslint max-len: 0, strict:0 */
+/* eslint max-len: 0, strict:0, no-console:0 */
 
 var config       = require('taut.shared/config');
 var pkg          = require('./package.json');
@@ -117,7 +117,7 @@ gulp.task('vendor', ['jquery', 'lodash'], function () {
 	var sources = [
 		gulp.src(libs, { base: './node_modules' }),
 		gulp.src('./node_modules/socket.io/node_modules/socket.io-client/socket.io.js', { base: './node_modules/socket.io/node_modules/socket.io-client' }),
-		gulp.src('./node_modules/bootstrap/dist/js/umd/*.js', { base: './node_modules/bootstrap/dist/js/umd/'}).pipe(rename(function (fpath) {
+		gulp.src('./node_modules/bootstrap/dist/js/umd/*.js', { base: './node_modules/bootstrap/dist/js/umd/' }).pipe(rename(function (fpath) {
 			fpath.basename = path.join('bootstrap', fpath.basename);
 		}))
 	];
@@ -348,7 +348,7 @@ gulp.task('scss-dev', ['scss-main-dev', 'scss-pages-dev']);
 // Backend templates
 gulp.task('views-be', function () {
 	return gulp.src(['app/views/**/*.hbs.html', 'app/views/**/*.hbs'])
-		.pipe(handlebars({handlebars: require('handlebars')}))
+		.pipe(handlebars({ handlebars: require('handlebars') }))
 		.pipe(defineModule('commonjs'))
 		.pipe(rename(function (fpath) {
 			if (fpath.basename.indexOf('.hbs') === -1) fpath.basename += '.hbs';
@@ -359,7 +359,7 @@ gulp.task('views-be', function () {
 // Frontend templates
 gulp.task('views-fe', function () {
 	return gulp.src(['public/views/**/*.hbs.html', 'public/views/**/*.hbs'])
-		.pipe(handlebars({handlebars: require('handlebars')}))
+		.pipe(handlebars({ handlebars: require('handlebars') }))
 		.pipe(defineModule('hybrid', { require: { Handlebars: 'handlebars' } }))
 		.pipe(rename(function (fpath) {
 			if (fpath.basename.indexOf('.hbs') === -1) fpath.basename += '.hbs';
@@ -370,7 +370,7 @@ gulp.task('views-fe', function () {
 // Component Templates
 gulp.task('views-components', function () {
 	return gulp.src(['public/components/**/*.hbs'])
-		.pipe(handlebars({handlebars: require('handlebars')}))
+		.pipe(handlebars({ handlebars: require('handlebars') }))
 		.pipe(defineModule('hybrid', { require: { Handlebars: 'handlebars' } }))
 		.pipe(rename(function (fpath) {
 			if (fpath.basename.indexOf('.hbs') === -1) fpath.basename += '.hbs';
