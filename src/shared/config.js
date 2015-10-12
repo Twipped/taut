@@ -68,7 +68,7 @@ var config = require('rc')(pkg.name, {
 		minimumOpenSeats: 1,
 		maximumOpenSeats: 2,
 		maximumTotalSeats: 20,
-		maximumReconnect:
+		maximumReconnect: {
 			timeout: 60000 * 5,
 			count: 3
 		},
