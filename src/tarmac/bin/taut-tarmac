@@ -26,17 +26,19 @@ var shutdown = function () {
 
 
 	tarmac.shutdown().then(function () {
-		var promises = [
+		return Promise.settle([
 			mq.shutdown(),
 			radio.shutdown()
-		];
+		]);
+	}).then(function () {
+		var promises = [];
 
 		process.emit('graceful stop', promises);
 
-		Promise.settle(promises).then(function () {
-			debug('Shutdown');
-			process.exit(0); // eslint-disable-line no-process-exit
-		});
+		return Promise.settle(promises);
+	}).then(function () {
+		debug('Shutdown');
+		process.exit(0); // eslint-disable-line no-process-exit
 	});
 
 	setTimeout(function () {

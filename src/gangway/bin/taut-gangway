@@ -15,17 +15,16 @@ var shutdown = function () {
 	terminating = true;
 	debug('Process is terminating, closing connections');
 
-	var promises = [
-		mq.shutdown()
-	];
+	mq.shutdown().then(function () {
+		var promises = [];
 
-	process.emit('graceful stop', promises);
+		process.emit('graceful stop', promises);
 
-	Promise.settle(promises).then(function () {
+		return Promise.settle(promises);
+	}).then(function () {
 		debug('Shutdown');
 		process.exit(0); // eslint-disable-line no-process-exit
 	});
-
 
 	setTimeout(function () {
 		debug('Shutdown took too long, terminating.');
