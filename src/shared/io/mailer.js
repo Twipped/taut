@@ -1,6 +1,8 @@
 'use strict';
 
 var config = require('../config');
+var debug = require('../debug')('mailer');
+var emailConfig = config.io.email || {};
 
 var nodemailer = require('nodemailer');
 var htmlToText = require('nodemailer-html-to-text').htmlToText;
@@ -13,12 +15,29 @@ var transports = {
 	sendmail: 'nodemailer-sendmail-transport'
 };
 
-if (!config.io.email) {
-	config.io.email = {};
+// load the transport we need
+var transport;
+
+if (emailConfig.method === 'gmail') {
+	transport = {
+		service: 'gmail',
+		auth: emailConfig.options
+	};
+	debug('transport setup for ', emailConfig.method);
+} else if (emailConfig.method === 'gmail-oauth') {
+	var generator = require('xoauth2').createXOAuth2Generator(emailConfig.options);
+	transport = {
+		service: 'gmail',
+		auth: { xoauth2: generator }
+	};
+	debug('transport setup for ', emailConfig.method);
+} else if (transports[emailConfig.method]) {
+	transport = require(transports[emailConfig.method])(emailConfig.options || {});
+	debug('transport setup for ', emailConfig.method);
+} else {
+	debug.error('Could not setup a transport.', emailConfig);
 }
 
-// load the transport we need
-var transport = require(transports[config.io.email.method || 'test'])(config.io.email.options || {});
 
 var transporter = nodemailer.createTransport(transport);
 

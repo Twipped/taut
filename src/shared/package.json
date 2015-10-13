@@ -26,7 +26,8 @@
     "proxmis": "~0.2.0",
     "quell": "~0.1.2",
     "queryize": "~1.1.1",
-    "rc": "~1.1.0"
+    "rc": "~1.1.0",
+    "xoauth2": "~1.1.0"
   },
   "devDependencies": {
     "gulp": "~3.9.0",
@@ -34,6 +35,7 @@
     "gulp-jscs": "~3.0.0",
     "merge-stream": "~1.0.0",
     "nodemailer-pickup-transport": "~0.1.1",
+    "proxyquire": "~1.7.3",
     "rewire": "~2.3.4",
     "tap": "~1.4.1"
   }
