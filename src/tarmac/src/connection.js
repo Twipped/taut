@@ -5,6 +5,7 @@ var assign = require('lodash/object/assign');
 var omit   = require('lodash/object/omit');
 var each   = require('lodash/collection/each');
 var debug  = require('taut.shared/debug')('connection');
+var verbose = require('taut.shared/node_modules/debug')('verbose:irc');
 var random = require('taut.shared/lib/random');
 var IRC    = require('ircsock');
 var pluginChannelTracking = require('ircsock/plugins/channels');
@@ -91,16 +92,19 @@ module.exports = exports = function (user, doNotConnect) {
 
 	function emitPublic (event, data) {
 		debug('received public ' + event, irc.nick, data.target);
+		verbose('public:' + event, irc.nick, data);
 		return mq.emit('irc:incoming', 'public', event, data.target, scopeData(event, data));
 	}
 
 	function emitPrivate (event, data) {
 		debug('received private ' + event, irc.nick);
+		verbose('system:' + event, irc.nick, data);
 		return mq.emit('irc:incoming', 'private', event, userid, scopeData(event, data));
 	}
 
 	function emitSystem (event, data) {
 		debug('received system ' + event, irc.nick);
+		verbose('system:' + event, irc.nick, data);
 		return mq.emit('irc:incoming', 'system', event, scopeData(event, data));
 	}
 
