@@ -13,7 +13,7 @@ io.on('connection', function (socket) {
 	var subscribed = {};
 
 	socket.on('feed.subscribe', function (feed) {
-		//if this socket is already subbed to that feed, ignore the request
+		// if this socket is already subbed to that feed, ignore the request
 		if (subscribed[feed]) return;
 		subscribed[feed] = true;
 
