@@ -8,7 +8,6 @@ var channelLoggingStarted = require('./actions/channelLoggingStarted');
 
 var passengers = require('./passengers');
 var channels   = require('./channels');
-var standby   = require('./standby');
 var flights    = {};
 
 exports.get = function (flightid) {
@@ -119,6 +118,11 @@ function flightOnline (flightid, socket, metadata, radio) {
 		debug('flight shutting down', flightid);
 		safeShutdown = true;
 	});
+
+	socket.safeShutdown = function () {
+		safeShutdown = true;
+		socket.end();
+	};
 
 	socket.on('end', function () {
 		// remove the flight from the collection

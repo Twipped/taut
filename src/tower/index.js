@@ -61,7 +61,7 @@ function shutdownControl () {
 		debug('stopping');
 		control.close(cb);
 		flights.all().forEach(function (flight) {
-			flight.end();
+			flight.safeShutdown();
 		});
 	}).then(debug.bind(null, 'stopped'));
 }
