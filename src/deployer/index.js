@@ -46,9 +46,9 @@ function readBuildHistory (name) {
 	}).catch(function (err) {
 		if (err.code === 'NoSuchKey') {
 			return [];
-		};
+		}
 		return Promise.reject(err);
-	})
+	});
 }
 
 function writeBuildHistory (name, data) {
@@ -166,7 +166,7 @@ Promise.resolve(process.argv.slice(2))
 	);
 })
 .then(function (res) {
-	var url = urlsigner.getUrl('GET', res.Key, res.Bucket, 60*24*30);
+	var url = urlsigner.getUrl('GET', res.Key, res.Bucket, 60 * 24 * 30);
 	process.stdout.write('Done\n');
 	console.log('Build available at: ', url);
 
