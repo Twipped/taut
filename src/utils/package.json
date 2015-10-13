@@ -1,0 +1,28 @@
+{
+  "name": "taut.utils",
+  "version": "1.0.0",
+  "description": "Admin utilities",
+  "main": "index.js",
+  "bin": {
+    "taut-user-add": "./bin/user.add",
+    "taut-user-join": "./bin/user.joinchannel",
+    "taut-user-part": "./bin/user.partchannel",
+    "taut-user-setirc": "./bin/user.setirc",
+    "taut-user-setnickserv": "./bin/user.setnickserv",
+    "taut-user-setpasswd": "./bin/user.setpasswd"
+  },
+  "scripts": {
+    "start": "node ./bin/taut-gangway",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jarvis Badgley <chiper@chipersoft.com> (http://chipersoft.com/)",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "~2.10.1",
+    "minimist": "~1.2.0",
+    "taut.shared": "*"
+  },
+  "bundledDependencies": [
+    "taut.shared"
+  ]
+}

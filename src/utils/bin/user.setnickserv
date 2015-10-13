@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
-var LoginEmail = require('../models/user/logins/email');
-var Nickserv = require('../models/user/irc/nickserv');
-var args = process.argv.slice(2);
+var LoginEmail = require('taut.shared/models/user/logins/email');
+var Nickserv   = require('taut.shared/models/user/irc/nickserv');
+var args       = process.argv.slice(2);
 
 var email = args[0];
-var nick = args[1];
-var pass = args[2];
+var nick  = args[1];
+var pass  = args[2];
 
 if (!email || !nick || !pass) {
 	console.error('Missing email, nickname or password.', args); // eslint-disable-line no-console

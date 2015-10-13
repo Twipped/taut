@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-var LoginEmail = require('../models/user/logins/email');
-var UserIrcSettings = require('../models/user/irc');
-var argv = require('minimist')(process.argv.slice(2));
+var LoginEmail      = require('taut.shared/models/user/logins/email');
+var UserIrcSettings = require('taut.shared/models/user/irc');
+var argv            = require('minimist')(process.argv.slice(2));
 
 var login = argv._[0].trim();
 

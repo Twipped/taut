@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
-var LoginEmail = require('../models/user/logins/email');
-var UserChannels = require('../models/user/irc/channels');
-var Promise = require('bluebird');
-var argv = require('minimist')(process.argv.slice(2));
-var mq = require('../io/mq');
+var LoginEmail   = require('taut.shared/models/user/logins/email');
+var UserChannels = require('taut.shared/models/user/irc/channels');
+var Promise      = require('bluebird');
+var argv         = require('minimist')(process.argv.slice(2));
+var mq           = require('taut.shared/io/mq');
 
 var login = argv._.shift();
 var channels = argv._;
 
-if (!login || !channels.length) {
+if (!login || !channels) {
 	console.error('Missing user and/or channels'); // eslint-disable-line no-console
 	process.exit(1); // eslint-disable-line no-process-exit
 }
@@ -25,10 +25,10 @@ LoginEmail.getUserIDByEmail(login).then(function (userid) {
 		if (channel[0] !== '#') channel = '#' + channel;
 
 		return Promise.all([
-			UserChannels.add(userid, channel),
+			UserChannels.remove(userid, channel),
 
 			mq.emit('irc:outgoing:' + userid, {
-				command: 'join',
+				command: 'part',
 				arguments: channel,
 
 				// expire after 10 seconds, so it doesn't try to run it if
