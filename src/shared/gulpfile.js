@@ -1,6 +1,5 @@
 'use strict';
 
-var config       = require('./config');
 var gulp         = require('gulp');
 var merge        = require('merge-stream');
 var eslint       = require('gulp-eslint');

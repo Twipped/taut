@@ -3,6 +3,7 @@ var connect           = require('./src/connection');
 var debug             = require('taut.shared/debug')('index');
 var UserIRCModel      = require('taut.shared/models/user/irc');
 var UserChannelsModel = require('taut.shared/models/user/irc/channels');
+var isAgent           = require('taut.shared/models/user/is-agent');
 var Promise           = require('bluebird');
 var radio             = require('./src/radio');
 
@@ -19,11 +20,13 @@ exports.connectUserID = function connectUserID (userid) {
 
 	return Promise.all([
 		UserIRCModel.get(userid),
-		UserChannelsModel.get(userid)
+		UserChannelsModel.get(userid),
+		isAgent(userid)
 	])
 	.then(function (results) {
 		var user = results[0].toJSON();
 		user.activeChannels = results[1];
+		user.isAgent = results[2];
 
 		var irc = connect(user);
 

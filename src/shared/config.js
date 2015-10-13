@@ -30,7 +30,7 @@ var config = require('rc')(pkg.name, {
 		email: {
 			method: 'test',
 			options: {
-				directory: '/srv/logs/mail'
+				directory: path.resolve('../logs/mail')
 			}
 		},
 		mq: {
@@ -80,6 +80,12 @@ var config = require('rc')(pkg.name, {
 				DEBUG: 'taut.tarmac:*'
 			}
 		}
+	},
+
+	alerts: {
+		target: 'chiper@chipersoft.com',
+		wait: 10000,
+		maxWait: 120000
 	}
 });
 
