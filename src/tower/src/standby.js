@@ -1,16 +1,25 @@
 
 var debug = require('taut.shared/debug')('standby');
+var flatten = require('lodash/array/flatten');
+var difference = require('lodash/array/difference');
 
 var queue = [];
 
-exports.push = function () {
-	if (arguments.length === 1 && Array.isArray(arguments[0])) {
-		debug('pushed', arguments[0].length + ' Users');
-		return arguments[0].length && queue.push.apply(queue, arguments[0]);
+exports.push = function (userids) {
+	if (arguments.length > 1) {
+		return exports.push(flatten(Array.prototype.slice.call(arguments)));
 	}
 
-	debug('pushed', arguments.length + ' Users');
-	return arguments.length && queue.push.apply(queue, arguments);
+	if (!Array.isArray(userids)) {
+		return exports.push([userids]);
+	}
+
+	userids = difference(userids, queue);
+
+	if (!userids.length) return 0;
+
+	debug('pushed', userids + ' Users');
+	return queue.push.apply(queue, userids);
 };
 
 exports.shift = exports.pull = function () {
