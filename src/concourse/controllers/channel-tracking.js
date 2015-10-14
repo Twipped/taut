@@ -24,6 +24,7 @@ exports.on('newListener', function (channel) {
 });
 
 exports.removeSubscriber = function (channel) {
+	channel = channel.toLowerCase();
 	// if subscriber count for that channel is already 0 or undefined
 	// then there is no need to timeout the tracking
 	if (!subscriberCounts[channel]) return;
@@ -35,6 +36,7 @@ exports.removeSubscriber = function (channel) {
 };
 
 exports.addSubscriber = function (channel) {
+	channel = channel.toLowerCase();
 	debug('add subscriber', channel);
 	exports.startTracking(channel);
 
@@ -44,11 +46,12 @@ exports.addSubscriber = function (channel) {
 	exports.cycleExpireTimer(channel);
 };
 
-/********************************************************************************************************************/
+/** *****************************************************************************************************************/
 
 var trackingTimeouts = {};
 
 exports.cycleExpireTimer = function (channel) {
+	channel = channel.toLowerCase();
 	if (trackingTimeouts[channel]) {
 		debug('stopping expiration timer', channel);
 		clearTimeout(trackingTimeouts[channel]);
@@ -66,12 +69,13 @@ exports.cycleExpireTimer = function (channel) {
 };
 
 
-/********************************************************************************************************************/
+/** *****************************************************************************************************************/
 
 
 var trackingCallbacks = {};
 
 exports.startTracking = function (channel) {
+	channel = channel.toLowerCase();
 	if (trackingCallbacks[channel]) return true;
 
 	var cb = trackingCallbacks[channel] = function (event, data) {
@@ -86,6 +90,7 @@ exports.startTracking = function (channel) {
 };
 
 exports.stopTracking = function (channel) {
+	channel = channel.toLowerCase();
 	if (!trackingCallbacks[channel]) return;
 
 	pubsub.channel('irc:public:' + channel + ':receive').removeListener('_all', trackingCallbacks[channel]);
@@ -94,10 +99,11 @@ exports.stopTracking = function (channel) {
 };
 
 
-/********************************************************************************************************************/
+/** *****************************************************************************************************************/
 
 
 exports.pageRequest = function (channel) {
+	channel = channel.toLowerCase();
 	if (!exports.startTracking(channel)) {
 		exports.cycleExpireTimer(channel);
 	}
@@ -109,7 +115,7 @@ exports.pageRequest = function (channel) {
 };
 
 
-/********************************************************************************************************************/
+/** *****************************************************************************************************************/
 
 
 process.on('graceful stop', function () {
