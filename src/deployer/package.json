@@ -1,5 +1,5 @@
 {
-  "name": "taut-deployer",
+  "name": "taut.deployer",
   "version": "1.0.0",
   "description": "Taut Deployment Tool",
   "main": "index.js",
