@@ -9,7 +9,8 @@ var makeSigner = require('amazon-s3-url-signer').urlSigner;
 var aws, s3, config;
 
 function fail () {
-	console.error.apply(console, arguments);
+	if (err.stack) console.error(err.stack);
+	else console.error.apply(console, arguments);
 	process.exit(1);
 }
 
