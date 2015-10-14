@@ -18,7 +18,7 @@ function getDebug (name) {
 
 	if (!debugCache[name]) {
 		var log = debug(config.name + (name && ':' + name || ''));
-		log.log = console.error.bind(console); // eslint-disable-line no-console
+		log.log = console.log.bind(console); // eslint-disable-line no-console
 		var error = debug(config.name + (name && ':' + name || '') + ':error');
 		error.log = console.error.bind(console); // eslint-disable-line no-console
 
