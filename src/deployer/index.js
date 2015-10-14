@@ -114,7 +114,7 @@ aws.config.update(config.aws);
 var urlsigner = makeSigner(config.aws.accessKeyId, config.aws.secretAccessKey);
 s3 = new aws.S3();
 
-var target, projectName, packedFile, buildHistory, lastBuild, newBuild;
+var target, projectName, packedFile, buildHistory, lastBuild, newBuild, buildDestination;
 
 Promise.resolve(process.argv.slice(2))
 .then(function (args) {
@@ -148,6 +148,10 @@ Promise.resolve(process.argv.slice(2))
 	};
 	buildHistory.unshift(newBuild);
 
+	buildDestination = config.buildDestination
+		.replace('{{name}}', projectName)
+		.replace('{{build}}', newBuild.index);
+
 	process.stdout.write('Done\n');
 	console.log('Current build number: ', newBuild.index);
 
@@ -161,13 +165,15 @@ Promise.resolve(process.argv.slice(2))
 	return s3upload(
 		packedFile,
 		config.s3bucket,
-		config.buildDestination
-			.replace('{{name}}', projectName)
-			.replace('{{build}}', newBuild.index)
+		buildDestination
 	);
 })
 .then(function (res) {
-	var url = urlsigner.getUrl('GET', res.Key, res.Bucket, 60 * 24 * 30);
+	if (!res.Key) {
+		console.log(res);
+	}
+
+	var url = urlsigner.getUrl('GET', buildDestination, res.Bucket, 60 * 24 * 30);
 	process.stdout.write('Done\n');
 	console.log('Build available at: ', url);
 
