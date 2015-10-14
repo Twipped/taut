@@ -2,8 +2,10 @@
 var debug  = require('taut.shared/debug')('flights');
 var each   = require('lodash/collection/each');
 var values = require('lodash/object/values');
+var alert  = require('taut.shared/alert');
 
 var auditEmptyChannels    = require('./audits/empty-channels');
+var auditActivePassengers    = require('./audits/active-passengers');
 var channelLoggingStarted = require('./actions/channelLoggingStarted');
 
 var passengers = require('./passengers');
@@ -136,9 +138,13 @@ function flightOnline (flightid, socket, metadata, radio) {
 		// find the passengers lost in that crash
 		var dead = passengers.crashed(flightid);
 
+		alert('flight crashed', dead.length + ' dead');
+		
 		// remove those passengers from all channels
 		channels.remove(true, dead);
 
 		auditEmptyChannels();
+		auditActivePassengers();
+
 	});
 }
