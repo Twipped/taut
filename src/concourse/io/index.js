@@ -18,7 +18,7 @@ io.on('connection', function (socket) {
 		subscribed[feed] = true;
 
 		debug('feed.subscribe', feed, socket.id);
-		socket.join(feed);
+		socket.join(feed.toLowerCase());
 
 		if (feed.substr(0, 12) === 'irc:channel:') {
 			var channel = feed.substr(12);
@@ -46,6 +46,7 @@ io.on('connection', function (socket) {
 });
 
 channelTracking.on('_all', function (channel, event) {
+	channel = channel.toLowerCase();
 	io.to('irc:channel:' + channel).emit('irc:channel:' + channel, event);
 });
 
