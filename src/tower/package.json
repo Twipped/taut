@@ -14,7 +14,7 @@
   "license": "MIT",
   "dependencies": {
     "bluebird": "~2.10.1",
-    "taut.shared": "*",
+    "taut.shared": "../shared",
     "lodash": "~3.10.0",
     "proxmis": "~0.2.0"
   },

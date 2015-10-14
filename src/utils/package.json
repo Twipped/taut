@@ -20,7 +20,7 @@
   "dependencies": {
     "bluebird": "~2.10.1",
     "minimist": "~1.2.0",
-    "taut.shared": "*"
+    "taut.shared": "../shared"
   },
   "bundledDependencies": [
     "taut.shared"

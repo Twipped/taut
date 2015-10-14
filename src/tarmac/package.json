@@ -15,7 +15,7 @@
   "license": "MIT",
   "dependencies": {
     "bluebird": "~2.10.1",
-    "taut.shared": "*",
+    "taut.shared": "../shared",
     "ircsock": "*",
     "lodash": "~3.10.1",
     "minimist": "~1.2.0",
