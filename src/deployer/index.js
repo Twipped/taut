@@ -170,10 +170,10 @@ Promise.resolve(process.argv.slice(2))
 })
 .then(function (res) {
 	if (!res.Key) {
-		console.log(res);
+		console.log('\n', res, buildDestination);
 	}
 
-	var url = urlsigner.getUrl('GET', buildDestination, res.Bucket, 60 * 24 * 30);
+	var url = urlsigner.getUrl('GET', res.Key || buildDestination, res.Bucket, 60 * 24 * 30);
 	process.stdout.write('Done\n');
 	console.log('Build available at: ', url);
 
