@@ -14,7 +14,7 @@ exports.system = function (event, data) {
 };
 
 exports.private = function (event, userid, data) {
-	debug('private ' + event);
+	debug('private ' + event, userid);
 
 	data.hash = hashPrivateMessage(data);
 
@@ -24,7 +24,8 @@ exports.private = function (event, userid, data) {
 };
 
 exports.public = function (event, channel, data) {
-	debug('public ' + event);
+	channel = channel.toLowerCase();
+	debug('public ' + event, channel);
 
 	var isNewMessage = trackPublicMessage(data);
 	if (!isNewMessage) {
