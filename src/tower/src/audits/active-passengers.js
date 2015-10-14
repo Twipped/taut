@@ -2,6 +2,7 @@
 var debug      = require('taut.shared/debug')('audits:active-passengers');
 var Promise    = require('bluebird');
 var difference = require('lodash/array/difference');
+var throttle   = require('lodash/function/throttle');
 
 var UserIrcSettings     = require('taut.shared/models/user/irc');
 var UserIsViewing       = require('taut.shared/models/user/is-viewing');
@@ -13,7 +14,7 @@ var standby    = require('../standby');
 var closeConnection  = require('../actions/closeConnection');
 var auditStandbyList = require('./standby-list');
 
-module.exports = function auditActivePassengers () {
+function auditActivePassengers () {
 	return Promise.props({
 		keepalives: UserIrcSettings.getAllKeepAliveUserIds(),
 		expected: ExpectedConnections.get(),
@@ -28,6 +29,7 @@ module.exports = function auditActivePassengers () {
 		});
 
 		data._expectClosed = data.needClosing.then(function (userids) {
+			if (!userids.length) return;
 			debug('need to close connections for', userids);
 			return Promise.map(userids, closeConnection);
 		});
@@ -41,8 +43,10 @@ module.exports = function auditActivePassengers () {
 
 		// find all the users who should be online but aren't and put them on standby
 		missing = difference(data.expected, data.current);
-		debug('missing connections for users expected to be online', missing);
-		standby.push(missing);
+		if (missing.length) {
+			debug('missing connections for users expected to be online', missing);
+			standby.push(missing);
+		}
 
 		if (!standby.isEmpty()) {
 			data._expectStandby = auditStandbyList();
@@ -50,4 +54,6 @@ module.exports = function auditActivePassengers () {
 
 		return Promise.props(data);
 	});
-};
+}
+
+module.exports = throttle(auditActivePassengers, 5000);
