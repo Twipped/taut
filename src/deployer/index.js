@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* eslint no-console:0, no-process-exit:0, one-var:0 */
+/* eslint no-console:0, no-process-exit:0, one-var:0, max-depth:0 */
 
 var Promise = require('bluebird');
 var exec = require('child_process').exec;
@@ -209,22 +209,26 @@ s3 = new aws.S3();
 Promise.resolve(require('minimist')(process.argv.slice(2)))
 .then(function (argv) {
 	var target = argv._[0];
+	var projectName;
 
-	if (!target) fail('No target found.');
+	if (argv.name) {
+		projectName = argv.name;
+	} else {
+		if (!target) fail('No target found.');
 
-	target = path.resolve(process.cwd(), target);
+		target = path.resolve(process.cwd(), target);
 
-	if (!isDir(target)) fail('Target is not a directory.', target);
+		if (!isDir(target)) fail('Target is not a directory.', target);
 
-	var pkgPath = path.join(target, 'package.json');
-	if (!isFile(pkgPath)) {
-		fail('Target is not a node app.', pkgPath);
+		var pkgPath = path.join(target, 'package.json');
+		if (!isFile(pkgPath)) {
+			fail('Target is not a node app.', pkgPath);
+		}
+
+		projectName = require(pkgPath).name;
+
+		if (argv.verbose) console.log('Found project: ', projectName);
 	}
-
-	var pkg = require(pkgPath);
-	var projectName = pkg.name;
-
-	if (argv.verbose) console.log('Found project: ', projectName);
 
 	if (argv.verbose) process.stdout.write('Loading build history...');
 
