@@ -116,7 +116,7 @@ gulp.task('vendor', ['jquery', 'lodash'], function () {
 
 	var sources = [
 		gulp.src(libs, { base: './node_modules' }),
-		gulp.src('./node_modules/socket.io/node_modules/socket.io-client/socket.io.js', { base: './node_modules/socket.io/node_modules/socket.io-client' }),
+		gulp.src('./node_modules/socket.io-client/socket.io.js', { base: './node_modules/socket.io-client' }),
 		gulp.src('./node_modules/bootstrap/dist/js/umd/*.js', { base: './node_modules/bootstrap/dist/js/umd/' }).pipe(rename(function (fpath) {
 			fpath.basename = path.join('bootstrap', fpath.basename);
 		}))
@@ -235,7 +235,10 @@ gulp.task('requirejs-pages', function () {
 				}
 			};
 
-			requirejs.optimize(options, function () {done();}, function (err) {
+			requirejs.optimize(options, function () {
+				done();
+			}, function (err) {
+				console.error(arguments);
 				self.emit('error', err);
 			});
 		}));
