@@ -9,7 +9,6 @@
   "author": "Jarvis Badgley <chiper@chipersoft.com> (http://chipersoft.com/)",
   "license": "MIT",
   "dependencies": {
-    "amazon-s3-url-signer": "0.0.7",
     "aws-sdk": "~2.2.9",
     "bluebird": "~2.10.1",
     "minimist": "~1.2.0",

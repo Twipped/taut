@@ -3,9 +3,11 @@
 
 var Promise = require('bluebird');
 var exec = require('child_process').exec;
+var spawn = require('child_process').spawn;
 var fs = require('fs');
 var path = require('path');
-var makeSigner = require('amazon-s3-url-signer').urlSigner;
+var crypto = require('crypto');
+var urlparse = require('url').parse;
 var aws, s3, config;
 
 function fail (err) {
@@ -28,6 +30,12 @@ function isFile (target) {
 	} catch (e) {
 		return false;
 	}
+}
+
+function hmacSha1 (message, secret) {
+	return crypto.createHmac('sha1', secret)
+		.update(message)
+		.digest('base64');
 }
 
 function readBuildHistory (name) {
@@ -92,6 +100,91 @@ function s3upload (filePath, bucket, key) {
 	});
 }
 
+function signURL (location, expiration) {
+	var epo = Math.floor(expiration.getTime() / 1000);
+	var str = 'GET\n\n\n' + epo + '\n' + urlparse(location).pathname;
+	var hashed = hmacSha1(str, config.aws.secretAccessKey);
+
+	var url = location +
+		'?Expires=' + epo +
+		'&AWSAccessKeyId=' + config.aws.accessKeyId +
+		'&Signature=' + encodeURIComponent(hashed);
+
+	return url;
+}
+
+function makeNewBuild (target, projectName, buildHistory) {
+	var packedFile, buildDestination;
+
+	var lastBuild = buildHistory[0] || { index: 0 };
+	var newBuild = {
+		index: lastBuild.index + 1
+	};
+	buildHistory.unshift(newBuild);
+
+	buildDestination = config.buildDestination
+		.replace('{{name}}', projectName)
+		.replace('{{build}}', newBuild.index);
+
+	process.stdout.write('Done\n');
+	console.log('Current build number: ', newBuild.index);
+
+	process.stdout.write('Packing project...');
+
+	return npmPack(target)
+	.then(function (output) {
+		packedFile = path.resolve(target, output.trim());
+		process.stdout.write('Done: ' + packedFile + '\n');
+
+		process.stdout.write('Uploading build to S3...');
+		return s3upload(
+			packedFile,
+			config.s3bucket,
+			buildDestination
+		);
+	})
+	.then(function (res) {
+		process.stdout.write('Done\n');
+
+		var expiration = new Date();
+		expiration.setDate(expiration.getDate() + 30);
+
+		var url = signURL(res.Location, expiration);
+
+		newBuild.s3 = res;
+		newBuild.url = url;
+		newBuild.urlExpires = expiration;
+
+		console.log('Build complete: ', newBuild);
+
+		process.stdout.write('Updating build history...');
+		return writeBuildHistory(projectName, buildHistory);
+	})
+	.then(function () {
+		process.stdout.write('Done\n');
+	});
+}
+
+function deployBuild (build) {
+	var expiration = new Date();
+	expiration.setDate(expiration.getDate() + 1);
+
+	if (!build || !build.s3 || !build.s3.Location) {
+		return Promise.reject(new Error('Build does not have an S3 url.'));
+	}
+
+	var url = signURL(build.s3.Location, expiration);
+
+	return new Promise(function (resolve, reject) {
+		spawn('npm', ['i', '--production', url], {
+			stdio: 'inherit'
+		}).on('error', reject).on('close', function (code) {
+			if (code) return reject(new Error('NPM Exited non-zero: ' + code));
+			return resolve();
+		});
+	});
+}
+
 config = require('rc')('deployer', {
 	aws: {
 		'accessKeyId': process.env.AWS_ACCESS_KEY_ID || '',
@@ -111,14 +204,11 @@ if (!config.aws.accessKeyId) {
 
 aws = require('aws-sdk');
 aws.config.update(config.aws);
-var urlsigner = makeSigner(config.aws.accessKeyId, config.aws.secretAccessKey);
 s3 = new aws.S3();
 
-var target, projectName, packedFile, buildHistory, lastBuild, newBuild, buildDestination;
-
-Promise.resolve(process.argv.slice(2))
-.then(function (args) {
-	target = args[0];
+Promise.resolve(require('minimist')(process.argv.slice(2)))
+.then(function (argv) {
+	var target = argv._[0];
 
 	if (!target) fail('No target found.');
 
@@ -132,62 +222,64 @@ Promise.resolve(process.argv.slice(2))
 	}
 
 	var pkg = require(pkgPath);
-	projectName = pkg.name;
+	var projectName = pkg.name;
 
-	console.log('Found project: ', projectName);
+	if (argv.verbose) console.log('Found project: ', projectName);
 
-	process.stdout.write('Loading build history...');
+	if (argv.verbose) process.stdout.write('Loading build history...');
 
-	return readBuildHistory(projectName);
-})
-.then(function (data) {
-	buildHistory = data || [];
-	lastBuild = buildHistory[0] || { index: 0 };
-	newBuild = {
-		index: lastBuild.index + 1
-	};
-	buildHistory.unshift(newBuild);
+	return readBuildHistory(projectName).then(function (buildHistory) {
+		buildHistory = buildHistory || [];
+		var lastBuild = buildHistory[0] || { index: 0 };
 
-	buildDestination = config.buildDestination
-		.replace('{{name}}', projectName)
-		.replace('{{build}}', newBuild.index);
+		if (argv.verbose) {
+			console.log('Done\nLast build was ', lastBuild.index);
+		}
 
-	process.stdout.write('Done\n');
-	console.log('Current build number: ', newBuild.index);
+		if (argv.url) {
+			var targetBuild;
+			if (argv.url === true) targetBuild = lastBuild;
+			else {
+				var i = 0;
+				while (i < buildHistory.length) {
+					if (buildHistory[i] && [i].index == argv.url) {
+						targetBuild = buildHistory[i];
+						break;
+					}
+					i++;
+				}
+				if (!targetBuild) {
+					fail('Build not found: ', argv.url);
+				}
+			}
 
-	process.stdout.write('Packing project...');
-	return npmPack(target);
-}).then(function (output) {
-	packedFile = path.resolve(target, output.trim());
-	process.stdout.write('Done: ' + packedFile + '\n');
+			var expiration = new Date();
+			expiration.setDate(expiration.getDate() + 1);
 
-	process.stdout.write('Uploading build to S3...');
-	return s3upload(
-		packedFile,
-		config.s3bucket,
-		buildDestination
-	);
-})
-.then(function (res) {
-	if (!res.Key) {
-		console.log('\n', res, buildDestination);
-	}
+			return console.log(signURL(targetBuild.s3.Location, expiration));
+		}
 
-	var url = urlsigner.getUrl('GET', res.Key || buildDestination, res.Bucket, 60 * 24 * 30);
-	process.stdout.write('Done\n');
-	console.log('Build available at: ', url);
+		if (argv.deploy) {
+			var targetBuild;
+			if (argv.deploy === true) targetBuild = lastBuild;
+			else {
+				var i = 0;
+				while (i < buildHistory.length) {
+					if (buildHistory[i] && [i].index == argv.deploy) {
+						targetBuild = buildHistory[i];
+						break;
+					}
+					i++;
+				}
+				if (!targetBuild) {
+					fail('Build not found: ', argv.deploy);
+				}
+			}
 
-	var expiration = new Date();
-	expiration.setDate(expiration.getDate() + 30);
+			return deployBuild(targetBuild);
+		}
 
-	newBuild.key = res.Key;
-	newBuild.url = url;
-	newBuild.urlExpires = expiration;
-
-	process.stdout.write('Updating build history...');
-	return writeBuildHistory(projectName, buildHistory);
-})
-.then(function () {
-	process.stdout.write('Done\n');
+		return makeNewBuild(target, projectName, buildHistory);
+	});
 })
 .catch(fail);
