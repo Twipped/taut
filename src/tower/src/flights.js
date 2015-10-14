@@ -12,6 +12,8 @@ var passengers = require('./passengers');
 var channels   = require('./channels');
 var flights    = {};
 
+exports.waiting = 0;
+
 exports.get = function (flightid) {
 	return flights[flightid];
 };
@@ -139,7 +141,7 @@ function flightOnline (flightid, socket, metadata, radio) {
 		var dead = passengers.crashed(flightid);
 
 		alert('flight crashed', dead.length + ' dead');
-		
+
 		// remove those passengers from all channels
 		channels.remove(true, dead);
 
@@ -147,4 +149,9 @@ function flightOnline (flightid, socket, metadata, radio) {
 		auditActivePassengers();
 
 	});
+
+	if (exports.waiting) {
+		exports.waiting--;
+		auditActivePassengers();
+	}
 }

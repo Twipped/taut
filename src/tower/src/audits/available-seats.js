@@ -13,6 +13,7 @@ function auditAvailableSeats () {
 	if (available.totalOpen < config.tower.minimumOpenSeats &&
 		available.totalSeats < config.tower.maximumTotalSeats) {
 		debug('total open seats below minimum threshold, launching flight');
+		flights.waiting++;
 		return launchFlight();
 	}
 
