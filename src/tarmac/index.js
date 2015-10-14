@@ -15,6 +15,7 @@ exports.connectUserID = function connectUserID (userid) {
 	debug('connecting userid', userid);
 	if (connections[userid]) {
 		// we already have a connection for that userid, stop asking.
+		debug.error('received connection:open for a user already running');
 		return;
 	}
 
@@ -51,6 +52,12 @@ radio.on('identified', function () {
 });
 
 radio.on('connection:open', function (userid) {
+	if (connections[userid]) {
+		// we already have a connection for that userid, stop asking.
+		debug.error('received connection:open for a user already running');
+		return;
+	}
+
 	exports.connectUserID(userid);
 });
 

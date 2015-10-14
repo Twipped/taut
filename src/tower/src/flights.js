@@ -150,8 +150,11 @@ function flightOnline (flightid, socket, metadata, radio) {
 
 	});
 
-	if (exports.waiting) {
-		exports.waiting--;
-		auditActivePassengers();
-	}
+	// wait for the first counts call before triggering a passenger audit
+	radio.once('counts', function () {
+		if (exports.waiting) {
+			exports.waiting--;
+			auditActivePassengers();
+		}
+	});
 }
