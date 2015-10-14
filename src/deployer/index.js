@@ -231,28 +231,28 @@ Promise.resolve(require('minimist')(process.argv.slice(2)))
 	return readBuildHistory(projectName).then(function (buildHistory) {
 		buildHistory = buildHistory || [];
 		var lastBuild = buildHistory[0] || { index: 0 };
+		var targetBuild, i;
 
 		if (argv.verbose) {
 			console.log('Done\nLast build was ', lastBuild.index);
 		}
 
-		if (argv.url) {
-			var targetBuild;
-			if (argv.url === true) targetBuild = lastBuild;
-			else {
-				var i = 0;
-				while (i < buildHistory.length) {
-					if (buildHistory[i] && [i].index == argv.url) {
-						targetBuild = buildHistory[i];
-						break;
-					}
-					i++;
+		if (!argv.build || argv.build === true) targetBuild = lastBuild;
+		else {
+			i = 0;
+			while (i < buildHistory.length) {
+				if (buildHistory[i] && [i].index == argv.build) { // eslint-disable-line eqeqeq
+					targetBuild = buildHistory[i];
+					break;
 				}
-				if (!targetBuild) {
-					fail('Build not found: ', argv.url);
-				}
+				i++;
 			}
+			if (!targetBuild) {
+				fail('Build not found: ', argv.build);
+			}
+		}
 
+		if (argv.url) {
 			var expiration = new Date();
 			expiration.setDate(expiration.getDate() + 1);
 
@@ -260,22 +260,6 @@ Promise.resolve(require('minimist')(process.argv.slice(2)))
 		}
 
 		if (argv.deploy) {
-			var targetBuild;
-			if (argv.deploy === true) targetBuild = lastBuild;
-			else {
-				var i = 0;
-				while (i < buildHistory.length) {
-					if (buildHistory[i] && [i].index == argv.deploy) {
-						targetBuild = buildHistory[i];
-						break;
-					}
-					i++;
-				}
-				if (!targetBuild) {
-					fail('Build not found: ', argv.deploy);
-				}
-			}
-
 			return deployBuild(targetBuild);
 		}
 
