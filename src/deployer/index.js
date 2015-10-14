@@ -183,4 +183,4 @@ Promise.resolve(process.argv.slice(2))
 .then(function () {
 	process.stdout.write('Done\n');
 })
-.catch(console.error);
+.catch(fail);
