@@ -88,6 +88,8 @@ function flightOnline (flightid, socket, metadata, radio) {
 
 	radio.on('connection:starting', function (userid) {
 		debug('passenger boarding', flightid, userid);
+		metadata.seatsFilled++;
+		metadata.seatsAvailable--;
 		passengers.add(flightid, userid);
 	});
 
@@ -113,6 +115,10 @@ function flightOnline (flightid, socket, metadata, radio) {
 	radio.on('connection:offline', function (userid) {
 		debug('passenger disembarked', flightid, userid);
 		passengers.remove(flightid, userid);
+
+		metadata.seatsFilled--;
+		metadata.seatsAvailable++;
+
 		var occupied = channels.remove(true, userid);
 		auditEmptyChannels(occupied);
 	});
