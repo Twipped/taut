@@ -33,7 +33,7 @@ exports.add = function (flightid, flight) {
 
 exports.remove = function (flightid) {
 	if (flights[flightid]) {
-		delete !flights[flightid];
+		delete flights[flightid];
 	}
 };
 
