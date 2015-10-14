@@ -70,5 +70,12 @@
   },
   "bundledDependencies": [
     "taut.shared"
+  ],
+  "files": [
+    "app",
+    "bin",
+    "controllers",
+    "io",
+    "public"
   ]
 }
