@@ -29,7 +29,6 @@
     "merge-stream": "~1.0.0"
   },
   "bundledDependencies": [
-    "taut.shared",
-    "ircsock"
+    "taut.shared"
   ]
 }
