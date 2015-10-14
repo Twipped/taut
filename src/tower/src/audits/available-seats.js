@@ -1,12 +1,13 @@
 
-var debug = require('taut.shared/debug')('audit:available-seats');
+var debug    = require('taut.shared/debug')('audit:available-seats');
+var throttle = require('lodash/function/throttle');
 
-var config = require('taut.shared/config');
-var flights = require('../flights');
+var config   = require('taut.shared/config');
+var flights  = require('../flights');
 
 var launchFlight = require('../actions/launchFlight');
 
-module.exports = function auditAvailableSeats () {
+function auditAvailableSeats () {
 	var available = flights.availability();
 
 	if (available.totalOpen < config.tower.minimumOpenSeats &&
@@ -23,4 +24,6 @@ module.exports = function auditAvailableSeats () {
 			// TO DO: Move connections to empty a flight
 		}
 	}
-};
+}
+
+module.exports = throttle(auditAvailableSeats, 10000);
