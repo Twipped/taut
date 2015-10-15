@@ -77,6 +77,8 @@
     "bin",
     "controllers",
     "io",
-    "public"
+    "public",
+    "newrelic.js",
+    "bin/newrelic.js"
   ]
 }
