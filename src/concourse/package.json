@@ -33,7 +33,6 @@
     "proxmis": "^0.2.0",
     "rc": "~1.1.1",
     "serve-favicon": "~2.3.0",
-    "session-file-store": "0.0.20",
     "socket.io": "~1.3.7",
     "socket.io-client": "~1.3.7",
     "taut.shared": "../shared"
