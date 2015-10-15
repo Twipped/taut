@@ -14,7 +14,7 @@
     "binary-sorted-set": "~1.0.0",
     "bluebird": "~2.10.1",
     "body-parser": "~1.14.0",
-    "connect-redis": "~2.5.1",
+    "connect-redis": "~3.0.0",
     "cookie-parser": "~1.4.0",
     "debug": "~2.2.0",
     "express": "~4.13.3",
