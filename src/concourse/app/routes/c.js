@@ -1,5 +1,6 @@
 'use strict';
 
+var clone = require('lodash/lang/clone');
 var router = module.exports = require('express').Router(); // eslint-disable-line new-cap
 
 var channelTracking = require('../../controllers/channel-tracking');
@@ -14,7 +15,7 @@ router.get('/:channel', function (req, res, next) {
 
 	channelTracking.pageRequest(channel).then(function (events) {
 		var cv = new Chatview();
-		cv.add(events);
+		cv.add(events.map(clone));
 
 		res.render('channel.hbs', {
 			channelName: channel,
