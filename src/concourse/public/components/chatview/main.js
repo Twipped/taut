@@ -1,6 +1,6 @@
-'use strict';
+/* eslint-env browser */
 
-define(['jquery', 'lodash', 'backbone', 'chatview/index', 'socket'], function ($, _, Backbone, ChatView, socket) {
+define(['jquery', 'lodash', 'backbone', 'chatview/index', 'socket', 'page-scroller'], function ($, _, Backbone, ChatView, socket, pageScroller) {
 	return Backbone.View.extend({
 		initialize: function (options) {
 			var cv = this.cv = new ChatView();
@@ -49,31 +49,24 @@ define(['jquery', 'lodash', 'backbone', 'chatview/index', 'socket'], function ($
 				this.fragment.append($row);
 			} else {
 				this.$el.append($row);
-	
-				var viewport = {};
-				viewport.top    = $(window).scrollTop();
-				viewport.bottom = viewport.top + $(window).height();
 
-				var bounds = {};
-				bounds.top = $row.offset().top;
-				bounds.bottom = bounds.top + $row.outerHeight();
-
-				((bounds.top <= viewport.bottom) && (bounds.bottom >= viewport.top));
-
-				if (bounds.top < viewport.bottom + 30) {
-					$('html, body').animate({ scrollTop: $(document).height() }, 500);
+				if (pageScroller.isAtBottom) {
+					pageScroller.scrollToElement($row);
 				}
 			}
-
 		},
 
 		onRowUpdate: function (row) {
 			var $container = this.fragment || this.$el;
 			var $row;
 
-			$row = row.$el || $container.find('.chat-row[data-hash="' + row.hash + '"]')
+			$row = row.$el || $container.find('.chat-row[data-hash="' + row.hash + '"]');
 			row.$el = $(row.html);
 			$row.replaceWith(row.$el);
+
+			if (!this.fragment && pageScroller.isAtBottom) {
+				pageScroller.scrollToElement(row.$el);
+			}
 		},
 
 		onRowReplace: function (oldRows, newRows) {
