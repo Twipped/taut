@@ -1,13 +1,7 @@
 <div class="chat-row" data-hash="{{hash}}" data-timestamp="{{timestamp}}" data-type="joinLeave">
 	<span class="timestamp" title="{{date 'ddd MMM Mo YYYY hh:mm A' timestamp}}">{{date 'hh:mm A' timestamp}}</span>
-	{{#if incoming}}
 	<div class="timestamp-aligned">
-		{{#join incoming ', '}}<span class="nick" data-hash="{{hash}}" data-timestamp="{{timestamp}}" title="{{date 'hh:mm A' timestamp}}">{{nick}}</span>{{/join}} joined the channel.
+		{{#if incoming}}{{#join incoming ', '}}<span class="nick" data-hash="{{hash}}" data-timestamp="{{timestamp}}" title="{{date 'hh:mm A' timestamp}}">{{nick}}</span>{{/join}} joined the channel{{/if}}{{#if incoming}}{{#if outgoing}}, and {{else}}.{{/if}}{{/if}}
+		{{#if outgoing}}{{#join outgoing ', '}}<span class="nick" data-hash="{{hash}}" data-timestamp="{{timestamp}}" title="{{date 'hh:mm A' timestamp}} {{event}}{{#if message}} ({{message}}){{/if}}">{{nick}}</span>{{/join}} left the channel.{{/if}}
 	</div>
-	{{/if}}
-	{{#if outgoing}}
-	<div class="timestamp-aligned">
-		{{#join outgoing ', '}}<span class="nick" data-hash="{{hash}}" data-timestamp="{{timestamp}}" title="{{date 'hh:mm A' timestamp}} {{event}}{{#if message}} ({{message}}){{/if}}">{{nick}}</span>{{/join}} left the channel.
-	</div>
-	{{/if}}
 </div>
