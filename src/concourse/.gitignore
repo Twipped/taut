@@ -6,4 +6,5 @@
 /public/rev
 /public/vendor
 *.hbs.js
+newrelic_agent.log
 npm-debug.log

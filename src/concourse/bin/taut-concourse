@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require('newrelic');
 var config    = require('taut.shared/config');
 var debug     = require('taut.shared/debug')();
 var app       = require('../app');
