@@ -12,3 +12,38 @@
 	box-shadow: 0 1px 1px #000;
 	text-shadow: 0 1px 1px #000;
 }
+
+@mixin subphone {
+  @media (max-width: #{$phone-break - 1px}) {
+    @content;
+  }
+}
+@mixin phone {
+  @media (min-width: #{$phone-break}) and (max-width: #{$tablet-break - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: #{$tablet-break}) and (max-width: #{$desktop-break - 1px}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$desktop-break}) {
+    @content;
+  }
+}
+
+@mixin retina {
+  @media
+    only screen and (-webkit-min-device-pixel-ratio: 2),
+    only screen and (min--moz-device-pixel-ratio: 2),
+    only screen and (-o-min-device-pixel-ratio: 2/1),
+    only screen and (min-device-pixel-ratio: 2),
+    only screen and (min-resolution: 192dpi),
+    only screen and (min-resolution: 2dppx) {
+    @content;
+  }
+}
