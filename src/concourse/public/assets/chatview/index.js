@@ -1,8 +1,8 @@
 /* eslint mex-len:0 */
 
 (function (define) {
-	define(['lodash', 'moment', 'handlebars', './templates'],
-	function (_, moment, handlebars, templates) {
+	define(['lodash', 'moment', 'handlebars', './templates', 'binary-sorted-set'],
+	function (_, moment, handlebars, templates, bss) {
 
 		_.each(templates, function (template, key) {
 			templates[key] = handlebars.compile(template);
@@ -19,42 +19,61 @@
 		}
 
 		function View () {
-			this.rows = [];
+			this.events = bss(this._sorter);
 
 			// copy from the prototype at creation to avoid a static object
 			this.templates = _.assign({}, this.templates);
-
-			this.onRowUpdate = function () {};
-			this.onRowAppend = function () {};
 		}
 
 		View.makeRow = makeRow;
 
 		View.prototype.templates = _.assign({}, templates);
+		View.prototype._sorter = function eventSorter (a, b) {
+			if (a.timestamp > b.timestamp) return 1;
+			if (b.timestamp > a.timestamp) return -1;
+
+			if (a.hash > b.hash) return 1;
+			if (b.hash > a.hash) return -1;
+
+			return 0;
+		};
+
+		View.prototype.onRowReplace = function (originals, replacements) {}; // eslint-disable-line
+		View.prototype.onRowUpdate = function (row) {}; // eslint-disable-line
+		View.prototype.onRowAppend = function (row) {}; // eslint-disable-line
 
 		View.prototype.toString = function () {
-			return this.rows.map(function (row) {return row.html || '';}).join('');
-		};
+			var output = '';
+			var lastRow;
 
-		View.prototype.rerender = function (extraEvents) {
-			var data = this.rows.map(function (row) {return row.events;});
-			if (Array.isArray(extraEvents)) data.push(extraEvents);
-			data = Array.prototype.concat.apply([], data); // combine all events into a collection.
-			data.sort(function eventSorter (a, b) {
-				if (a.timestamp > b.timestamp) return 1;
-				if (b.timestamp > a.timestamp) return -1;
-
-				if (a.hash > b.hash) return 1;
-				if (b.hash > a.hash) return -1;
-
-				return 0;
+			this.events.array.forEach(function (e) {
+				if (e.row === lastRow) return;
+				lastRow = e.row;
+				output += e.row.html;
 			});
 
-			this.rows = [];
-			this.add(data);
+			return output;
 		};
 
-		View.prototype.add = function add (event) {
+		View.prototype.rerender = function () {
+			var data = this.getAllEvents();
+
+			var self = this;
+			var last;
+			data.forEach(function (event) {
+				if (self['$' + event.event]) {
+					event.row = self['$' + event.event](event, last);
+				} else {
+					event.row = self.$default(event, last);
+				}
+			});
+		};
+
+		View.prototype.getAllEvents = function () {
+			return this.events.array.concat();
+		};
+
+		View.prototype.add = function add (event, silent) {
 			var self = this;
 			if (Array.isArray(event)) {
 				return event.forEach(function (e) {
@@ -64,12 +83,60 @@
 
 			if (!event) return;
 
-			var last = this.rows[this.rows.length - 1];
+			if (this.events.has(event)) return;
 
-			if (this['$' + event.event]) {
-				this['$' + event.event](event, last);
+			this.events.add(event);
+
+			var pos = this.events.indexOf(event);
+			var prev = pos > 0 && this.events.array[pos - 1];
+			var next = pos < this.events.array.length - 1 && this.events.array[pos + 1];
+
+			if (!next) {
+				// inserted at the end of the list
+				if (self['$' + event.event]) {
+					event.row = self['$' + event.event](event, prev && prev.row);
+				} else {
+					event.row = self.$default(event, prev && prev.row);
+				}
+
+				if (!silent) {
+					if (!prev || event.row !== prev.row) {
+						this.onRowAppend(event.row);
+					} else {
+						this.onRowUpdate(event.row);
+					}
+				}
 			} else {
-				this.$default(event, last);
+				// inserting into the middle.
+				var effectedEvents = [];
+				var effectedRows = [];
+				var newRows = [];
+				if (prev) {
+					effectedEvents.push.apply(effectedRows, prev.row.events);
+					effectedRows.push(prev.row);
+				}
+				effectedEvents.push(event);
+				if (next) {
+					effectedEvents.push.apply(effectedRows, prev.row.events);
+					effectedRows.push(next.row);
+				}
+
+				var previousRow;
+				effectedEvents.forEach(function (e) {
+					if (self['$' + e.event]) {
+						e.row = self['$' + e.event](e, previousRow);
+					} else {
+						e.row = self.$default(e, previousRow);
+					}
+					if (e.row !== previousRow) {
+						previousRow = e.row;
+						newRows.push(e.row);
+					}
+				});
+
+				if (!silent) {
+					this.onRowReplace(effectedRows, newRows);
+				}
 			}
 		};
 
@@ -77,31 +144,31 @@
 			var row = makeRow(event);
 			row.html = this.templates.default(row);
 
-			this.rows.push(row);
-			return this.onRowAppend(row);
+			return row;
 		};
 
 		View.prototype.$privmsg = function (event, previousRow) {
 			if (previousRow && previousRow.type === 'privmsg' && previousRow.nick === event.nick) {
 				previousRow.events.push(event);
 				previousRow.html = this.templates.privmsg(previousRow);
-				return this.onRowUpdate(previousRow);
+				return previousRow;
 			}
 
 			var row = makeRow(event);
 			row.nick = event.nick;
 			row.html = this.templates.privmsg(row);
 
-			this.rows.push(row);
-			return this.onRowAppend(row);
+			return row;
 		};
 
 		View.prototype.$joinLeave = function (event, previousRow) {
 			if (previousRow && (
+				previousRow.type === 'joinLeave' ||
 				previousRow.type === 'join' ||
 				previousRow.type === 'part' ||
 				previousRow.type === 'quit'
 			)) {
+				previousRow.type == 'joinLeave';
 				previousRow.events.push(event);
 				switch (event.event) {
 				case 'join': previousRow.incoming.push(event); break;
@@ -111,7 +178,7 @@
 				}
 				previousRow.html = this.templates.joinLeave(previousRow);
 
-				return this.onRowUpdate(previousRow);
+				return previousRow;
 			}
 
 			var row = makeRow(event);
@@ -126,8 +193,7 @@
 			}
 			row.html = this.templates.joinLeave(row);
 
-			this.rows.push(row);
-			return this.onRowAppend(row);
+			return row;
 		};
 
 		View.prototype.$join = View.prototype.$joinLeave;
