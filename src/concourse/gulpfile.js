@@ -163,7 +163,8 @@ gulp.task('chatview-templates', function () {
 	var templates = {};
 	return gulp.src('./public/assets/chatview/templates/**/*.hbs')
 		.pipe(through2.obj(function (file, enc, done) {
-			templates[path.basename(file.path, path.extname(file.path))] = file.contents.toString();
+			var basename = path.basename(file.path, path.extname(file.path));
+			templates[basename] = file.contents.toString();
 			done();
 		}, function (done) {
 			this.push(new gutil.File({

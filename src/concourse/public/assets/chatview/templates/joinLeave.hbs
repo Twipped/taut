@@ -1,4 +1,4 @@
-<div class="chat-row" data-hash="{{hash}}" data-timestamp="{{timestamp}}" data-type="joinLeave">
+ <div id="CV-{{hash}}" class="chat-row system-message" data-hash="{{hash}}" data-timestamp="{{timestamp}}" data-type="joinLeave">
 	<span class="timestamp" title="{{date 'ddd MMM Mo YYYY hh:mm A' timestamp}}">{{date 'hh:mm A' timestamp}}</span>
 	<div class="timestamp-aligned">
 		{{#if incoming}}{{#join incoming ', '}}<span class="nick" data-hash="{{hash}}" data-timestamp="{{timestamp}}" title="{{date 'hh:mm A' timestamp}}">{{nick}}</span>{{/join}} joined the channel{{/if}}{{#if incoming}}{{#if outgoing}}, and {{else}}.{{/if}}{{/if}}

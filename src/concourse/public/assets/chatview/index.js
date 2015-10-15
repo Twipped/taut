@@ -161,6 +161,33 @@
 			return row;
 		};
 
+		View.prototype.$nick = function (event, previousRow) {
+			var row = makeRow(event);
+			row.oldNick = event.nick;
+			row.newNick = event.newNick;
+			row.html = this.templates.nickChange(row);
+
+			return row;
+		};
+
+		View.prototype.$logging = function (event, previousRow) {
+			if (previousRow && previousRow.type === event.event) {
+				previousRow.events.push(event);
+				previousRow.html = this.templates.logging(previousRow);
+				return previousRow;
+			}
+
+			var row = makeRow(event);
+			row.started = event.event === 'logging:started';
+			row.stopped = event.event === 'logging:stopped';
+			row.html = this.templates.logging(row);
+
+			return row;
+		};
+
+		View.prototype['$logging:stopped'] = View.prototype.$logging;
+		View.prototype['$logging:started'] = View.prototype.$logging;
+
 		View.prototype.$joinLeave = function (event, previousRow) {
 			if (previousRow && (
 				previousRow.type === 'joinLeave' ||
@@ -168,7 +195,7 @@
 				previousRow.type === 'part' ||
 				previousRow.type === 'quit'
 			)) {
-				previousRow.type == 'joinLeave';
+				previousRow.type = 'joinLeave';
 				previousRow.events.push(event);
 				switch (event.event) {
 				case 'join': previousRow.incoming.push(event); break;

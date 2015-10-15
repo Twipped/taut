@@ -1,0 +1,7 @@
+<div id="CV-{{hash}}" class="chat-row system-message" data-hash="{{hash}}" data-timestamp="{{timestamp}}" data-type="logging">
+	<span class="timestamp" title="{{date 'ddd MMM Mo YYYY hh:mm A' timestamp}}">{{date 'hh:mm A' timestamp}}</span>
+	<div class="timestamp-aligned">
+		{{#if started}}Logging resumed at {{date 'hh:mm:ss A' timestamp}}{{/if}}
+		{{#if stopped}}Logging halted at {{date 'hh:mm:ss A' timestamp}}{{/if}}
+	</div>
+</div>
