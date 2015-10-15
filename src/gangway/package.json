@@ -14,9 +14,10 @@
   "license": "MIT",
   "dependencies": {
     "bluebird": "~2.10.1",
-    "taut.shared": "../shared",
     "lodash": "~3.10.1",
-    "proxmis": "~0.2.0"
+    "newrelic": "~1.22.2",
+    "proxmis": "~0.2.0",
+    "taut.shared": "../shared"
   },
   "bundledDependencies": [
     "taut.shared"
