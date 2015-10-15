@@ -23,6 +23,7 @@ var handlebars   = require('gulp-handlebars');
 var jquery       = require('gulp-jquery');
 var rev          = require('gulp-rev');
 var revOverride  = require('gulp-rev-css-url');
+var browserify   = require('gulp-browserify');
 
 var fs           = require('fs');
 var exec         = require('child_process').exec;
@@ -70,6 +71,7 @@ gulp.task('clean', function (cb) {
 		'public/build',
 		'public/views/**/*.hbs.js',
 		'public/components/**/*.hbs.js',
+		'public/assets/binary-sorted-set.js',
 		'public/assets/chatview/templates.js'
 	];
 	del(targets).then(function () {cb();});
@@ -101,7 +103,7 @@ gulp.task('jquery', function () {
  * Copies our NPM installed front-end libs into the public folder
  * This is so that we're not exposing all our dependencies to the public.
  */
-gulp.task('vendor', ['jquery', 'lodash'], function () {
+gulp.task('vendor', ['browserify', 'jquery', 'lodash'], function () {
 	var libs = [
 		'backbone',
 		'requirejs',
@@ -116,13 +118,24 @@ gulp.task('vendor', ['jquery', 'lodash'], function () {
 	var sources = [
 		gulp.src(libs, { base: './node_modules' }),
 		gulp.src('./node_modules/socket.io-client/socket.io.js', { base: './node_modules/socket.io-client' }),
-		gulp.src('./node_modules/bootstrap/dist/js/umd/*.js', { base: './node_modules/bootstrap/dist/js/umd/' }).pipe(rename(function (fpath) {
-			fpath.basename = path.join('bootstrap', fpath.basename);
-		}))
+		gulp.src('./node_modules/bootstrap/dist/js/umd/*.js', { base: './node_modules/bootstrap/dist/js/umd/' })
+			.pipe(rename(function (fpath) {
+				fpath.basename = path.join('bootstrap', fpath.basename);
+			}))
 	];
 
 	return merge.apply(null, sources)
 		.pipe(gulp.dest('public/vendor'));
+});
+
+gulp.task('browserify', function () {
+	gulp.src('./node_modules/binary-sorted-set/index.js')
+		.pipe(browserify({
+			standalone: 'binary-sorted-set',
+			debug: true
+		}))
+		.pipe(rename('binary-sorted-set.js'))
+		.pipe(gulp.dest('public/assets'));
 });
 
 /**
@@ -443,6 +456,7 @@ gulp.task('watch', ['clean-rev', 'requirejs-dev', 'scss-dev', 'chatview-template
 		'./bin/**/*',
 		'./public/assets/chatview/index.js',
 		'./public/assets/chatview/templates.json',
+		// './public/components/**/*.js',
 		'./public/components/**/*.hbs.js'
 	], function (change) {
 		console.log(change.path, 'changed.');

@@ -4,3 +4,4 @@ src/concourse/public/assets/chatview/templates.js
 src/logs
 *.tgz
 src/.deployerrc
+src/concourse/public/assets/binary-sorted-set.js
