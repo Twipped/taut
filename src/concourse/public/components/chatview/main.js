@@ -1,6 +1,6 @@
 /* eslint-env browser */
 
-define(['jquery', 'lodash', 'backbone', 'chatview/index', 'socket', 'page-scroller'], function ($, _, Backbone, ChatView, socket, pageScroller) {
+define(['jquery', 'lodash', 'backbone', 'chatview/index', 'socket', 'page-scroller'], function ($, _, Backbone, ChatView, socket, pageScroller) { // eslint-disable-line
 	return Backbone.View.extend({
 		initialize: function (options) {
 			var cv = this.cv = new ChatView();
