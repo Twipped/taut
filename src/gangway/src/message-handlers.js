@@ -7,6 +7,7 @@ var trackPublicMessage = require('./message-cache').match;
 var hashPrivateMessage = require('./message-cache').hashPrivateMessage;
 
 exports.system = function (event, data) {
+	data.date = new Date(data.timestamp);
 
 	debug('system ' + event);
 	pubsub.channel('irc:system:receive').publish(event, data);
@@ -14,9 +15,10 @@ exports.system = function (event, data) {
 };
 
 exports.private = function (event, userid, data) {
-	debug('private ' + event, userid);
-
 	data.hash = hashPrivateMessage(data);
+	data.date = new Date(data.timestamp);
+
+	debug('private ' + event, userid);
 
 	pubsub.channel('irc:user:' + userid + ':receive').publish(event, data);
 
@@ -25,15 +27,17 @@ exports.private = function (event, userid, data) {
 
 exports.public = function (event, channel, data) {
 	channel = channel.toLowerCase();
-	debug('public ' + event, channel);
 
 	var isNewMessage = trackPublicMessage(data);
 	if (!isNewMessage) {
 		return irchistory.updatePublic(data);
 	}
 
+	data.date = new Date(data.timestamp);
+
 	pubsub.channel('irc:public:' + channel + ':receive').publish(event, data);
 
+	debug('public ' + event, channel);
 	return irchistory.pushPublic(data);
 };
 
