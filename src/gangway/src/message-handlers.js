@@ -2,6 +2,10 @@
 var debug      = require('taut.shared/debug')('message-handler');
 var pubsub     = require('taut.shared/io/pubsub');
 var irchistory = require('taut.shared/models/system/irc/history');
+var linkify    = require('linkify-it')();
+
+// add git protocol alias
+linkify.add('git:', 'http:');
 
 var trackPublicMessage = require('./message-cache').match;
 var hashPrivateMessage = require('./message-cache').hashPrivateMessage;
@@ -17,6 +21,10 @@ exports.system = function (event, data) {
 exports.private = function (event, userid, data) {
 	data.hash = hashPrivateMessage(data);
 	data.date = new Date(data.timestamp);
+
+	if (data.message && !data.links) {
+		data.links = linkify.match(data.message);
+	}
 
 	debug('private ' + event, userid);
 
@@ -34,6 +42,9 @@ exports.public = function (event, channel, data) {
 	}
 
 	data.date = new Date(data.timestamp);
+	if (data.message && !data.links) {
+		data.links = linkify.match(data.message);
+	}
 
 	pubsub.channel('irc:public:' + channel + ':receive').publish(event, data);
 
