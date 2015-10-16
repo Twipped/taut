@@ -3,6 +3,32 @@
 (function (define) {
 	define(['lodash', 'moment', 'handlebars', './templates', 'binary-sorted-set'],
 	function (_, moment, handlebars, templates, bss) {
+		handlebars.registerHelper('linkify', function (message, links) {
+			if (!links || !links.length) return message;
+
+			var result = '';
+			var lastindex = 0;
+			var url;
+			var text;
+
+			_.each(links, function (link) {
+				url = handlebars.escapeExpression(link.url);
+				text = handlebars.escapeExpression(link.text);
+
+				if (link.index - lastindex > 0) {
+					result += handlebars.escapeExpression(message.substring(lastindex, link.index));
+				}
+				result += '<a href="' + url + '" target="_blank">' + text + '</a>';
+
+				lastindex = link.lastIndex;
+			});
+
+			if (lastindex < message.length) {
+				result += handlebars.escapeExpression(message.substr(lastindex));
+			}
+
+			return new handlebars.SafeString(result);
+		});
 
 		_.each(templates, function (template, key) {
 			templates[key] = handlebars.compile(template);
