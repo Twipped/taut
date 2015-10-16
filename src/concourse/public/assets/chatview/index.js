@@ -161,7 +161,7 @@
 			return row;
 		};
 
-		View.prototype.$nick = function (event, previousRow) {
+		View.prototype.$nick = function (event) {
 			var row = makeRow(event);
 			row.oldNick = event.nick;
 			row.newNick = event.newNick;
@@ -190,12 +190,10 @@
 
 		View.prototype.$joinLeave = function (event, previousRow) {
 			if (previousRow && (
-				previousRow.type === 'joinLeave' ||
 				previousRow.type === 'join' ||
 				previousRow.type === 'part' ||
 				previousRow.type === 'quit'
 			)) {
-				previousRow.type = 'joinLeave';
 				previousRow.events.push(event);
 				switch (event.event) {
 				case 'join': previousRow.incoming.push(event); break;
