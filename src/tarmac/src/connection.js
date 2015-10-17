@@ -338,13 +338,13 @@ module.exports = exports = function (user, doNotConnect) {
 			.replace('{{username}}', user.username || user.userid)
 			.replace('{{port}}', irc.options.port);
 
-		request.get(identurl).end(function (err, res) {
+		request.get(identurl).end(function (err) {
 			if (err) debug.error('registering for ident failed', err);
 
-			irc.connect(function (err) {
-				if (err) debug('error', err, options);
+			irc.connect(function (err2) {
+				if (err2) debug('error', err2, options);
 			});
-			
+
 			radio.send('connection:starting', userid);
 			debug('opening connection', userid);
 		});
