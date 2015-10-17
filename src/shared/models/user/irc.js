@@ -2,6 +2,7 @@
 var Promise = require('bluebird');
 var mysql = require('../../io/mysql');
 var quell = require('quell');
+var random = require('../../lib/random');
 
 var pwhash = require('../../lib/passwords');
 var first = function (arr) {return arr && arr[0];};
@@ -33,7 +34,14 @@ Settings.get = function (userid, hashkey) {
 			});
 	}
 
-	return Settings.find({ userid: userid }).exec().then(first);
+	return Settings.find({ userid: userid }).exec().then(first).then(function (user) {
+		// ensure every user has a random username
+		if (!user.get('username')) {
+			user.set('username', random.username());
+			user.save();
+		}
+		return user;
+	})
 };
 
 Settings.set = function (userid, hashkey, value) {

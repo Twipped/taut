@@ -1,6 +1,7 @@
 'use strict';
 
 var crypto = require('crypto');
+var usernames = require('./usernames.json');
 
 // based on code from http://stackoverflow.com/a/25690754/110189
 function randomString (length, chars) {
@@ -32,8 +33,17 @@ function randomString (length, chars) {
 	return result.join('');
 }
 
-module.exports = function randomAsciiString (length) {
+module.exports = exports = function randomAsciiString (length) {
 	return randomString(length, 'ABCDEFGHIJKLMNOPQRSTUWXYZ0123456789');
 };
 
-module.exports.fromCharSet = randomString;
+exports.fromCharSet = randomString;
+
+exports.number = function (min, max) {
+	return Math.floor(Math.random()*(max-min+1)+min);
+};
+
+exports.username = function () {
+	var index = exports.number(0, usernames.length - 1);
+	return usernames[index].substr(0, 7) + randomString(2, '0123456789');
+};
