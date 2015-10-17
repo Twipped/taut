@@ -1,5 +1,6 @@
 'use strict';
 
+var config = require('taut.shared/config');
 var Promise = require('bluebird');
 var assign = require('lodash/object/assign');
 var omit   = require('lodash/object/omit');
@@ -13,6 +14,7 @@ var pluginChannelTracking = require('ircsock/plugins/channels');
 var mq     = require('taut.shared/io/mq');
 var Timer  = require('taut.shared/lib/timer');
 var radio  = require('./radio');
+var request = require('superagent');
 
 var model = {
 	user: {
@@ -61,7 +63,7 @@ module.exports = exports = function (user, doNotConnect) {
 
 	irc.use(pluginChannelTracking());
 
-	var heartbeat = new Timer(30000, function () {
+	var heartbeat = new Timer(config.tarmac.heartbeat * 1000, function () {
 		debug('heartbeat', irc.nick);
 		model.user.connection.set(userid, connid);
 		model.connection.user.set(connid, userid);
@@ -332,10 +334,20 @@ module.exports = exports = function (user, doNotConnect) {
 	};
 
 	if (!doNotConnect) {
-		irc.connect(function (err) {
-			if (err) debug('error', err, options);
+		var identurl = config.tarmac.identurl
+			.replace('{{username}}', user.username || user.userid)
+			.replace('{{port}}', irc.options.port);
+
+		request.get(identurl).end(function (err, res) {
+			if (err) debug.error('registering for ident failed', err);
+
+			irc.connect(function (err) {
+				if (err) debug('error', err, options);
+			});
+			
+			radio.send('connection:starting', userid);
+			debug('opening connection', userid);
 		});
-		radio.send('connection:starting', userid);
 	}
 
 	return irc;

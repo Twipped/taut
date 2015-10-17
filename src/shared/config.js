@@ -55,6 +55,7 @@ var config = require('rc')(pkg.name, {
 			port: 56001,
 			host: '127.0.0.1'
 		},
+		identurl: 'http://localhost:10110/{{username}}/{{port}}',
 		heartbeat: 30,
 		maxConnectionsPerWorker: 1
 	},

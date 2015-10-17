@@ -15,11 +15,12 @@
   "license": "MIT",
   "dependencies": {
     "bluebird": "~2.10.1",
-    "taut.shared": "../shared",
     "ircsock": "*",
     "lodash": "~3.10.1",
     "minimist": "~1.2.0",
-    "proxmis": "~0.2.0"
+    "proxmis": "~0.2.0",
+    "superagent": "~1.4.0",
+    "taut.shared": "../shared"
   },
   "devDependencies": {
     "forever-monitor": "~1.7.0",
