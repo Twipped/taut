@@ -1,9 +1,9 @@
-<div id="CV-{{hash}}" class="chat-row" data-hash="{{hash}}" data-timestamp="{{timestamp}}" {{#if nick}}data-nick="{{nick}}"{{/if}} data-type="{{type}}">
+<div id="CV-{{hash}}" class="chat-row" data-timestamp="{{timestamp}}" {{#if nick}}data-nick="{{nick}}"{{/if}} data-type="{{type}}">
 	<span class="timestamp" title="{{date 'ddd MMM Mo YYYY hh:mm A' timestamp}}">{{date 'hh:mm A' timestamp}}</span>
 	{{#each events}}
 	<div class="timestamp-aligned">
 		{{#unless @index}}<span class="nick">{{nick}}</span>{{/unless}}
-		{{#if message}}<span class="message">{{linkify message links}}</span>{{/if}}
+		{{#if message}}<span class="message" data-hash="{{hash}}">{{linkify message links}}</span>{{/if}}
 	</div>
 	{{/each}}
 </div>
