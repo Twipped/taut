@@ -5,6 +5,7 @@ var irchistory = require('taut.shared/models/system/irc/history');
 var linkify    = require('linkify-it')();
 
 var ChannelTopic = require('taut.shared/models/channel/topic');
+var ChannelNames = require('taut.shared/models/channel/names');
 
 // add git protocol alias
 linkify.add('git:', 'http:');
@@ -27,6 +28,10 @@ exports.system = function (event, data) {
 			nick: data.nick,
 			date: data.time
 		});
+	}
+
+	if (event === 'names') {
+		ChannelNames.set(data.target, data.names);
 	}
 };
 
@@ -66,6 +71,17 @@ exports.public = function (event, channel, data) {
 			message: data.message,
 			date: new Date()
 		});
+		pubsub.channel('irc:public:' + channel + ':receive').publish(event, data);
+	}
+
+	if (event === 'join') {
+		ChannelNames.add(data.target, data.nick, { 'nick':data.nick,'op':false,'halfop':false,'voice':false });
+		pubsub.channel('irc:public:' + channel + ':receive').publish('names:add', data);
+	}
+
+	if (event === 'part' || event === 'quit:channel' || event === 'kick') {
+		ChannelNames.remove(data.target, data.nick);
+		pubsub.channel('irc:public:' + channel + ':receive').publish('names:remove', data);
 	}
 
 	debug('public ' + event, channel);
