@@ -29,7 +29,7 @@ LoginEmail.getUserIDByEmail(login).then(function (userid) {
 
 			mq.emit('irc:outgoing:' + userid, {
 				command: 'part',
-				arguments: channel,
+				arguments: [channel],
 
 				// expire after 10 seconds, so it doesn't try to run it if
 				// this user isn't currently online
