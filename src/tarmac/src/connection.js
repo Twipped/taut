@@ -140,6 +140,9 @@ module.exports = exports = function (user, doNotConnect) {
 			]).then(function () {
 				emitSystem('join', ev);
 			});
+
+			// request channel modes when joining
+			irc.write('MODE '+ev.target);
 		}
 		emitPublic('join', ev);
 	});
@@ -191,10 +194,11 @@ module.exports = exports = function (user, doNotConnect) {
 	});
 
 	irc.on('mode:channel', function (ev) {
-		if (ev.isSelf) {
+		if (!ev.nick) {
 			emitSystem('mode:channel', ev);
+		} else {
+			emitPublic('mode:channel', ev);
 		}
-		emitPublic('mode:channel', ev);
 	});
 
 	irc.on('notice', function (ev) {
