@@ -240,7 +240,7 @@ module.exports = exports = function (user, doNotConnect) {
 	});
 
 	irc.on('topic:time', function (ev) {
-		emitSystem('topic', ev);
+		emitSystem('topic:time', ev);
 	});
 
 
