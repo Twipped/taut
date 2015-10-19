@@ -2,7 +2,7 @@
 var redis = require('../../io/redis');
 
 function key (channel) {
-	return 'channel:' + channel + ':topic';
+	return 'channel:' + channel.toLowerCase() + ':topic';
 }
 
 exports.get = function (channel, hashkey) {

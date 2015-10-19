@@ -4,7 +4,7 @@ var indexBy = require('lodash/collection/indexBy');
 var mapValues = require('lodash/object/mapValues');
 
 function key (channel) {
-	return 'channel:' + channel + ':names';
+	return 'channel:' + channel.toLowerCase() + ':names';
 }
 
 exports.get = function (channel, hashkey) {

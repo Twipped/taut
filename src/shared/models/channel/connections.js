@@ -3,7 +3,7 @@ var debug = require('../../debug')('models:channel:connections');
 var redis = require('../../io/redis');
 
 function key (channel) {
-	return 'channel:' + channel + ':connections';
+	return 'channel:' + channel.toLowerCase() + ':connections';
 }
 
 exports.get = function (channel) {

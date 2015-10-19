@@ -26,6 +26,7 @@ exports.get = function (userid) {
 };
 
 exports.add = function (userid, channel, password) {
+	channel = channel.toLowerCase();
 	debug('adding', userid, channel);
 
 	return queryize().from(TABLENAME)
@@ -38,6 +39,7 @@ exports.add = function (userid, channel, password) {
 };
 
 exports.remove = function (userid, channel) {
+	channel = channel.toLowerCase();
 	debug('removing', userid, channel);
 
 	return queryize().from(TABLENAME)

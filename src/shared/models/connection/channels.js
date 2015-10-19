@@ -2,7 +2,7 @@
 var debug = require('../../debug')('models:connection:channels');
 var redis = require('../../io/redis');
 
-var EXPIRES_AFTER = 60 * 60 * 24; //1 day
+var EXPIRES_AFTER = 60 * 60 * 24; // 1 day
 
 function key (connid) {
 	return 'connection:' + connid + ':channels';
@@ -13,6 +13,7 @@ exports.get = function (connid) {
 };
 
 exports.add = function (connid, channel) {
+	channel = channel.toLowerCase();
 	debug('adding', connid, channel);
 	return redis.multi()
 		.sadd(key(connid), channel)
@@ -21,6 +22,7 @@ exports.add = function (connid, channel) {
 };
 
 exports.remove = function (connid, channel) {
+	channel = channel.toLowerCase();
 	debug('removing', connid, channel);
 	return redis.multi()
 		.srem(key(connid), channel)
