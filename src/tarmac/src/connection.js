@@ -245,6 +245,25 @@ module.exports = exports = function (user, doNotConnect) {
 
 
 	function handleReply (type, data) {
+		switch (type) {
+		case 'RPL_NAMREPLY':
+		case 'RPL_ENDOFNAMES':
+		case 'RPL_MOTDSTART':
+		case 'RPL_MOTD':
+		case 'RPL_ENDOFMOTD':
+		case 'RPL_CHANNELMODEIS':
+		case 'RPL_CREATIONTIME':
+		case 'RPL_BANLIST':
+		case 'RPL_ENDOFBANLIST':
+		case 'RPL_NOTOPIC':
+		case 'RPL_TOPIC':
+		case 'RPL_TOPIC_WHO_TIME':
+		case 'RPL_WELCOME':
+			return;
+		default: break;
+		}
+
+
 		data = assign({ type: type }, data);
 		emitSystem('reply', data);
 	}
