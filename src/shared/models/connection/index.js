@@ -2,7 +2,6 @@
 // var Promise = require('bluebird');
 var config = require('../../config');
 var redis = require('../../io/redis');
-var debug = require('../../debug')('models:connection');
 
 function key (connid) {
 	return 'connection:' + connid;
@@ -15,7 +14,6 @@ exports.get = function (connid) {
 exports.set = function (connid, userid) {
 	var expire = config.tarmac.heartbeat + 5 || 35;
 
-	debug('setting', connid, userid);
 	return redis.set(key(connid), userid, 'EX', expire);
 };
 
