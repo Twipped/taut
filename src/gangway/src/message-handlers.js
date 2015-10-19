@@ -31,6 +31,12 @@ exports.system = function (event, data) {
 		});
 	}
 
+	if (event === 'topic:url') {
+		ChannelTopic.set(data.target, {
+			url: data.url
+		});
+	}
+
 	if (event === 'names') {
 		ChannelNames.set(data.target, data.names);
 	}

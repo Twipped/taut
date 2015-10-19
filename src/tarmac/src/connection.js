@@ -243,9 +243,13 @@ module.exports = exports = function (user, doNotConnect) {
 		emitSystem('topic:time', ev);
 	});
 
+	irc.on('topic:url', function (ev) {
+		emitSystem('topic:url', ev);
+	});
 
 	function handleReply (type, data) {
 		switch (type) {
+		case 'RPL_CHANNEL_URL':
 		case 'RPL_NAMREPLY':
 		case 'RPL_ENDOFNAMES':
 		case 'RPL_MOTDSTART':
