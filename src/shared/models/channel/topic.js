@@ -1,5 +1,5 @@
 
-var redis = require('../io/redis');
+var redis = require('../../io/redis');
 
 function key (channel) {
 	return 'channel:' + channel + ':topic';

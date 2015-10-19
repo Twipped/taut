@@ -1,5 +1,5 @@
 
-var redis = require('../io/redis');
+var redis = require('../../io/redis');
 var indexBy = require('lodash/collection/indexBy');
 
 function key (channel) {
