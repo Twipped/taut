@@ -21,7 +21,7 @@ exports.set = function (channel, hashkey, value) {
 	if (typeof hashkey === 'object') {
 		if (Array.isArray(hashkey)) {
 			hashkey = indexBy(hashkey, 'nick');
-			hashkey = mapValues(hashkey, JSON.stringify)
+			hashkey = mapValues(hashkey, JSON.stringify);
 		}
 		return redis.hmset(key(channel), hashkey);
 	}

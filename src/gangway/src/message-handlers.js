@@ -26,6 +26,7 @@ exports.system = function (event, data) {
 	if (event === 'topic:time') {
 		ChannelTopic.set(data.target, {
 			nick: data.nick,
+			hostmask: data.hostmask,
 			date: data.time
 		});
 	}
@@ -68,6 +69,7 @@ exports.public = function (event, channel, data) {
 	if (event === 'topic') {
 		ChannelTopic.set(data.target, {
 			nick: data.nick,
+			hostmask: data.hostmask,
 			message: data.message,
 			date: new Date()
 		});
