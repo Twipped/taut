@@ -38,6 +38,7 @@ define(['jquery', 'backbone'], function ($, Backbone) {
 
 			var $element = $(element);
 			var y = $element.position().top;
+			y += scrollTarget.scrollTop;
 			y += $element.height();
 			y = Math.max( 0, Math.min( y, scrollHeight ) );
 

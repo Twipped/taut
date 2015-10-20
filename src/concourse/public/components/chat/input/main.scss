@@ -1,0 +1,10 @@
+
+.component[data-component="chat/input"] {
+	// border-top: 1px solid #ddd;
+	box-shadow: 0 0px 4px rgba(0,0,0,0.3);
+
+	.in-preview-mode {
+		text-align: center;
+		margin: 5px;
+	}
+}

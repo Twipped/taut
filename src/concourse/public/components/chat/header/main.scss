@@ -1,0 +1,26 @@
+
+.component[data-component="chat/header"] {
+	background: white;
+	font-size: 14px;
+	padding: 0 10px;
+
+	// border-bottom: 1px solid rgba(200,200,200,0.5);
+	box-shadow: 0 0 4px rgba(0,0,0,0.3);
+
+	.chat-header {
+		line-height: 34px;
+	}
+
+	.chat-title {
+		font-size: 18px;
+		color: #333;
+		font-weight: bold;
+	}
+
+	.chat-topic {
+		font-size: 12px;
+		line-height: 0.9rem;
+		color: #999;
+		margin: 0 0 7px;
+	}
+}

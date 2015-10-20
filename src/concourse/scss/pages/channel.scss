@@ -2,5 +2,8 @@
 @import "../mixins";
 
 @if ($env = "production") {
+	@import "../../public/components/chat/box/main.scss";
+	@import "../../public/components/chat/header/main.scss";
 	@import "../../public/components/chat/output/main.scss";
+	@import "../../public/components/chat/input/main.scss";
 }

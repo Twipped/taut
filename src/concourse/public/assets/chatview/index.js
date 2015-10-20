@@ -8,17 +8,20 @@
 
 			var result = '';
 			var lastindex = 0;
-			var url;
-			var text;
 
-			_.each(links, function (link) {
-				url = handlebars.escapeExpression(link.url);
-				text = handlebars.escapeExpression(link.text);
+			_.each(links, function (link, i) {
+				var url = handlebars.escapeExpression(link.url);
+				var text = handlebars.escapeExpression(link.text);
 
 				if (link.index - lastindex > 0) {
 					result += handlebars.escapeExpression(message.substring(lastindex, link.index));
 				}
-				result += '<a href="' + url + '" target="_blank">' + text + '</a>';
+
+				if (link.schema !== '//') {
+					result += '<a href="' + url + '" target="_blank">' + text + '</a>';
+				} else {
+					result += text;
+				}
 
 				lastindex = link.lastIndex;
 			});

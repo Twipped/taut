@@ -3,6 +3,10 @@
 var clone = require('lodash/lang/clone');
 var router = module.exports = require('express').Router(); // eslint-disable-line new-cap
 
+var Promise = require('bluebird');
+var ChannelTopic = require('taut.shared/models/channel/topic');
+var ChannelNames = require('taut.shared/models/channel/names');
+var ChannelModes = require('taut.shared/models/channel/modes');
 var channelTracking = require('../../controllers/channel-tracking');
 var Chatview = require('../../public/assets/chatview');
 
@@ -13,14 +17,24 @@ router.get('/:channel', function (req, res, next) {
 		return res.redirect('%23' + channel);
 	}
 
-	channelTracking.pageRequest(channel).then(function (events) {
+	var pdata = {
+		events: channelTracking.pageRequest(channel),
+		topic: ChannelTopic.get(channel),
+		names: ChannelTopic.get(channel),
+		modes: ChannelTopic.get(channel)
+	};
+
+	Promise.props(pdata).then(function (data) {
 		var cv = new Chatview();
-		cv.add(events.map(clone));
+		cv.add(data.events.map(clone));
 
 		res.render('channel.hbs', {
 			channelName: channel,
+			topic: data.topic,
+			names: data.names,
+			modes: data.modes,
 			historical: {
-				events: events,
+				events: data.events,
 				html: cv.toString()
 			}
 		});

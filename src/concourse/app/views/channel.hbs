@@ -1,14 +1,22 @@
-{{require 'layout/main.hbs'}}{{require 'components/example/main.hbs'}}
+{{require 'layout/main.hbs'}}{{require 'components/chat/header/main.hbs'}}
 {{#extend 'layout/main.hbs'}}
 
 {{#append 'head'}}<link rel="stylesheet" href="{{rev '/build/pages/channel.css'}}" />{{/append}}
 
 {{#content 'body'}}
 	{{data}}
+	<div class="chatbox">
+		<div class="component" data-component="chat/header">
+			{{#with topic}}{{>components/chat/header/main.hbs}}{{/with}}
+		</div>
+		<div class="js-component component" data-component="chat/output" data-feed="irc:channel:{{channelName}}">
+			<script type="text/json">{{stringify historical.events}}</script>
+			{{{historical.html}}}
+		</div>
+		<div class="js-component component" data-component="chat/input" data-feed-target="{{channelName}}">
+			<h4 class="in-preview-mode">You are viewing a live preview of {{channelName}}. <button class="btn btn-primary disabled" disabled>Join the Conversation</button></h4>
 
-	<div class="js-component" data-component="chatview" data-feed="irc:channel:{{channelName}}">
-		<script type="text/json">{{stringify historical.events}}</script>
-		{{{historical.html}}}
+		</div>
 	</div>
 {{/content}}
 

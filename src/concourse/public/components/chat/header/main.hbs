@@ -1,0 +1,5 @@
+<div class="chat-header">
+	<span class="chat-title">{{target}}</span>
+	{{#if url}}<a href="{{url}}" class="chat-url" target="_blank">{{url}}</a>{{/if}}
+</div>
+{{#if message}}<div class="chat-topic" title="Set by {{nick}} on {{date 'MMM Do, hh:mm A' date}}">{{linkify message links}}</div>{{/if}}

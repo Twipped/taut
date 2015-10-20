@@ -13,13 +13,16 @@ exports.get = function (channel, hashkey) {
 			return redis.hget(key(channel), hashkey).then(tryParse);
 		}
 
-		return redis.hget(key(channel), hashkey).then(function (data) {
-			if (data.links) data.links = tryParse(data.links);
-			return data;
-		});
+		return redis.hget(key(channel), hashkey);
 	}
 
-	return redis.hgetall(key(channel));
+	return redis.hgetall(key(channel)).then(function (data) {
+		if (data) {
+			data.target = channel;
+			data.links = data.links && tryParse(data.links) || [];
+		}
+		return data;
+	});
 };
 
 exports.set = function (channel, hashkey, value) {
