@@ -16,12 +16,18 @@ var hashPrivateMessage = require('./message-cache').hashPrivateMessage;
 
 exports.system = function (event, data) {
 	data.date = new Date(data.timestamp);
+	if (data.message && !data.links) {
+		data.links = linkify.match(data.message);
+	}
 
 	debug('system ' + event);
 	pubsub.channel('irc:system:receive').publish(event, data);
 
 	if (event === 'topic') {
-		ChannelTopic.set(data.target, 'message', data.message);
+		ChannelTopic.set(data.target, {
+			message: data.message,
+			links: data.links
+		});
 	}
 
 	if (event === 'topic:time') {
