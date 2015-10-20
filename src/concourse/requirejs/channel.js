@@ -1,4 +1,4 @@
 
 require([
-	'components/chatview/main'
+	'components/chat/output/main'
 ]);

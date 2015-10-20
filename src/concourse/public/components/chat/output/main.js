@@ -1,12 +1,14 @@
 /* eslint-env browser */
 
-define(['jquery', 'lodash', 'backbone', 'chatview/index', 'socket', 'page-scroller'], function ($, _, Backbone, ChatView, socket, pageScroller) { // eslint-disable-line
+define(['jquery', 'lodash', 'backbone', 'chatview/index', 'socket', 'scroller'], function ($, _, Backbone, ChatView, socket, Scroller) { // eslint-disable-line
 	return Backbone.View.extend({
 		initialize: function (options) {
 			var cv = this.cv = new ChatView();
 			cv.onRowUpdate = this.onRowUpdate.bind(this);
 			cv.onRowAppend = this.onRowAppend.bind(this);
 			cv.onRowReplace = this.onRowReplace.bind(this);
+
+			this.scroller = new Scroller({el: this.$el});
 
 			var events;
 			if (options.events) {
@@ -50,8 +52,8 @@ define(['jquery', 'lodash', 'backbone', 'chatview/index', 'socket', 'page-scroll
 			} else {
 				this.$el.append($row);
 
-				if (pageScroller.isAtBottom) {
-					pageScroller.scrollToElement($row);
+				if (this.scroller.isAtBottom) {
+					this.scroller.scrollToElement($row);
 				}
 			}
 		},
@@ -64,8 +66,8 @@ define(['jquery', 'lodash', 'backbone', 'chatview/index', 'socket', 'page-scroll
 			row.$el = $(row.html);
 			$row.replaceWith(row.$el);
 
-			if (!this.fragment && pageScroller.isAtBottom) {
-				pageScroller.scrollToElement(row.$el);
+			if (!this.fragment && this.scroller.isAtBottom) {
+				this.scroller.scrollToElement(row.$el);
 			}
 		},
 
