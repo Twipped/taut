@@ -6,6 +6,7 @@ var linkify    = require('linkify-it')();
 
 var ChannelTopic = require('taut.shared/models/channel/topic');
 var ChannelNames = require('taut.shared/models/channel/names');
+var ChannelModes = require('taut.shared/models/channel/modes');
 
 // add git protocol alias
 linkify.add('git:', 'http:');
@@ -37,6 +38,10 @@ exports.system = function (event, data) {
 
 	if (event === 'names') {
 		ChannelNames.set(data.target, data.names);
+	}
+
+	if (event === 'mode:channel') {
+		ChannelModes.set(data.target, data.modes);
 	}
 };
 
