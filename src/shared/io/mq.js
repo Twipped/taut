@@ -133,30 +133,16 @@ exports.subscribe = function (queueName, handler) {
 
 			debug('received message', queueName, message);
 
-			// create the done callback for determining jobs in progress
-			var done = proxmis();
-			done.then(function () {
-				wrapper.processing--;
-				if (wrapper._closing && wrapper.processing < 1) {
-					wrapper._closing();
-				}
-			});
-
 			wrapper.processing++;
 
-			try {
-				var p = wrapper.handler.apply(null, message);
-				// if we get a thenable back from the handler, use it.
-				// otherwise assume handler is syncronous
-				if (p && typeof p.then === 'function') {
-					p.then(done);
-				} else {
-					done();
-				}
-			} catch (e) {
-				debug.error(e);
-				done();
-			}
+			Promise.try(wrapper.handler, message)
+				.catch(debug.error.bind(null, 'Subscriber rejected'))
+				.then(function finished () {
+					wrapper.processing--;
+					if (wrapper._closing && wrapper.processing < 1) {
+						wrapper._closing();
+					}
+				});
 		},
 
 		close: function () {
