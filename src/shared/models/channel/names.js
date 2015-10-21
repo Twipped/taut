@@ -13,7 +13,7 @@ exports.get = function (channel, hashkey) {
 		return redis.hget(key(channel), hashkey).then(tryParse);
 	}
 
-	return redis.hgetall(key()).then(function (names) {
+	return redis.hgetall(key(channel)).then(function (names) {
 		return mapValues(names, tryParse);
 	});
 };
