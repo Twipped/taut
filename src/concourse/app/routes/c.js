@@ -20,8 +20,8 @@ router.get('/:channel', function (req, res, next) {
 	var pdata = {
 		events: channelTracking.pageRequest(channel),
 		topic: ChannelTopic.get(channel),
-		names: ChannelTopic.get(channel),
-		modes: ChannelTopic.get(channel)
+		names: ChannelNames.get(channel),
+		modes: ChannelModes.get(channel)
 	};
 
 	Promise.props(pdata).then(function (data) {
