@@ -35,7 +35,7 @@ router.get('/:channel', function (req, res, next) {
 			modes: data.modes,
 			historical: {
 				events: data.events,
-				json: JSON.stringify(data.events).replace('</', '<\\/'),
+				json: JSON.stringify(data.events).replace(/<\//g, '<\\/'),
 				html: cv.toString()
 			}
 		});
