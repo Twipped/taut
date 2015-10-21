@@ -9,7 +9,13 @@ module.exports = function () {
 		var args = Array.prototype.slice.call(arguments, 1);
 
 		if (messageHandlers[type]) {
-			return Promise.try(messageHandlers[type], args).catch(console.error);
+			var time = Date.now();
+			return Promise.try(messageHandlers[type], args)
+				.catch(console.error)
+				.then(function () {
+					var elapsed = Date.now() - time;
+
+				});
 		}
 
 		debug.error('unknown message type', type, args);
