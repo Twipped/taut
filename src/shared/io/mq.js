@@ -167,18 +167,26 @@ exports.shutdown = function () {
 		debug('settling subscribers');
 		return Promise.settle(Object.keys(subscribers).map(function (queueName) {
 			return subscribers[queueName].close();
-		}));
+		})).then(function () {
+			subscribers = {};
+		});
 	}
 
 	function settleQueues () {
 		debug('settling queues');
-		return Promise.settle(Object.keys(queues).map(function (queueName) {
-			var queue = queues[queueName];
-			return new Promise(function (resolve) {
-				queue.once('detached', resolve);
-				queue.detach();
+		return Promise.all(Object.keys(queues).map(function (queueName) {
+			return queues[queueName].then(function (q) {
+				return (new Promise(function (resolve) {
+					q.on('detached', resolve);
+					q.detach();
+				})).then(function () {
+					debug('queue detached');
+				});
 			});
-		}));
+		})).then(function () {
+			queues = {};
+			debug('queues settled');
+		});
 	}
 
 	return exports.ready.then(settleSubscribers).then(settleQueues).then(function () {
@@ -186,6 +194,7 @@ exports.shutdown = function () {
 		return new Promise(function (resolve) {
 			bus.once('offline', resolve);
 			bus.disconnect();
+			bus = null;
 		});
 	});
 };
