@@ -8,7 +8,7 @@ define(['jquery', 'lodash', 'backbone', 'chatview/index', 'socket', 'scroller'],
 			cv.onRowAppend = this.onRowAppend.bind(this);
 			cv.onRowReplace = this.onRowReplace.bind(this);
 
-			this.scroller = new Scroller({el: this.$el});
+			this.scroller = new Scroller({ el: this.$el });
 
 			var events;
 			if (options.events) {
