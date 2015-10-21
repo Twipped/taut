@@ -10,7 +10,7 @@
 			{{#with topic}}{{>components/chat/header/main.hbs}}{{/with}}
 		</div>
 		<div class="js-component component" data-component="chat/output" data-feed="irc:channel:{{channelName}}">
-			<script type="text/json">{{stringify historical.events}}</script>
+			<script type="text/json">{{{historical.json}}}</script>
 			{{{historical.html}}}
 		</div>
 		<div class="js-component component" data-component="chat/input" data-feed-target="{{channelName}}">
