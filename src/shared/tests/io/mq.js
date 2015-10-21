@@ -1,32 +1,26 @@
+/* eslint no-console:0, no-shadow:0 */
 
 var Promise = require('bluebird');
 var test = require('tap').test;
 var test_ = test;
 var redtap = require('../../redtap');
-var rewire = require('rewire');
+var mq = require('../../io/mq');
 
 test('message queues', function (t) {
-	var mq;
 	var test = redtap(
 		test_,
 		function beforeEach (done) {
-			mq = rewire('../../io/mq');
-			mq.ready.then(done, function (err) {
+			mq().ready.then(done, function (err) {
 				console.error(err);
 				done();
 			});
 		},
 
 		function afterEach (done) {
-			try {
-				mq.shutdown().then(done, function (err) {
-					console.error(err);
-					done();
-				});
-			} catch (err) {
+			mq.shutdown().then(done, function (err) {
 				console.error(err);
 				done();
-			}
+			});
 		}
 	);
 
