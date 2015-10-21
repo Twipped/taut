@@ -6,39 +6,14 @@ var debug = require('../debug')('mq');
 var Promise = require('bluebird');
 var proxmis = require('proxmis');
 
-
-var ready = null;
-exports.ready = null;
-function notReady () {
-	ready = proxmis();
-	exports.ready = ready.promise;
-}
-notReady();
-
-
+var bus;
 var queues = {};
 var subscribers = {};
 
-
-var bus = require('busmq').create(config.io.mq);
-
-bus.on('error', function (err) {
-	debug.error('bus error', err);
-});
-bus.on('online', function () {
-	debug('bus is online');
-	ready();
-});
-bus.on('offline', function () {
-	debug('bus has gone offline');
-	notReady();
-	queues = {};
-});
-
-bus.connect();
-
-
 function getQueue (name) {
+	// self initialization
+	if (!bus) exports();
+
 	if (queues[name]) {
 		return queues[name];
 	}
@@ -55,6 +30,39 @@ function getQueue (name) {
 		});
 	}));
 }
+
+var ready = null;
+
+function notReady () {
+	ready = proxmis();
+	exports.ready = ready.promise;
+}
+
+module.exports = exports = function () {
+	if (bus) return;
+
+	bus = require('busmq').create(config.io.mq);
+
+	bus.on('error', function (err) {
+		debug.error('bus error', err);
+	});
+	bus.on('online', function () {
+		debug('bus is online');
+		ready();
+	});
+	bus.on('offline', function () {
+		debug('bus has gone offline');
+		notReady();
+		queues = {};
+	});
+
+	bus.connect();
+	return exports;
+};
+
+exports.ready = null;
+notReady();
+
 
 exports.getQueue = getQueue;
 
