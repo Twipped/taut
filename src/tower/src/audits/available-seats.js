@@ -16,19 +16,6 @@ function auditAvailableSeats () {
 		flights.waiting++;
 		return launchFlight();
 	}
-
-	if (available.totalOpen > config.tower.maximumOpenSeats) {
-		if (available.emptyFlights.length) {
-			debug('too many empty flights, closing one',
-				available.openFlights.map(function (f) {return f.metadata;}),
-				available.emptyFlights.map(function (f) {return f.metadata;})
-			);
-			// available.emptyFlights[0].bus.send('shutdown');
-			
-		} else {
-			// TO DO: Move connections to empty a flight
-		}
-	}
 }
 
 module.exports = throttle(auditAvailableSeats, 10000);
