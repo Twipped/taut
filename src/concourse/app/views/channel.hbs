@@ -1,7 +1,10 @@
 {{require 'layout/main.hbs'}}{{require 'components/chat/header/main.hbs'}}
 {{#extend 'layout/main.hbs'}}
 
-{{#append 'head'}}<link rel="stylesheet" href="{{rev '/build/pages/channel.css'}}" />{{/append}}
+{{#append 'head'}}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="{{rev '/build/pages/channel.css'}}" />
+{{/append}}
 
 {{#content 'body'}}
 	{{data}}
