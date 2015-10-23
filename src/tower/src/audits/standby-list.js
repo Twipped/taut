@@ -1,19 +1,19 @@
 
-var debug = require('taut.shared/debug')('audit:standby-list');
-var flights = require('../flights');
-var standby = require('../standby');
+var debug           = require('taut.shared/debug')('audit:standby-list');
+var flights         = require('../flights');
+var standby         = require('../standby');
 var isFrequentFlier = require('../is-frequent-flier');
 
 module.exports = function auditStandbyList () {
 	var waiting = standby.getLength();
 	if (!waiting) return;
 
-	var openFlights = flights.availability().openFlights;
+	var availability = flights.availability();
 
-	debug('found', waiting + ' waiting', openFlights.length + ' available seats');
+	debug('found', waiting + ' waiting', availability.totalOpen + ' available seats');
 
-	while (waiting && openFlights.length) {
-		var flight = openFlights.pop();
+	while (waiting && availability.openFlights.length) {
+		var flight = availability.openFlights.pop();
 
 		var i = flight.metadata.seatsAvailable;
 		var userid;
