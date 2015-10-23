@@ -49,12 +49,15 @@ exports.availability = function () {
 	var results = {
 		totalOpen: 0,
 		totalSeats: 0,
+		totalFlights: 0,
 		emptyFlights: [],
 		openFlights: []
 	};
 
 	each(flights, function (flight) {
 		var metadata = flight.metadata;
+
+		results.totalFlights++;
 
 		results.totalOpen += metadata.seatsAvailable;
 		results.totalSeats += metadata.seatsTotal;
