@@ -5,7 +5,7 @@ var values = require('lodash/object/values');
 var alert  = require('taut.shared/alert');
 
 var auditEmptyChannels    = require('./audits/empty-channels');
-var auditActivePassengers    = require('./audits/active-passengers');
+var auditActivePassengers = require('./audits/active-passengers');
 var channelLoggingStarted = require('./actions/channelLoggingStarted');
 
 var passengers = require('./passengers');
@@ -49,6 +49,7 @@ exports.availability = function () {
 	var results = {
 		totalOpen: 0,
 		totalSeats: 0,
+		totalPassengers: 0,
 		totalFlights: 0,
 		emptyFlights: [],
 		openFlights: []
@@ -59,6 +60,7 @@ exports.availability = function () {
 
 		results.totalFlights++;
 
+		results.totalPassengers += metadata.seatsFilled;
 		results.totalOpen += metadata.seatsAvailable;
 		results.totalSeats += metadata.seatsTotal;
 		results.openFlights.push(flight);

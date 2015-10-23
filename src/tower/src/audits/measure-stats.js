@@ -9,6 +9,7 @@ module.exports = throttle(function () {
 	var avail = flights.availability();
 	var waiting = standby.getLength();
 
+	metrics.measure('seating.filled', avail.totalPassengers);
 	metrics.measure('seating.open', avail.totalOpen);
 	metrics.measure('seating.capacity', avail.totalSeats);
 	metrics.measure('seating.flights.empty', avail.emptyFlights.length);
