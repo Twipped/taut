@@ -3,14 +3,20 @@ var debug           = require('taut.shared/debug')('io');
 var each            = require('lodash/collection/each');
 var channelTracking = require('../controllers/channel-tracking');
 var channelCache    = require('../controllers/rolling-cache');
+var metrics         = require('taut.shared/metrics');
 
 var socketio = require('socket.io');
 
 var io = socketio();
 
+io.connectionCounter = 0;
+
 io.on('connection', function (socket) {
 	debug('socket connection', socket.id);
 	var subscribed = {};
+
+	io.connectionCounter++;
+	metrics.measure('websockets.open', io.connectionCounter);
 
 	socket.on('feed.subscribe', function (feed) {
 		// if this socket is already subbed to that feed, ignore the request
@@ -33,6 +39,9 @@ io.on('connection', function (socket) {
 
 	socket.on('disconnect', function () {
 		debug('socket disconnected', socket.id);
+
+		io.connectionCounter--;
+		metrics.measure('websockets.open', io.connectionCounter);
 
 		each(subscribed, function (t, feed) {
 			if (!t) return;
