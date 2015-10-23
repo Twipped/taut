@@ -4,6 +4,7 @@ var debug   = require('./debug')('metrics');
 var Promise = require('bluebird');
 var assign  = require('lodash/object/assign');
 var librato;
+var timer;
 
 if (!config.librato.email || !config.librato.token) {
 	debug.error('Missing librato configuration');
@@ -15,7 +16,17 @@ function startup () {
 	librato = require('librato-node');
 	librato.configure(assign({ prefix: config.name + '.' }, config.librato));
 	librato.start();
+
+	measureEventLoop();
+	timer = setInterval(measureEventLoop, 10000);
+
 	debug('started');
+}
+
+function measureEventLoop () {
+	librato.timing('eventloop', function (done) {
+		setImmediate(done);
+	});
 }
 
 exports.measure = function () {
@@ -32,9 +43,11 @@ exports.timing = function (name, resolver, opts) {
 	startup();
 	if (resolver && typeof resolver.then === 'function') {
 		resolver = Promise.resolve(resolver);
-		librato.timing(name, function (done) {
-			resolver.nodeify(done);
-		}, opts);
+		if (librato) {
+			librato.timing(name, function (done) {
+				resolver.nodeify(done);
+			}, opts);
+		}
 		return resolver;
 	}
 
@@ -63,6 +76,7 @@ exports.middleware = function (countName, timeName) {
 
 process.on('graceful stop', function (promises) {
 	debug('stopping');
+	clearInterval(timer);
 	if (!librato) return;
 
 	promises.push(

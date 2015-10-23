@@ -18,7 +18,7 @@ module.exports = function () {
 			p.then(function () {
 				metrics.increment('total');
 			});
-			
+
 			return p;
 		}
 
