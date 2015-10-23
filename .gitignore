@@ -5,3 +5,4 @@ src/logs
 *.tgz
 src/.deployerrc
 src/concourse/public/assets/binary-sorted-set.js
+src/.tautrc

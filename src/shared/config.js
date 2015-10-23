@@ -5,40 +5,14 @@
  * based config files (see package docs for details), with a set of development defaults.
  */
 
-var pkg = require('./pkg');
+var pkg  = require('./pkg');
+var rc   = require('rc');
 var path = require('path');
+var defaultsDeep = require('lodash/object/defaultsDeep');
 
-var config = require('rc')(pkg.name, {
+var appConfig = rc(pkg.name, {
 	name: pkg.name,
 	version: pkg.version,
-	io: {
-		redis: {
-			port: 6379,
-			host: '127.0.0.1',
-			auth: false
-		},
-		mysql: {
-			host: '127.0.0.1',
-			user: 'vagrant',
-			password: 'vagrant',
-			database: 'taut',
-			connectionLimit: 2
-		},
-		elasticsearch: {
-			host: 'localhost:9200'
-		},
-		email: {
-			method: 'test',
-			options: {
-				directory: path.resolve('../logs/mail')
-			}
-		},
-		mq: {
-			redis: ['redis://127.0.0.1:6379']
-		}
-	},
-
-	userEncryptionKey: 'ktiR9MQ87rPH4Kk6dtmLR6A9vpe8Y32T',
 
 	concourse: {
 		port: 8000,
@@ -90,5 +64,42 @@ var config = require('rc')(pkg.name, {
 	}
 });
 
+var siteConfig = rc('taut', {
+	io: {
+		redis: {
+			port: 6379,
+			host: '127.0.0.1',
+			auth: false
+		},
+		mysql: {
+			host: '127.0.0.1',
+			user: 'vagrant',
+			password: 'vagrant',
+			database: 'taut',
+			connectionLimit: 2
+		},
+		elasticsearch: {
+			host: 'localhost:9200'
+		},
+		email: {
+			method: 'test',
+			options: {
+				directory: path.resolve('../logs/mail')
+			}
+		},
+		mq: {
+			redis: ['redis://127.0.0.1:6379']
+		}
+	},
+
+	userEncryptionKey: 'ktiR9MQ87rPH4Kk6dtmLR6A9vpe8Y32T',
+
+	librato: {
+		email: '',
+		token: ''
+	}
+});
+
+var config = defaultsDeep(siteConfig, appConfig);
 
 module.exports = config;
