@@ -38,6 +38,14 @@ exports.timing = function (name, resolver, opts) {
 		return resolver;
 	}
 
+	if (!resolver) {
+		var cb;
+		librato.timing(name, function (done) {
+			cb = done;
+		}, opts);
+		return cb;
+	}
+
 	return librato && librato.timing.apply(librato, arguments);
 };
 
