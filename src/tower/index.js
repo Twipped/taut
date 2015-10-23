@@ -6,14 +6,12 @@ var emittersocket = require('taut.shared/lib/emitter-socket');
 var pubsub        = require('taut.shared/io/pubsub');
 var Timer         = require('taut.shared/lib/timer');
 
-var auditAvailableSeats   = require('./src/audits/available-seats');
 var auditActivePassengers = require('./src/audits/active-passengers');
 
 var flights = require('./src/flights');
 
 var auditTimer = new Timer(30000, function () {
 	debug('audit timer');
-	auditAvailableSeats();
 	auditActivePassengers();
 }).repeating();
 
