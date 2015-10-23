@@ -7,11 +7,13 @@ var pubsub        = require('taut.shared/io/pubsub');
 var Timer         = require('taut.shared/lib/timer');
 
 var auditActivePassengers = require('./src/audits/active-passengers');
+var measureStats = require('./src/audits/measure-stats');
 
 var flights = require('./src/flights');
 
 var auditTimer = new Timer(30000, function () {
 	debug('audit timer');
+	measureStats();
 	auditActivePassengers();
 }).repeating();
 
