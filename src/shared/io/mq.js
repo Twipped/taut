@@ -165,9 +165,9 @@ exports.shutdown = function () {
 
 	function settleSubscribers () {
 		debug('settling subscribers');
-		return Promise.settle(Object.keys(subscribers).map(function (queueName) {
+		return Promise.all(Object.keys(subscribers).map(function (queueName) {
 			return subscribers[queueName].close();
-		})).then(function () {
+		})).catch(debug.error).then(function () {
 			subscribers = {};
 		});
 	}
@@ -183,10 +183,15 @@ exports.shutdown = function () {
 					debug('queue detached');
 				});
 			});
-		})).then(function () {
+		})).catch(debug.error).then(function () {
 			queues = {};
 			debug('queues settled');
 		});
+	}
+
+	if (!bus) {
+		debug('shutdown');
+		return Promise.resolve();
 	}
 
 	return exports.ready.then(settleSubscribers).then(settleQueues).then(function () {
