@@ -97,6 +97,6 @@ var siteConfig = rc('taut', {
 	}
 });
 
-var config = defaultsDeep(siteConfig, appConfig);
+var config = defaultsDeep(appConfig, siteConfig);
 
 module.exports = config;
