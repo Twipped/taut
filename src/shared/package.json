@@ -23,6 +23,7 @@
     "mysql2": "~0.15.8",
     "nodemailer": "~1.5.0",
     "nodemailer-html-to-text": "~1.0.2",
+    "nodemailer-pickup-transport": "~0.1.1",
     "nodemailer-smtp-transport": "~1.0.3",
     "proxmis": "~0.2.0",
     "quell": "~0.1.2",
@@ -35,7 +36,6 @@
     "gulp-eslint": "~1.0.0",
     "gulp-jscs": "~3.0.0",
     "merge-stream": "~1.0.0",
-    "nodemailer-pickup-transport": "~0.1.1",
     "proxyquire": "~1.7.3",
     "rewire": "~2.3.4",
     "tap": "~1.4.1"

@@ -82,10 +82,7 @@ var siteConfig = rc('taut', {
 			host: 'localhost:9200'
 		},
 		email: {
-			method: 'test',
-			options: {
-				directory: path.resolve('../logs/mail')
-			}
+			method: 'console'
 		},
 		mq: {
 			redis: ['redis://127.0.0.1:6379']

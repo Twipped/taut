@@ -10,9 +10,6 @@ var htmlToText = require('nodemailer-html-to-text').htmlToText;
 var transports = {
 	smtp:     'nodemailer-smtp-transport',
 	test:     'nodemailer-pickup-transport',
-	ses :     'nodemailer-ses-transport',
-	stub:     'nodemailer-stub-transport',
-	sendmail: 'nodemailer-sendmail-transport'
 };
 
 // load the transport we need
@@ -35,6 +32,20 @@ if (emailConfig.method === 'gmail') {
 	transport = require(transports[emailConfig.method])(emailConfig.options || {});
 	debug('transport setup for ', emailConfig.method);
 } else {
+
+	var ConsoleTransport = function () {
+		this.name = 'Console';
+		this.version = '1.0.0';
+	};
+	ConsoleTransport.prototype.send = function (mail, callback) {
+		debug('Sending email: ', mail);
+		return callback(null, {
+			envelope: mail.data.envelope || mail.message.getEnvelope(),
+			messageId: mail.message.getHeader('message-id')
+		});
+	};
+
+	transport = new ConsoleTransport();
 	debug.error('Could not setup a transport.', emailConfig);
 }
 
