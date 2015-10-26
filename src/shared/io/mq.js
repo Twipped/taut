@@ -177,7 +177,7 @@ exports.shutdown = function () {
 		return Promise.all(Object.keys(queues).map(function (queueName) {
 			return queues[queueName].then(function (q) {
 				return (new Promise(function (resolve) {
-					q.on('detached', resolve);
+					q.once('detached', resolve);
 					q.detach();
 				})).then(function () {
 					debug('queue detached');

@@ -11,11 +11,11 @@ function RedisEmitter (redisConfig) {
 	this._incoming = new Redis(redisConfig);
 	this._outgoing = new Redis(redisConfig);
 
-	this._incoming.on('ready', function () {
+	this._incoming.once('ready', function () {
 		debug('incoming ready');
 	});
 
-	this._outgoing.on('ready', function () {
+	this._outgoing.once('ready', function () {
 		debug('outgoing ready');
 	});
 
