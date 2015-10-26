@@ -1,8 +1,6 @@
 .vagrant
-src/concourse/public/assets/chatview/templates.js
 /packer/packer_cache
 src/logs
 *.tgz
 src/.deployerrc
-src/concourse/public/assets/binary-sorted-set.js
-src/.tautrc
+src/.taut*rc

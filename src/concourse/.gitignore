@@ -1,6 +1,8 @@
 /app/rev-manifest.json
 /coverage
 /node_modules
+/public/assets/binary-sorted-set.js
+/public/assets/chatview/templates.js
 /public/assets/version.js
 /public/build
 /public/rev
