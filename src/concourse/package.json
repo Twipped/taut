@@ -27,7 +27,6 @@
     "lodash": "~3.10.1",
     "moment": "~2.10.6",
     "morgan-debug": "~1.0.0",
-    "newrelic": "~1.22.2",
     "passport": "~0.3.0",
     "passport-local": "^1.0.0",
     "passport.socketio": "~3.6.1",
@@ -77,8 +76,6 @@
     "bin",
     "controllers",
     "io",
-    "public",
-    "newrelic.js",
-    "bin/newrelic.js"
+    "public"
   ]
 }

@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-require('newrelic');
 var debug    = require('taut.shared/debug')();
 var mq       = require('taut.shared/io/mq');
 var Promise  = require('bluebird');
