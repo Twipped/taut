@@ -32,12 +32,12 @@ function match (message) {
 	// Message is new if there's been no message with this hash, or
 	// all previous messages with this hash were already seen by this connection.
 	// If the message hash exists but has not been seen by this connection, mark it seen
-	var isNew = !matches.length || !matches.some(function (match) {
-		if (match.seenBy[message.connid]) {
+	var isNew = !matches.length || !matches.some(function (matchedMessage) {
+		if (matchedMessage.seenBy[message.userid]) {
 			return false;
 		}
 
-		match.seenBy[message.connid] = message.timestamp || Date.now();
+		matchedMessage.seenBy[message.userid] = message.timestamp || Date.now();
 		return true;
 	});
 
@@ -48,7 +48,7 @@ function match (message) {
 	message.hashIndex = matches.length;
 	message.processed = Date.now();
 	message.seenBy = {};
-	message.seenBy[message.connid] = true;
+	message.seenBy[message.userid] = true;
 	matches.push(message);
 	return true;
 }
@@ -56,7 +56,7 @@ function match (message) {
 function hashPublicMessage (message, exact) {
 	var date = parseFloat(message.timestamp);
 	if (!exact) {
-		date = date - (date % TS_ROUND);
+		date -= (date % TS_ROUND);
 	}
 	date = date.toString(16);
 
