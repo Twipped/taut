@@ -11,7 +11,7 @@ if (!config.librato.email || !config.librato.token) {
 }
 
 function startup () {
-	if (librato || !config.librato.email || !config.librato.token) return;
+	if (!config.librato || config.librato.disabled || librato || !config.librato.email || !config.librato.token) return;
 
 	librato = require('librato-node');
 	librato.configure(assign({ prefix: config.name + '.' }, config.librato));
