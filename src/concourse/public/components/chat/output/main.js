@@ -1,12 +1,12 @@
 /* eslint-env browser */
 
-define(['jquery', 'lodash', 'backbone', 'chatview/index', 'socket', 'scroller'], function ($, _, Backbone, ChatView, socket, Scroller) { // eslint-disable-line
+define(['jquery', 'lodash', 'backbone', 'chatview/backbone', 'socket', 'scroller'], function ($, _, Backbone, ChatView, socket, Scroller) { // eslint-disable-line
 	return Backbone.View.extend({
 		initialize: function (options) {
 			var cv = this.cv = new ChatView();
-			cv.onRowUpdate = this.onRowUpdate.bind(this);
-			cv.onRowAppend = this.onRowAppend.bind(this);
-			cv.onRowReplace = this.onRowReplace.bind(this);
+			this.listenTo(cv, 'row:append', this.onRowAppend);
+			this.listenTo(cv, 'row:update', this.onRowUpdate);
+			this.listenTo(cv, 'row:replace', this.onRowReplace);
 
 			this.scroller = new Scroller({ el: this.$el });
 

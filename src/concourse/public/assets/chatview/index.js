@@ -9,7 +9,7 @@
 			var result = '';
 			var lastindex = 0;
 
-			_.each(links, function (link, i) {
+			_.each(links, function (link) {
 				var url = handlebars.escapeExpression(link.url);
 				var text = handlebars.escapeExpression(link.text);
 
