@@ -4,8 +4,8 @@
 Vagrant.configure("2") do |config|
 
 	# Every Vagrant virtual environment requires a box to build off of.
-	config.vm.box = "finn-ubuntu1504-amd64-vbox5-r1"
-	config.vm.box_url = "./packer/finn-ubuntu1504-amd64-vbox-r1.box"
+	config.vm.box = "taut-ubuntu1504-amd64-vbox5-r2"
+	config.vm.box_url = "./packer/taut-ubuntu1504-amd64-vbox5-r2.box"
 
 	# Assign this VM to a host-only network IP, allowing you to access it
 	# via the IP. Host-only networks can talk to the host machine as well as

@@ -19,7 +19,7 @@
       "initrd=/install/initrd.gz ",
       "biosdevname=0 ",
       "auto-install/enable=true ",
-      "hostname=valuationvision.dev ",
+      "hostname=taut.dev ",
       "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA keyboard-configuration/variant=USA console-setup/ask_detect=false ",
       "debconf/priority=critical ",
       "preseed/url=http://{{.HTTPIP}}:{{.HTTPPort}}/preseed.cfg ",
@@ -42,7 +42,7 @@
     "shutdown_command": "sudo poweroff"
   }],
   "post-processors": [{
-    "output": "finn-ubuntu1504-amd64-vbox-r1.box",
+    "output": "taut-ubuntu1504-amd64-vbox5-r2.box",
     "compression_level": 6,
     "type": "vagrant"
   }],
