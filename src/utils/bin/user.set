@@ -1,0 +1,34 @@
+#!/usr/bin/env node
+
+var LoginEmail      = require('taut.shared/models/user/logins/email');
+var User            = require('taut.shared/models/user');
+var argv            = require('minimist')(process.argv.slice(2));
+
+var login = argv._[0].trim();
+
+delete argv._;
+
+if (!Object.keys(argv).length) {
+	console.error('No properties detected.'); // eslint-disable-line no-console
+	process.exit(1); // eslint-disable-line no-process-exit
+}
+
+if (!login) {
+	console.error('Missing login.'); // eslint-disable-line no-console
+	process.exit(1); // eslint-disable-line no-process-exit
+}
+
+
+LoginEmail.getUserIDByEmail(login).then(function (userid) {
+	if (!userid) {
+		console.error('Login not found.'); // eslint-disable-line no-console
+		return process.exit(1); // eslint-disable-line no-process-exit
+	}
+
+	return User.set(userid, argv).then(function () {
+		console.log('Attributes for ' + login + ':' + userid + ' set to ', argv); // eslint-disable-line no-console
+		process.exit(0); // eslint-disable-line no-process-exit
+	});
+}).then(function () {
+	process.exit(0); // eslint-disable-line no-process-exit
+});

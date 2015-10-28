@@ -54,7 +54,7 @@ Login.create = function (userid, email, password) {
 	if (!userid)  return Promise.reject(new Error('Userid is missing or blank.'));
 	if (!email)  return Promise.reject(new Error('Login is missing or blank.'));
 
-	return (password && pwhash.create(password) || Promise.resolve()).then(function (hash) {
+	return (password && pwhash.create(password) || Promise.resolve(null)).then(function (hash) {
 		var login = new Login({
 			userid: userid,
 			email: email,

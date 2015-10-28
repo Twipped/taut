@@ -11,7 +11,7 @@ if (!email || !pass) {
 	process.exit(1); // eslint-disable-line no-process-exit
 }
 
-LoginEmail.get(email).then(function (login) {
+LoginEmail.getByEmail(email).then(function (login) {
 	login.changePassword(pass).then(function () {
 		console.log('Password written for', email); // eslint-disable-line no-console
 		process.exit(0); // eslint-disable-line no-process-exit

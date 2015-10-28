@@ -49,8 +49,19 @@ function ensureUniqueId (count) {
 	});
 }
 
-User.create = function () {
-	return ensureUniqueId().then(function (userid) {
+User.create = function (forcedID) {
+	var promisedUserID;
+
+	if (forcedID) {
+		promisedUserID = User.get(forcedID).then(function (u) {
+			if (u) return Promise.reject(new Error(u + " already exists."));
+			return forcedID;
+		});
+	} else {
+		promisedUserID = ensureUniqueId();
+	}
+
+	return promisedUserID.then(function (userid) {
 		var user = new User({
 			userid: userid,
 			date_created: new Date()
