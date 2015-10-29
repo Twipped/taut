@@ -37,7 +37,7 @@ cp /tmp/redis.conf /etc/redis/redis.conf
 # Configure oracle license opt-in and install java
 debconf-set-selections <<< 'debconf shared/accepted-oracle-license-v1-1 select true'
 debconf-set-selections <<< 'debconf shared/accepted-oracle-license-v1-1 seen true'
-apt-get install -y oracle-java7-installer
+apt-get install -y oracle-java8-installer
 
 apt-get install -y elasticsearch
 sudo update-rc.d elasticsearch defaults 95 10
