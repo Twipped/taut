@@ -4,6 +4,7 @@ var pubsub     = require('taut.shared/io/pubsub');
 var irchistory = require('taut.shared/models/system/irc/history');
 var linkify    = require('linkify-it')();
 var Promise    = require('bluebird');
+var assign     = require('lodash/object/assign');
 
 var ChannelTopic = require('taut.shared/models/channel/topic');
 var ChannelNames = require('taut.shared/models/channel/names');
@@ -109,12 +110,18 @@ exports.public = function (event, channel, data) {
 
 	if (event === 'join') {
 		proms.push(ChannelNames.add(data.target, data.nick, { 'nick':data.nick }).catch(debug.error));
-		proms.push(pubsub.channel('irc:public:' + channel + ':receive').publish('names:add', data));
+		proms.push(
+			pubsub.channel('irc:public:' + channel + ':receive')
+				.publish('names:add', assign({}, data, { event: 'names:add' }))
+		);
 	}
 
 	if (event === 'part' || event === 'quit:channel' || event === 'kick') {
 		proms.push(ChannelNames.remove(data.target, data.nick).catch(debug.error));
-		proms.push(pubsub.channel('irc:public:' + channel + ':receive').publish('names:remove', data));
+		proms.push(
+			pubsub.channel('irc:public:' + channel + ':receive')
+				.publish('names:remove', assign({}, data, { event: 'names:add' }))
+		);
 	}
 
 
