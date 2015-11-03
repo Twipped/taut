@@ -4,6 +4,7 @@ define(['jquery', 'lodash', 'backbone', 'feed-manager', 'scroller'], function ($
 	return Backbone.View.extend({
 		initialize: function (options) {
 			this.scroller = new Scroller({ el: this.$el });
+			this.scroller.scrollToBottom();
 
 			var events;
 			if (options.events) {
