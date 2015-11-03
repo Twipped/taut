@@ -33,6 +33,41 @@
 			return new handlebars.SafeString(result);
 		});
 
+		handlebars.registerHelper('colorhash', function (value, sat, lum) {
+			if (arguments.length < 2) {
+				throw new Error('colorhash must receive a value to be hashed');
+			}
+
+			if (arguments.length < 3) {
+				sat = 0.6;
+			}
+
+			if (arguments.length < 4) {
+				lum = 0.45;
+			}
+
+			var str = String(value).trim();
+			var h = 0;
+			var i = 0;
+			for (; i < str.length; i++) {
+				h += str.charCodeAt(i);
+				h += (h << 10);
+				h ^= (h >> 6);
+			}
+			h += h << 3;
+			h ^= h >> 11;
+			h += h << 15;
+
+			h = Math.abs(h) % 1000;
+			h /= 1000;
+
+			var hex = hslToRgb(h, sat, lum).map(function (octet) {
+				return octet.toString(16);
+			}).join('');
+
+			return '#' + hex;
+		});
+
 		_.each(templates, function (template, key) {
 			templates[key] = handlebars.compile(template);
 		});
@@ -184,6 +219,7 @@
 
 			var row = makeRow(event);
 			row.nick = event.nick;
+			row.host = event.host;
 			row.html = this.templates.privmsg(row);
 
 			return row;
@@ -255,5 +291,42 @@
 
 		return View;
 	});
+
+
+	/**
+	 * Converts an HSL color value to RGB. Conversion formula
+	 * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+	 * Assumes h, s, and l are contained in the set [0, 1] and
+	 * returns r, g, and b in the set [0, 255].
+	 *
+	 * @param   Number  h       The hue
+	 * @param   Number  s       The saturation
+	 * @param   Number  l       The lightness
+	 * @return  Array           The RGB representation
+	 */
+	function hslToRgb (h, s, l) {
+		var r, g, b; // eslint-disable-line
+
+		function hue2rgb (p, q, t) {
+			if (t < 0) t += 1;
+			if (t > 1) t -= 1;
+			if (t < 1 / 6) return p + (q - p) * 6 * t;
+			if (t < 1 / 2) return q;
+			if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+			return p;
+		}
+
+		if (!s) {
+			r = g = b = l; // achromatic
+		} else {
+			var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+			var p = 2 * l - q;
+			r = hue2rgb(p, q, h + 1 / 3);
+			g = hue2rgb(p, q, h);
+			b = hue2rgb(p, q, h - 1 / 3);
+		}
+
+		return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+	}
 
 })(typeof define !== 'function' ? require('amdefine')(module) : define);

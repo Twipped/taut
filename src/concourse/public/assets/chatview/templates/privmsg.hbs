@@ -2,7 +2,7 @@
 	<span class="timestamp" title="{{date 'ddd MMM Mo YYYY hh:mm A' timestamp}}">{{date 'hh:mm A' timestamp}}</span>
 	{{#each events}}
 	<div class="timestamp-aligned">
-		{{#unless @index}}<span class="nick">{{nick}}</span>{{/unless}}
+		{{#unless @index}}<span class="nick" style="color: {{colorhash host}};">{{nick}}</span>{{/unless}}
 		{{#if message}}<span class="message" data-hash="{{hash}}">{{linkify message links}}</span>{{/if}}
 	</div>
 	{{/each}}
