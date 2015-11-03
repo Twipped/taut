@@ -221,17 +221,17 @@ module.exports = exports = function (user, doNotConnect) {
 
 	irc.on('action', function (ev) {
 		if (ev.toSelf) { // private query
-			emitPrivate('privmsg', ev);
+			emitPrivate('ctcp', ev);
 		} else { // channel message
-			emitPublic('privmsg', ev);
+			emitPublic('ctcp', ev);
 		}
 	});
 
 	irc.on('ctcp', function (ev) {
 		if (ev.toSelf) { // private query
-			emitPrivate('privmsg', ev);
+			emitPrivate('ctcp', ev);
 		} else { // channel message
-			emitPublic('privmsg', ev);
+			emitPublic('ctcp', ev);
 		}
 	});
 
