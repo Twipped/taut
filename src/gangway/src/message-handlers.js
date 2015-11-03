@@ -101,6 +101,7 @@ exports.public = function (event, channel, data) {
 			nick: data.nick,
 			hostmask: data.hostmask,
 			message: data.message,
+			links: data.links,
 			date: new Date()
 		}).catch(debug.error));
 		proms.push(pubsub.channel('irc:public:' + channel + ':receive').publish(event, data));
