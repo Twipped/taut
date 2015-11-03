@@ -1,13 +1,8 @@
 /* eslint-env browser */
 
-define(['jquery', 'lodash', 'backbone', 'chatview/backbone', 'socket', 'scroller'], function ($, _, Backbone, ChatView, socket, Scroller) { // eslint-disable-line
+define(['jquery', 'lodash', 'backbone', 'feed-manager', 'scroller'], function ($, _, Backbone, FeedMan, Scroller) { // eslint-disable-line
 	return Backbone.View.extend({
 		initialize: function (options) {
-			var cv = this.cv = new ChatView();
-			this.listenTo(cv, 'row:append', this.onRowAppend);
-			this.listenTo(cv, 'row:update', this.onRowUpdate);
-			this.listenTo(cv, 'row:replace', this.onRowReplace);
-
 			this.scroller = new Scroller({ el: this.$el });
 
 			var events;
@@ -22,39 +17,42 @@ define(['jquery', 'lodash', 'backbone', 'chatview/backbone', 'socket', 'scroller
 				}
 			}
 
-			events.sort(cv._sorter);
+			var feed = this.feed = options.feed || this.$el.attr('data-feed');
 
-			this.fragment = $(document.createDocumentFragment());
+			var cv = this.cv = FeedMan.subscribe(feed, events);
 
-			cv.add(events);
+			var fragment = $(document.createDocumentFragment());
+			var rows = cv.toRows();
+			
+			_.each(rows, function (row) {
+				row.$el = $(row.html);
+				fragment.append(row.$el);
+			});
 
-			this.$el.html(this.fragment);
-			this.fragment = null;
+			this.$el.html(fragment);
+			this.scroller.scrollToBottom();
 
-			var feed = options.feed || this.$el.attr('data-feed');
+			this.listenTo(cv, 'row:append', this.onRowAppend);
+			this.listenTo(cv, 'row:update', this.onRowUpdate);
+			this.listenTo(cv, 'row:replace', this.onRowReplace);
+		},
 
-			if (feed) {
-				socket.subscribe(feed);
-				socket.on(feed, function (event) {
-					cv.add(event);
-				});
-			}
-
-			$('html, body').scrollTop($(document).height());
+		remove: function() {
+			FeedMan.unsubscribe(this.feed);
+			this.cv = null;
+			this._removeElement();
+			this.stopListening();
+			return this;
 		},
 
 		onRowAppend: function (row) {
 			var $row = $(row.html);
 			row.$el = $row;
 
-			if (this.fragment) {
-				this.fragment.append($row);
-			} else {
-				this.$el.append($row);
+			this.$el.append($row);
 
-				if (this.scroller.isAtBottom) {
-					this.scroller.scrollToElement($row);
-				}
+			if (this.scroller.isAtBottom) {
+				this.scroller.scrollToElement($row);
 			}
 		},
 

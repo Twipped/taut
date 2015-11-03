@@ -84,18 +84,17 @@
 			return output;
 		};
 
-		View.prototype.rerender = function () {
-			var data = this.getAllEvents();
+		View.prototype.toRows = function () {
+			var output = [];
+			var lastRow;
 
-			var self = this;
-			var last;
-			data.forEach(function (event) {
-				if (self['$' + event.event]) {
-					event.row = self['$' + event.event](event, last);
-				} else {
-					event.row = self.$default(event, last);
-				}
+			this.events.array.forEach(function (e) {
+				if (e.row === lastRow) return;
+				lastRow = e.row;
+				output.push(e.row);
 			});
+
+			return output;
 		};
 
 		View.prototype.getAllEvents = function () {

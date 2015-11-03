@@ -1,12 +1,16 @@
+/* eslint-env browser */
 
 define(['socket.io', 'build/version'], function (io, version) {
 
 	if (!io) {
-		console.warn('Socket.io did not load, socket server may not be running.');
+		console.warn('Socket.io did not load, socket server may not be running.');  // eslint-disable-line no-console
 		return;
 	}
 
-	var socket = io('//' + document.location.hostname + (document.location.port === 80 || document.location.port === 443 ? '' : ':' + document.location.port));
+	var url = '//' + document.location.hostname + (
+		(document.location.port === 80 || document.location.port === 443) ? '' : ':' + document.location.port
+	);
+	var socket = io(url);
 
 	var isConnected = false;
 	var subscribedFeeds = [];
@@ -16,6 +20,15 @@ define(['socket.io', 'build/version'], function (io, version) {
 
 		if (isConnected) {
 			socket.emit('feed.subscribe', feed);
+		}
+	};
+
+	socket.unsubscribe = function (feed) {
+		var i = subscribedFeeds.indexOf(feed);
+		subscribedFeeds.splice(i, 1);
+
+		if (isConnected) {
+			socket.emit('feed.unsubscribe', feed);
 		}
 	};
 
