@@ -23,6 +23,7 @@
 	}
 
 	.component[data-component="chat/input"] {
+		flex: 0 0 auto;
 		z-index: 5;
 	}
 }

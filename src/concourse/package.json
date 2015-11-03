@@ -46,6 +46,7 @@
     "font-awesome": "~4.4.0",
     "forever-monitor": "~1.7.0",
     "gulp": "^3.9.0",
+    "gulp-autoprefixer": "~3.1.0",
     "gulp-clone": "^1.0.0",
     "gulp-concat-util": "~0.5.2",
     "gulp-define-module": "~0.1.3",

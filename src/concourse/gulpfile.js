@@ -10,6 +10,7 @@ var merge        = require('merge-stream');
 var concat       = require('gulp-concat-util');
 var insert       = require('gulp-insert');
 var scss         = require('gulp-sass');
+var prefixer     = require('gulp-autoprefixer');
 var minifyCSS    = require('gulp-minify-css');
 var uglify       = require('gulp-uglify');
 var clone        = require('gulp-clone');
@@ -299,7 +300,11 @@ gulp.task('requirejs-pages-dev', function () {
 gulp.task('scss-main', function () {
 	var files = gulp.src('./scss/main.scss')
 		.pipe(insert.prepend('$env: "production";\n'))
-		.pipe(scss());
+		.pipe(scss())
+		.pipe(prefixer({
+			browsers: ['last 2 versions'],
+			cascade: false
+		}));
 
 	return merge(
 		// original
@@ -321,7 +326,11 @@ gulp.task('scss-main', function () {
 gulp.task('scss-pages', function () {
 	var files = gulp.src('./scss/pages/**/*.scss')
 		.pipe(insert.prepend('$env: "production";\n'))
-		.pipe(scss());
+		.pipe(scss())
+		.pipe(prefixer({
+			browsers: ['last 2 versions'],
+			cascade: false
+		}));
 
 	return merge(
 		// original
@@ -346,6 +355,10 @@ gulp.task('scss-main-dev', function () {
 		.pipe(concat('main.scss'))
 		.pipe(insert.prepend('$env: "development";\n'))
 		.pipe(scss())
+		.pipe(prefixer({
+			browsers: ['last 2 versions'],
+			cascade: false
+		}))
 		.pipe(gulp.dest('public/build/'));
 });
 
@@ -356,6 +369,10 @@ gulp.task('scss-pages-dev', function () {
 	return gulp.src('./scss/pages/**/*.scss')
 		.pipe(insert.prepend('$env: "development";\n'))
 		.pipe(scss())
+		.pipe(prefixer({
+			browsers: ['last 2 versions'],
+			cascade: false
+		}))
 		.pipe(gulp.dest('public/build/pages'));
 });
 
