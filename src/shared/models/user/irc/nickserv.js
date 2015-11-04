@@ -1,59 +1,31 @@
 
-var debug = require('../../../debug')('models:user:irc:nickserv');
-var mysql = require('../../../io/mysql');
-var queryize = require('queryize');
+var redis = require('../../../io/redis');
+var mapValues = require('lodash/object/mapValues');
+
 var pwhash = require('../../../lib/passwords');
 
-var TABLENAME = 'users_irc_nickserv';
 var PASSWORDKEY = require('../../../config').userEncryptionKey;
+
+function key (userid) {
+	return 'user:' + userid + ':irc:nickserv';
+}
 
 exports.get = function (userid, nick) {
 	if (nick) {
-		return queryize().from(TABLENAME)
-			.select('nickname', 'password')
-			.where({ userid: userid, nickname: nick })
-			.exec(mysql)
-			.then(function (rows) {
-				if (!rows || !rows[0]) return;
-
-				return {
-					nickname: rows[0].nickname,
-					password: pwhash.decrypt(PASSWORDKEY + rows[0].nickname, rows[0].password)
-				};
-			});
+		return redis.hget(key(userid), nick).then(pwhash.decrypt.bind(null, PASSWORDKEY + nick));
 	}
 
-	return queryize().from(TABLENAME)
-		.select('nickname', 'password')
-		.where({ userid: userid })
-		.exec(mysql)
-		.then(function (rows) {
-			return rows.map(function (row) {
-				return {
-					nickname: row.nickname,
-					password: pwhash.decrypt(PASSWORDKEY + row.nickname, row.password)
-				};
-			});
+	return redis.hgetall(key(userid)).then(function (results) {
+		return mapValues(results, function (encrypted, nickname) {
+			return pwhash.decrypt(PASSWORDKEY + nickname, encrypted);
 		});
+	});
 };
 
-exports.add = function (userid, nickname, password) {
-	debug('adding', userid, nickname);
-
-	return queryize().from(TABLENAME)
-		.replace({
-			userid: userid,
-			nickname: nickname,
-			password: password && pwhash.encrypt(PASSWORDKEY + nickname, password) || null
-		})
-		.exec(mysql);
+exports.set = function (userid, nickname, password) {
+	return redis.hset(key(userid), nickname, password && pwhash.encrypt(PASSWORDKEY + nickname, password) || null);
 };
 
 exports.remove = function (userid, nickname) {
-	debug('removing', userid, nickname);
-
-	return queryize().from(TABLENAME)
-		.delete()
-		.where({ userid: userid, nickname: nickname })
-		.exec(mysql);
+	return redis.hdel(key(userid), nickname);
 };

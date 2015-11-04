@@ -3,7 +3,8 @@ var connect           = require('./src/connection');
 var debug             = require('taut.shared/debug')('index');
 var UserIRCModel      = require('taut.shared/models/user/irc');
 var UserChannelsModel = require('taut.shared/models/user/irc/channels');
-var isAgent           = require('taut.shared/models/user/is-agent');
+var UserNickserv      = require('taut.shared/models/user/irc/nickserv');
+var userIsAgent       = require('taut.shared/models/user/is-agent');
 var Promise           = require('bluebird');
 var radio             = require('./src/radio');
 
@@ -19,25 +20,30 @@ exports.connectUserID = function connectUserID (userid) {
 		return;
 	}
 
-	return Promise.all([
+	return Promise.join(
 		UserIRCModel.get(userid),
 		UserChannelsModel.get(userid),
-		isAgent(userid)
-	])
-	.then(function (results) {
-		var user = results[0];
-		user.activeChannels = results[1];
-		user.isAgent = results[2];
+		userIsAgent(userid),
+		UserNickserv.get(userid),
+		function (user, channels, isAgent, nickserv) {
+			if (!user) {
+				return Promise.reject(new Error('User ' + userid + ' not found.'));
+			}
 
-		var irc = connect(user);
+			user.activeChannels = channels || [];
+			user.isAgent = isAgent || false;
+			user.nickserv = nickserv || {};
 
-		connections[user.userid] = irc;
-		irc.on('end', function () {
-			delete connections[user.userid];
-		});
+			var irc = connect(user);
 
-		return irc;
-	})
+			connections[user.userid] = irc;
+			irc.on('end', function () {
+				delete connections[user.userid];
+			});
+
+			return irc;
+		}
+	)
 	.catch(debug.error);
 };
 

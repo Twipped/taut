@@ -19,7 +19,7 @@ LoginEmail.getUserIDByEmail(email).then(function (userid) {
 		return process.exit(1); // eslint-disable-line no-process-exit
 	}
 
-	Nickserv.add(userid, nick, pass).then(function () {
+	Nickserv.set(userid, nick, pass).then(function () {
 		Nickserv.get(userid, nick).then(function (result) {
 			console.log('Nickserv password set for', email, result); // eslint-disable-line no-console
 			process.exit(0); // eslint-disable-line no-process-exit
