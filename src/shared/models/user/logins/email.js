@@ -1,97 +1,118 @@
 
 var Promise = require('bluebird');
-var mysql = require('../../../io/mysql');
-var quell = require('quell');
-var queryize = require('queryize');
+var redis = require('../../../io/redis');
+
 var pwhash = require('../../../lib/passwords');
-var first = function (arr) {return arr && arr[0];};
 
-var TABLENAME = 'users_login_email';
+function keyByUser (userid) {
+	return 'user:' + userid + ':login:email';
+}
 
-var Login = quell(TABLENAME, { connection: mysql });
-module.exports = Login;
-
-Login.prototype.changePassword = function (replacement) {
-	var self = this;
-
-	return pwhash.create(replacement).then(function (hash) {
-		return queryize
-			.update(TABLENAME)
-			.where({ email: self.data.email })
-			.set({ password: replacement })
-			.exec(mysql)
-			.then(function (result) {
-				if (!result.affectedRows) {
-					return Promise.reject(new Error('Could not change password for ' + self.data.email));
-				}
-
-				self.data.password = hash;
-				return self;
-			});
-	});
-};
-
-Login.prototype.changeEmail = function (replacement) {
-	var self = this;
-	return queryize
-		.update(TABLENAME)
-		.where({ email: this.data.email })
-		.set({ email: replacement })
-		.exec(mysql)
-		.then(function (result) {
-			if (!result.affectedRows) {
-				return Promise.reject(new Error('Could not change email for ' + self.data.email));
-			}
-
-			self.data.email = replacement;
-			return self;
-		});
-};
+function keyByEmail (email) {
+	return 'login:email:' + email.toLowerCase();
+}
 
 
-
-Login.create = function (userid, email, password) {
+exports.changePasswordForUserId = function (userid, newPassword) {
 	if (!userid)  return Promise.reject(new Error('Userid is missing or blank.'));
-	if (!email)  return Promise.reject(new Error('Login is missing or blank.'));
+
+	return redis.get(keyByUser(userid)).then(function (email) {
+		if (!email) return Promise.reject(new Error('No email login exists for ' + userid));
+		return (newPassword && pwhash.create(newPassword) || Promise.resolve(null)).then(function (hash) {
+			return redis.hmset(keyByEmail(email), {
+				email: email,
+				userid: userid,
+				password: hash,
+				date_created: new Date()
+			});
+		});
+	});
+
+};
+
+exports.changePasswordForEmail = function (email, newPassword) {
+	if (!email) return Promise.reject(new Error('Email is missing or blank.'));
+
+	return redis.hget(keyByEmail(email), 'userid').then(function (userid) {
+		return (newPassword && pwhash.create(newPassword) || Promise.resolve(null)).then(function (hash) {
+			return redis.hmset(keyByEmail(email), {
+				email: email,
+				userid: userid,
+				password: hash,
+				date_created: new Date()
+			});
+		});
+	});
+
+};
+
+exports.changeEmail = function (userid, newEmail) {
+
+	var emailLookup = redis.get(keyByUser(userid));
+	var hashLookup = emailLookup.then(function (email) {
+		if (!email) return null;
+		return redis.hget(keyByEmail(email), 'password');
+	});
+
+	// fetch the old email for this userid, and the hashed password for that email
+	return Promise.join(emailLookup, hashLookup, function (oldEmail, hash) {
+		// delete the login data for the old email, if it exists
+		return Promise.resolve(oldEmail && redis.del(keyByEmail(oldEmail))).then(function () {
+			// save the new login data, and attach the new email to the userid
+			return Promise.join(
+				redis.hmset(keyByEmail(newEmail), {
+					email: newEmail,
+					userid: userid,
+					password: hash,
+					date_created: new Date()
+				}),
+
+				redis.set(keyByUser(userid), newEmail),
+
+				function () {}
+			);
+		});
+	});
+
+};
+
+exports.create = function (userid, email, password) {
+	if (!userid)  return Promise.reject(new Error('Userid is missing or blank.'));
+	if (!email)  return Promise.reject(new Error('Email is missing or blank.'));
 
 	return (password && pwhash.create(password) || Promise.resolve(null)).then(function (hash) {
-		var login = new Login({
-			userid: userid,
-			email: email,
-			password: hash,
-			date_created: new Date()
-		});
 
-		return login.insert();
+		return Promise.join(
+			redis.hmset(keyByEmail(email), {
+				email: email,
+				userid: userid,
+				password: hash,
+				date_created: new Date()
+			}),
+
+			redis.set(keyByUser(userid), email),
+
+			function () {}
+		);
+
 	});
 };
 
-Login.check = function (email, password) {
-	return Login.find({ email: email })
-		.select('email', 'password').exec().then(first)
-		.then(function (login) {
-			if (!login.get('password')) return false;
-
-			return pwhash.check(password, login.get('password'));
-		});
+exports.check = function (email, password) {
+	return redis.hget(keyByEmail(email), 'password').then(function (hash) {
+		if (!hash) return false;
+		return pwhash.check(password, hash);
+	});
 };
 
-Login.exists = function (email) {
-	return Login.find({ email: email })
-		.select('userid', 'email').exec()
-		.then(function (rows) {return !!rows.length;});
+exports.exists = function (email) {
+	return redis.hget(keyByEmail(email), 'email').then(Boolean);
 };
 
-Login.getUserIDByEmail = function (email) {
-	return Login.find({ email: email })
-		.select('userid', 'email').exec().then(first)
-		.then(function (user) {
-			if (user && user.get('email') === email) {
-				return user.get('userid');
-			}
-		});
+exports.getUserIDByEmail = function (email) {
+	return redis.hget(keyByEmail(email), 'userid');
 };
 
-Login.getByEmail = function (email) {
-	return Login.find({ email: email }).exec().then(first);
+exports.getByEmail = function (email) {
+	return redis.hgetall(keyByEmail(email));
 };
