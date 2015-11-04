@@ -4,7 +4,7 @@ var Promise    = require('bluebird');
 var difference = require('lodash/array/difference');
 var throttle   = require('lodash/function/throttle');
 
-var UserIrcSettings     = require('taut.shared/models/user/irc');
+var UserIrcKeepalives   = require('taut.shared/models/user/irc/keepalive');
 var UserIsViewing       = require('taut.shared/models/user/is-viewing');
 var ExpectedConnections = require('taut.shared/models/connections/expected');
 
@@ -16,7 +16,7 @@ var auditStandbyList = require('./standby-list');
 
 function auditActivePassengers () {
 	return Promise.props({
-		keepalives: UserIrcSettings.getAllKeepAliveUserIds(),
+		keepalives: UserIrcKeepalives.get(),
 		expected: ExpectedConnections.get(),
 		current: passengers.all()
 	}).then(function (data) {

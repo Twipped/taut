@@ -1,66 +1,68 @@
 
 var Promise = require('bluebird');
-var mysql = require('../../io/mysql');
-var quell = require('quell');
+var redis = require('../../io/redis');
 var random = require('../../lib/random');
+var Keepalive = require('./irc/keepalive');
 
-var pwhash = require('../../lib/passwords');
-var first = function (arr) {return arr && arr[0];};
+function key (userid) {
+	return 'user:' + userid + ':irc';
+}
 
-var TABLENAME = 'users_irc_settings';
-var PASSWORDKEY = require('../../config').userEncryptionKey;
+exports.get = function (userid, hashkey) {
 
-var Settings = quell(TABLENAME, { connection: mysql });
-module.exports = Settings;
+	// if we're fetching the username then we need to confirm a username exists.
+	// and create one if it does not exist.
+	if (hashkey === 'username') {
+		return redis.hget(key(userid), hashkey).then(function (result) {
+			if (result) return result;
 
-Settings.prototype.getPassword = function () {
-	return pwhash.decrypt(PASSWORDKEY + this.data.username, this.data.password);
-};
-
-Settings.prototype.setPassword = function (password) {
-	this.set('password', pwhash.encrypt(PASSWORDKEY + this.data.username, password));
-};
-
-
-Settings.get = function (userid, hashkey) {
-	if (hashkey) {
-		return Settings.find({ userid: userid })
-			.select('userid', hashkey).exec()
-			.then(first)
-			.then(function (user) {
-				if (user && user.get('userid') === userid) {
-					return user.get(hashkey);
-				}
+			result = random.username();
+			return exports.set(userid, 'username', result).then(function () {
+				return result;
 			});
-	}
-
-	return Settings.find({ userid: userid }).exec().then(first).then(function (user) {
-		// ensure every user has a random username
-		if (!user.get('username')) {
-			user.set('username', random.username());
-			user.save();
-		}
-		return user;
-	})
-};
-
-Settings.set = function (userid, hashkey, value) {
-	var user = new Settings({ userid: userid });
-	user.set(hashkey, value);
-
-	if (hashkey === 'password') {
-		this.setPassword(value);
-	} else if (typeof hashkey === 'object' && hashkey.password) {
-		this.setPassword(hashkey.password);
-	}
-
-	return user.save();
-};
-
-Settings.getAllKeepAliveUserIds = function () {
-	return Promise.fromNode(function (cb) {
-		mysql.execute('SELECT userid FROM ' + TABLENAME + ' WHERE keepalive = 1', function (err, results) {
-			cb(err, results.map(function (row) {return row.userid;}));
 		});
+	}
+
+	if (hashkey) {
+		return redis.hget(key(userid), hashkey);
+	}
+
+	return redis.hgetall(key(userid)).then(function (result) {
+		// user doesn't exist, pass that on.
+		if (!result) return result;
+
+		// if the username is empty, we need to generate and save one before returning the user
+		if (!result.username) {
+			result.username = random.username();
+			return exports.set(userid, 'username', result.username).then(function () {
+				return result;
+			});
+		}
 	});
+};
+
+exports.set = function (userid, hashkey, value) {
+	var p = Promise.resolve();
+
+	if (typeof hashkey === 'object') {
+		if (Array.isArray(hashkey)) {
+			return Promise.reject(new TypeError('Cannot set a user/irc to an array'));
+		}
+
+		// if we're setting the keepalive flag, be sure to
+		// define that in the keepalive collection.
+		if (typeof hashkey.keepalive !== 'undefined') {
+			p = Keepalive.set(userid, value);
+		}
+
+		return Promise.join(redis.hmset(key(userid), hashkey), p, function (a) {return a;});
+	}
+
+	// if we're setting the keepalive flag, be sure to
+	// define that in the keepalive collection.
+	if (hashkey === 'keepalive') {
+		p = Keepalive.set(userid, value);
+	}
+
+	return Promise.join(redis.hset(key(userid), hashkey, value), p, function (a) {return a;});
 };

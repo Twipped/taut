@@ -25,7 +25,7 @@ exports.connectUserID = function connectUserID (userid) {
 		isAgent(userid)
 	])
 	.then(function (results) {
-		var user = results[0].toJSON();
+		var user = results[0];
 		user.activeChannels = results[1];
 		user.isAgent = results[2];
 
