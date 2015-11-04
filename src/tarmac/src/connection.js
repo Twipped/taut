@@ -1,20 +1,20 @@
 'use strict';
 
-var config = require('taut.shared/config');
-var Promise = require('bluebird');
-var assign = require('lodash/object/assign');
-var omit   = require('lodash/object/omit');
-var each   = require('lodash/collection/each');
-var debug  = require('taut.shared/debug')('connection');
-var verbose = require('taut.shared/node_modules/debug')('verbose:irc');
-var alert  = require('taut.shared/alert');
-var random = require('taut.shared/lib/random');
-var IRC    = require('ircsock');
+var config     = require('taut.shared/config');
+var Promise    = require('bluebird');
+var assign     = require('lodash/object/assign');
+var omit       = require('lodash/object/omit');
+var each       = require('lodash/collection/each');
+var debug      = require('taut.shared/debug')('connection');
+var verbose    = require('taut.shared/node_modules/debug')('verbose:irc');
+var alert      = require('taut.shared/alert');
+var random     = require('taut.shared/lib/random');
+var IRC        = require('ircsock');
 var pluginChannelTracking = require('ircsock/plugins/channels');
-var mq     = require('taut.shared/io/mq');
-var Timer  = require('taut.shared/lib/timer');
-var radio  = require('./radio');
-var request = require('superagent');
+var mq         = require('taut.shared/io/mq');
+var Timer      = require('taut.shared/lib/timer');
+var radio      = require('./radio');
+var request    = require('superagent');
 
 var model = {
 	user: {
@@ -142,7 +142,7 @@ module.exports = exports = function (user, doNotConnect) {
 			});
 
 			// request channel modes when joining
-			irc.write('MODE '+ev.target);
+			irc.write('MODE ' + ev.target);
 		}
 		emitPublic('join', ev);
 	});
