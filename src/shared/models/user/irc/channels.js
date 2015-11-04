@@ -1,49 +1,34 @@
 
-var debug = require('../../../debug')('models:user:irc:channels');
-var mysql = require('../../../io/mysql');
-var queryize = require('queryize');
+var redis = require('../../../io/redis');
+var mapValues = require('lodash/object/mapValues');
+
 var pwhash = require('../../../lib/passwords');
 
-var TABLENAME = 'users_irc_channels';
 var PASSWORDKEY = require('../../../config').userEncryptionKey;
 
-exports.get = function (userid) {
-	return queryize().from(TABLENAME)
-		.select('channel', 'password')
-		.where({ userid: userid })
-		.exec(mysql)
-		.then(function (rows) {
-			return rows.map(function (row) {
-				if (row.password) {
-					return {
-						channel: row.channel,
-						password: pwhash.decrypt(PASSWORDKEY + row.channel, row.password)
-					};
-				}
-				return row.channel;
-			});
+function key (userid) {
+	return 'user:' + userid + ':irc:channels';
+}
+
+exports.get = function (userid, chan) {
+	if (chan) {
+		chan = chan.toLowerCase();
+		return redis.hget(key(userid), chan).then(pwhash.decrypt.bind(null, PASSWORDKEY + chan));
+	}
+
+	return redis.hgetall(key(userid)).then(function (results) {
+		return mapValues(results, function (encrypted, channel) {
+			return pwhash.decrypt(PASSWORDKEY + channel, encrypted);
 		});
+	});
 };
 
-exports.add = function (userid, channel, password) {
+exports.set = function (userid, channel, password) {
+	if (!channel) return Promise.reject(new Error('Channel is empty'));
 	channel = channel.toLowerCase();
-	debug('adding', userid, channel);
-
-	return queryize().from(TABLENAME)
-		.replace({
-			userid: userid,
-			channel: channel,
-			password: password && pwhash.encrypt(PASSWORDKEY + channel, password) || null
-		})
-		.exec(mysql);
+	return redis.hset(key(userid), channel, password && pwhash.encrypt(PASSWORDKEY + channel, password) || null);
 };
 
 exports.remove = function (userid, channel) {
-	channel = channel.toLowerCase();
-	debug('removing', userid, channel);
-
-	return queryize().from(TABLENAME)
-		.delete()
-		.where({ userid: userid, channel: channel })
-		.exec(mysql);
+	return redis.hdel(key(userid), channel);
 };

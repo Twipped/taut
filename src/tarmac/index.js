@@ -2,7 +2,7 @@ var config            = require('taut.shared/config');
 var connect           = require('./src/connection');
 var debug             = require('taut.shared/debug')('index');
 var UserIRCModel      = require('taut.shared/models/user/irc');
-var UserChannelsModel = require('taut.shared/models/user/irc/channels');
+var UserChannels      = require('taut.shared/models/user/irc/channels');
 var UserNickserv      = require('taut.shared/models/user/irc/nickserv');
 var userIsAgent       = require('taut.shared/models/user/is-agent');
 var Promise           = require('bluebird');
@@ -22,7 +22,7 @@ exports.connectUserID = function connectUserID (userid) {
 
 	return Promise.join(
 		UserIRCModel.get(userid),
-		UserChannelsModel.get(userid),
+		UserChannels.get(userid).then(Object.keys),
 		userIsAgent(userid),
 		UserNickserv.get(userid),
 		function (user, channels, isAgent, nickserv) {
