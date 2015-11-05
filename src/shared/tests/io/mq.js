@@ -1,38 +1,32 @@
 /* eslint no-console:0, no-shadow:0 */
 
 var Promise = require('bluebird');
-var test = require('tap').test;
-var test_ = test;
-var redtap = require('../../redtap');
+var test = require('../../testing/preflight')(require('tape'));
 var mq = require('../../io/mq');
 
 test('message queues', function (t) {
-	var test = redtap(
-		test_,
-		function beforeEach (done) {
-			mq().ready.then(done, function (err) {
-				console.error(err);
-				done();
-			});
-		},
 
-		function afterEach (done) {
-			mq.shutdown().then(done, function (err) {
-				console.error(err);
-				done();
-			});
-		}
-	);
+	t.beforeEach(function (pre) {
+		mq().ready.then(pre.end, function (err) {
+			pre.fail(err);
+			pre.end();
+		});
+	});
 
+	t.afterEach(function (post) {
+		mq.shutdown().then(post.end, function (err) {
+			post.fail(err);
+			post.end();
+		});
+	});
 
-	test('init', function (tt) {
-		tt.ok(mq.emit);
-		tt.ok(mq.subscribe);
+	t.test('init', function (tt) {
+		tt.ok(mq.emit, 'mq has .emit');
+		tt.ok(mq.subscribe, 'mq has .subscribe');
 		tt.end();
 	});
 
-	test('emit and receive', 9, function (t) {
-
+	t.test('emit and receive', 9, function (t) {
 		var iteration = -1;
 		var expectedArgs = [
 			['a', 'b'],

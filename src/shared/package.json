@@ -5,7 +5,8 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "test": "DEBUG='' tap tests"
+    "test": "DEBUG='' tap tests",
+    "lint": "gulp lint-js"
   },
   "author": "Jarvis Badgley <chiper@chipersoft.com> (http://chipersoft.com/)",
   "license": "MIT",
@@ -35,7 +36,8 @@
     "gulp-jscs": "~3.0.0",
     "merge-stream": "~1.0.0",
     "proxyquire": "~1.7.3",
-    "rewire": "~2.3.4",
-    "tap": "~1.4.1"
+    "sinon": "~1.17.2",
+    "tap": "~2.2.0",
+    "tape": "~4.2.2"
   }
 }

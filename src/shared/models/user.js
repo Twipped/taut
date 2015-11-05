@@ -7,7 +7,6 @@ function key (userid) {
 	return 'user:' + userid;
 }
 
-
 exports.get = function (userid, hashkey) {
 	if (hashkey) {
 		return redis.hget(key(userid), hashkey);
@@ -30,7 +29,7 @@ exports.set = function (userid, hashkey, value) {
 function ensureUniqueId (count) {
 	count = Number(count) + 1;
 	var userid = random(32);
-	return exports.get(userid).then(function (user) {
+	return exports.get(userid, 'userid').then(function (user) {
 		if (!user) {
 			return userid;
 		}
@@ -44,6 +43,8 @@ function ensureUniqueId (count) {
 		return ensureUniqueId(count);
 	});
 }
+
+exports._ensureUniqueId = ensureUniqueId;
 
 exports.create = function (forcedID) {
 	var promisedUserID;

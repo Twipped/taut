@@ -1,5 +1,5 @@
 
-var test = require('tap').test;
+var test = require('tape').test;
 var emittersocket = require('../../lib/emitter-socket');
 
 test('emitter socket', function (tmain) {
