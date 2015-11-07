@@ -52,7 +52,7 @@ exports.set = function (userid, hashkey, value) {
 		// if we're setting the keepalive flag, be sure to
 		// define that in the keepalive collection.
 		if (typeof hashkey.keepalive !== 'undefined') {
-			p = Keepalive.set(userid, value);
+			p = Keepalive.set(userid, hashkey.keepalive);
 		}
 
 		return Promise.join(redis.hmset(key(userid), hashkey), p, function (a) {return a;});
