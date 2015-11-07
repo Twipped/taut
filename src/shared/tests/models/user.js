@@ -12,6 +12,7 @@ test('models/user', function (tr) {
 		var EXPECTED = { userid: 'USERID' };
 
 		var Model = proxyquire('../../models/user', {
+			'./user/is-agent': { '@noCallThru': true },
 			'../io/redis': {
 				'hgetall': function (key, target) {
 					t.equal(key, 'user:USERID');
@@ -35,6 +36,7 @@ test('models/user', function (tr) {
 		var EXPECTED = { userid: 'USERID' };
 
 		var Model = proxyquire('../../models/user', {
+			'./user/is-agent': { '@noCallThru': true },
 			'../io/redis': {
 				'hget': function (key, target) {
 					t.equal(key, 'user:USERID');
@@ -57,6 +59,7 @@ test('models/user', function (tr) {
 		t.plan(4);
 
 		var Model = proxyquire('../../models/user', {
+			'./user/is-agent': { '@noCallThru': true },
 			'../io/redis': {
 				'hset': function (key, target, value) {
 					t.equal(key, 'user:USERID');
@@ -82,6 +85,71 @@ test('models/user', function (tr) {
 		var PASSING = { somevalue: 42 };
 
 		var Model = proxyquire('../../models/user', {
+			'./user/is-agent': { '@noCallThru': true },
+			'../io/redis': {
+				'hmset': function (key, target, value) {
+					t.equal(key, 'user:USERID');
+					t.same(target, PASSING);
+					t.notOk(value, 'Value received something');
+					return Promise.resolve();
+				},
+				'@noCallThru': true
+			}
+		});
+
+		Model.set('USERID', PASSING)
+			.then(function () {
+				t.pass('promise resolved');
+			})
+			.catch(t.fail)
+			.then(t.end);
+	});
+
+	tr.test('.set(userid, "is_agent", true)', function (t) {
+		t.plan(6);
+
+		var Model = proxyquire('../../models/user', {
+			'./user/is-agent': {
+				set: function (userid, value) {
+					t.equal(userid, 'USERID');
+					t.equal(value, true);
+					return Promise.resolve();
+				},
+				'@noCallThru': true
+			},
+			'../io/redis': {
+				'hset': function (key, target, value) {
+					t.equal(key, 'user:USERID');
+					t.equal(target, 'is_agent');
+					t.equal(value, true);
+					return Promise.resolve();
+				},
+				'@noCallThru': true
+			}
+		});
+
+		Model.set('USERID', 'is_agent', true)
+			.then(function () {
+				t.pass('promise resolved');
+			})
+			.catch(t.fail)
+			.then(t.end);
+	});
+
+	tr.test('.set(userid, object)', function (t) {
+		t.plan(6);
+
+		var PASSING = { is_agent: false };
+
+		var Model = proxyquire('../../models/user', {
+			'./user/is-agent': {
+				set: function (userid, value) {
+					t.equal(userid, 'USERID');
+					t.equal(value, false);
+					return Promise.resolve();
+				},
+				'@noCallThru': true
+			},
 			'../io/redis': {
 				'hmset': function (key, target, value) {
 					t.equal(key, 'user:USERID');
@@ -118,6 +186,7 @@ test('models/user', function (tr) {
 			});
 
 			var Model = proxyquire('../../models/user', {
+				'./user/is-agent': { '@noCallThru': true },
 				'../io/redis': {
 					'hget': hget,
 					'@noCallThru': true
@@ -156,6 +225,7 @@ test('models/user', function (tr) {
 			});
 
 			var Model = proxyquire('../../models/user', {
+				'./user/is-agent': { '@noCallThru': true },
 				'../io/redis': {
 					'hget': hget,
 					'@noCallThru': true
@@ -174,10 +244,18 @@ test('models/user', function (tr) {
 	});
 
 	tr.test('.create()', function (t) {
-		t.plan(4);
+		t.plan(6);
 
 		var userid;
 		var Model = proxyquire('../../models/user', {
+			'./user/is-agent': {
+				'set': function (uid, value) {
+					t.equal(uid, userid);
+					t.equal(value, false);
+					return Promise.resolve();
+				},
+				'@noCallThru': true
+			},
 			'../io/redis': {
 				'hget': function (key) {
 					t.ok('attempted to get key');

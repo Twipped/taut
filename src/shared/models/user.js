@@ -3,6 +3,8 @@ var Promise = require('bluebird');
 var random = require('../lib/random');
 var redis = require('../io/redis');
 
+var UserIsAgent = require('./user/is-agent');
+
 function key (userid) {
 	return 'user:' + userid;
 }
@@ -16,14 +18,29 @@ exports.get = function (userid, hashkey) {
 };
 
 exports.set = function (userid, hashkey, value) {
+	var p = Promise.resolve();
+
 	if (typeof hashkey === 'object') {
 		if (Array.isArray(hashkey)) {
 			return Promise.reject(new TypeError('Cannot set a user to an array'));
 		}
-		return redis.hmset(key(userid), hashkey);
+
+		// if we're setting the is_agent flag, be sure to
+		// define that in the is_agent collection.
+		if (typeof hashkey.is_agent !== 'undefined') {
+			p = UserIsAgent.set(userid, hashkey.is_agent);
+		}
+
+		return Promise.join(redis.hmset(key(userid), hashkey), p, function (a) {return a;});
 	}
 
-	return redis.hset(key(userid), hashkey, value);
+	// if we're setting the is_agent flag, be sure to
+	// define that in the is_agent collection.
+	if (hashkey === 'is_agent') {
+		p = UserIsAgent.set(userid, value);
+	}
+
+	return Promise.join(redis.hset(key(userid), hashkey, value), p, function (a) {return a;});
 };
 
 function ensureUniqueId (count) {
