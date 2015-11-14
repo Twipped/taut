@@ -61,6 +61,10 @@ irc.emit = function (name, data) {
 	inout.output(name.toUpperCase() + ': ' + JSON.stringify(data));
 };
 
+irc.on('connect', function () {
+	inout.output('PORT ' + irc.stream.localPort);
+});
+
 irc.on('close', function () {
 	writable.end(function () {
 		process.exit(0);
