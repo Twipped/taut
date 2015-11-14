@@ -1,6 +1,7 @@
 
 var test = require('tape');
 var sequential = require('../../testing/sequential');
+var sinon = require('sinon');
 var proxyquire = require('proxyquire');
 var Promise = require('bluebird');
 
@@ -246,6 +247,8 @@ test('models/user', function (tr) {
 	tr.test('.create()', function (t) {
 		t.plan(6);
 
+		var clock = sinon.useFakeTimers(Date.now());
+
 		var userid;
 		var Model = proxyquire('../../models/user', {
 			'./user/is-agent': {
@@ -280,6 +283,7 @@ test('models/user', function (tr) {
 				t.pass('promise resolved');
 			})
 			.catch(t.fail)
+			.then(clock.restore.bind(clock))
 			.then(t.end);
 
 	});
