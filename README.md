@@ -61,7 +61,7 @@ From the repo root on your host computer, run the following commands to setup th
 src/utils/bin/user.add --userid=FINNERY
 src/utils/bin/user.set --userid=FINNERY --is_agent=1
 src/utils/bin/user.setirc --userid=FINNERY --keepalive=1
-src/utils/bin/user.setpasswd --userid=FINNERY --email=finnery@chipersoft.com --password=hunter2
+src/utils/bin/user.setlogin --userid=FINNERY --email=finnery@chipersoft.com --password=hunter2
 src/utils/bin/user.joinchannel --userid=FINNERY '#node.js'
 ```
 

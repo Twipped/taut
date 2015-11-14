@@ -9,7 +9,7 @@
     "taut-user-part": "./bin/user.partchannel",
     "taut-user-setirc": "./bin/user.setirc",
     "taut-user-setnickserv": "./bin/user.setnickserv",
-    "taut-user-setpasswd": "./bin/user.setpasswd"
+    "taut-user-setlogin": "./bin/user.setlogin"
   },
   "scripts": {
     "start": "node ./bin/taut-gangway",

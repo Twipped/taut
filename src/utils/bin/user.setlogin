@@ -10,7 +10,7 @@ if (argv.userid) {
 	if (argv.email) {
 		promiseChange = LoginEmail.getEmailForUserID(argv.userid).then(function (existingEmail) {
 			if (existingEmail) {
-				if (existingEmail !== email) {
+				if (existingEmail !== argv.email) {
 					return LoginEmail.changeEmail(argv.userid, argv.email).then(function () {
 						console.log('Changed email for ', argv.userid, ' to ', argv.email);
 						if (argv.password) {
