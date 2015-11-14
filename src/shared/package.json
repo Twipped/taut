@@ -20,6 +20,7 @@
     "ioredis": "~1.9.0",
     "librato-node": "~4.0.2",
     "lodash": "~3.10.0",
+    "memoizesync": "~0.5.0",
     "minimist": "~1.2.0",
     "mysql2": "~0.15.8",
     "nodemailer": "~1.5.0",

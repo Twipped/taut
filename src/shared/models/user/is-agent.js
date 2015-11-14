@@ -1,10 +1,10 @@
 
 var redis = require('../../io/redis');
-var memoize = require('lodash/function/memoize');
+var memoize = require('memoizesync');
 
 module.exports = exports = memoize(function (userid) {
 	return exports.get(userid);
-}, 60000);
+}, { maxAge: 60000 });
 
 function key () {
 	return 'users:agents';
