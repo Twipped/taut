@@ -1,32 +1,40 @@
 #!/usr/bin/env node
 
+var User            = require('taut.shared/models/user');
 var LoginEmail      = require('taut.shared/models/user/logins/email');
 var UserIrcSettings = require('taut.shared/models/user/irc');
 var argv            = require('minimist')(process.argv.slice(2));
 
-var login = argv._[0].trim();
+var promiseUserId;
+if (argv.email) {
+	promiseUserId = LoginEmail.getUserIDByEmail(argv.email);
+} else if (argv.userid) {
+	promiseUserId = User.get(argv.userid, 'userid');
+}
 
 delete argv._;
+delete argv.email;
+delete argv.userid;
 
 if (!Object.keys(argv).length) {
 	console.error('No properties detected.'); // eslint-disable-line no-console
 	process.exit(1); // eslint-disable-line no-process-exit
 }
 
-if (!login) {
+if (!promiseUserId) {
 	console.error('Missing login.'); // eslint-disable-line no-console
 	process.exit(1); // eslint-disable-line no-process-exit
 }
 
 
-LoginEmail.getUserIDByEmail(login).then(function (userid) {
+promiseUserId.then(function (userid) {
 	if (!userid) {
 		console.error('Login not found.'); // eslint-disable-line no-console
 		return process.exit(1); // eslint-disable-line no-process-exit
 	}
 
 	return UserIrcSettings.set(userid, argv).then(function () {
-		console.log('IRC attributes for ' + login + ':' + userid + ' set to ', argv); // eslint-disable-line no-console
+		console.log('IRC attributes for user ' + userid + ' set to ', argv); // eslint-disable-line no-console
 		process.exit(0); // eslint-disable-line no-process-exit
 	});
 }).then(function () {

@@ -55,14 +55,14 @@ The Concourse service should be launched either with `gulp watch` or `gulp live`
 
 In order to connect to IRC and login to the app you will need to create a user.  Any user marked as `keepalive` will automatically be connected by Tower when a Tarmac instance is available.
 
-From the repo root on your host computer, run the following commands to setup the default agent.  The `FINNERY` userid is important if you want to run Tarmac in dev mode.  Feel free to change the email address, password and default channel.
+From the repo root on your host computer, run the following commands to setup the default agent.  The `FINNERY` userid is important if you want to run Tarmac in dev mode.  Feel free to change the email address, password and default channel. Note: The quotes around the channel name are important, as `#` has significance in the shell.
 
 ```
-src/utils/bin/user.add finnery@chipersoft.com --userid=FINNERY
-src/utils/bin/user.set finnery@chipersoft.com --is_agent=1
-src/utils/bin/user.setirc finnery@chipersoft.com --keepalive=1
-src/utils/bin/user.setpasswd finnery@chipersoft.com hunter2
-src/utils/bin/user.joinchannel finnery@chipersoft.com '#node.js'
+src/utils/bin/user.add --userid=FINNERY
+src/utils/bin/user.set --userid=FINNERY --is_agent=1
+src/utils/bin/user.setirc --userid=FINNERY --keepalive=1
+src/utils/bin/user.setpasswd --userid=FINNERY --email=finnery@chipersoft.com --password=hunter2
+src/utils/bin/user.joinchannel --userid=FINNERY '#node.js'
 ```
 
 The agent will receive a random username in the form of `finnerXX` if no nickname is set. If you wish to define a nickname, add `--nickname=NICKNAME` to the `user.setirc` command.  If you want that user to identify with nickserv on connect, call:

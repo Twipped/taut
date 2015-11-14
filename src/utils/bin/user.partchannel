@@ -1,20 +1,27 @@
 #!/usr/bin/env node
 
+var User         = require('taut.shared/models/user');
 var LoginEmail   = require('taut.shared/models/user/logins/email');
 var UserChannels = require('taut.shared/models/user/irc/channels');
 var Promise      = require('bluebird');
 var argv         = require('minimist')(process.argv.slice(2));
 var mq           = require('taut.shared/io/mq');
 
-var login = argv._.shift();
 var channels = argv._;
 
-if (!login || !channels) {
+var promiseUserId;
+if (argv.email) {
+	promiseUserId = LoginEmail.getUserIDByEmail(argv.email);
+} else if (argv.userid) {
+	promiseUserId = User.get(argv.userid, 'userid');
+}
+
+if (!promiseUserId || !channels) {
 	console.error('Missing user and/or channels'); // eslint-disable-line no-console
 	process.exit(1); // eslint-disable-line no-process-exit
 }
 
-LoginEmail.getUserIDByEmail(login).then(function (userid) {
+promiseUserId.then(function (userid) {
 	if (!userid) {
 		console.error('Login not found.'); // eslint-disable-line no-console
 		return process.exit(1); // eslint-disable-line no-process-exit

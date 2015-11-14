@@ -4,26 +4,29 @@ var User       = require('taut.shared/models/user');
 var LoginEmail = require('taut.shared/models/user/logins/email');
 var argv       = require('minimist')(process.argv.slice(2));
 
-var email = argv._[0].trim();
+var email = argv.email;
 var userid;
 
 delete argv._;
 
-if (!email) {
-	console.error('Missing email.'); // eslint-disable-line no-console
-	process.exit(1); // eslint-disable-line no-process-exit
-}
+var doesEmailExist = email && LoginEmail.exists(email) || Promise.resolve(false);
 
-LoginEmail.exists(email).then(function (exists) {
-	if (exists) throw new Error('Email ' + email + ' already exists');
+doesEmailExist.then(function (exists) {
+	if (exists) {
+		throw new Error('Email ' + email + ' already exists');
+	}
 
 	return User.create(argv.userid);
 }).then(function (user) {
-	userid = user.data.userid;
-	return LoginEmail.create(userid, email, argv.password);
-}).then(function () {
-	console.log('Account created for ' + email + ':', userid); // eslint-disable-line no-console
+	userid = user.userid;
+	console.log('Account created: ', userid); // eslint-disable-line no-console
+
+	if (email) return LoginEmail.create(userid, email, argv.password).then(function () {
+		console.log('Email registered: ', email); // eslint-disable-line no-console
+	});
+}).then(function (emailCreated) {
 	process.exit(0); // eslint-disable-line no-process-exit
 }).catch(function (err) {
-	console.error(err); // eslint-disable-line no-console
+	console.error(err.stack); // eslint-disable-line no-console
+	process.exit(1);
 });

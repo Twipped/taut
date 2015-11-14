@@ -1,18 +1,50 @@
 #!/usr/bin/env node
+/* eslint no-console:0, max-len:0 */
 
 var LoginEmail = require('taut.shared/models/user/logins/email');
-var args       = process.argv.slice(2);
+var argv = require('minimist')(process.argv.slice(2));
 
-var email      = args[0];
-var pass       = args[1];
+var promiseChange;
 
-if (!email || !pass) {
-	console.error('Missing login or password.'); // eslint-disable-line no-console
-	process.exit(1); // eslint-disable-line no-process-exit
+if (argv.userid) {
+	if (argv.email) {
+		promiseChange = LoginEmail.getEmailForUserID(argv.userid).then(function (existingEmail) {
+			if (existingEmail) {
+				if (existingEmail !== email) {
+					return LoginEmail.changeEmail(argv.userid, argv.email).then(function () {
+						console.log('Changed email for ', argv.userid, ' to ', argv.email);
+						if (argv.password) {
+							return LoginEmail.changePasswordForUserId(argv.userid, argv.password).then(function () {
+								console.log('Changed password for ', argv.userid);
+							});
+						}
+					});
+				}
+
+				return argv.password && LoginEmail.changePasswordForUserId(argv.userid, argv.password).then(function () {
+					console.log('Changed password for ', argv.userid);
+				});
+			}
+
+			return LoginEmail.create(argv.userid, argv.email, argv.password).then(function () {
+				console.log('Created email login for for ', argv.userid, argv.password ? ' with password' : ' without password');
+			});
+		});
+	} else {
+		promiseChange = LoginEmail.changePasswordForUserId(argv.userid, argv.password).then(function () {
+			console.log('Changed password for ', argv.userid);
+		});
+	}
+} else if (argv.email && argv.password) {
+	promiseChange = LoginEmail.getUserIDByEmail(argv.email);
+} else {
+	promiseChange = Promise.reject('Nothing to do.');
 }
 
 
-LoginEmail.changePasswordForEmail(email, pass).then(function (login) {
-	console.log('Password written for', email); // eslint-disable-line no-console
+promiseChange.catch(function (err) {
+	console.error(err.stack || err);
+	process.exit(1); // eslint-disable-line no-process-exit
+}).then(function (login) {
 	process.exit(0); // eslint-disable-line no-process-exit
 });

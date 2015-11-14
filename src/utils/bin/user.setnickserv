@@ -2,18 +2,24 @@
 
 var LoginEmail = require('taut.shared/models/user/logins/email');
 var Nickserv   = require('taut.shared/models/user/irc/nickserv');
-var args       = process.argv.slice(2);
+var argv       = require('minimist')(process.argv.slice(2));
 
-var email = args[0];
-var nick  = args[1];
-var pass  = args[2];
+var promiseUserId;
+if (argv.email) {
+	promiseUserId = LoginEmail.getUserIDByEmail(argv.email);
+} else if (argv.userid) {
+	promiseUserId = User.get(argv.userid, 'userid');
+}
 
-if (!email || !nick || !pass) {
-	console.error('Missing email, nickname or password.', args); // eslint-disable-line no-console
+var nick  = argv._[0];
+var pass  = argv._[1];
+
+if (!promiseUserId || !nick || !pass) {
+	console.error('Missing email, nickname or password.', argv); // eslint-disable-line no-console
 	process.exit(1); // eslint-disable-line no-process-exit
 }
 
-LoginEmail.getUserIDByEmail(email).then(function (userid) {
+promiseUserId.then(function (userid) {
 	if (!userid) {
 		console.error('Login not found.'); // eslint-disable-line no-console
 		return process.exit(1); // eslint-disable-line no-process-exit
@@ -21,7 +27,7 @@ LoginEmail.getUserIDByEmail(email).then(function (userid) {
 
 	Nickserv.set(userid, nick, pass).then(function () {
 		Nickserv.get(userid, nick).then(function (result) {
-			console.log('Nickserv password set for', email, result); // eslint-disable-line no-console
+			console.log('Nickserv password set for user ', userid, result); // eslint-disable-line no-console
 			process.exit(0); // eslint-disable-line no-process-exit
 		});
 	});

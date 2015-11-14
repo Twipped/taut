@@ -68,7 +68,7 @@ exports.create = function (forcedID) {
 
 	if (forcedID) {
 		promisedUserID = exports.get(forcedID).then(function (u) {
-			if (u) return Promise.reject(new Error(u + ' already exists.'));
+			if (u && u.userid) return Promise.reject(new Error(forcedID + ' already exists.'));
 			return forcedID;
 		});
 	} else {

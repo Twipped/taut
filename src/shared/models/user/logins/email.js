@@ -116,3 +116,7 @@ exports.getUserIDByEmail = function (email) {
 exports.getByEmail = function (email) {
 	return redis.hgetall(keyByEmail(email));
 };
+
+exports.getEmailForUserID = function (userid) {
+	return redis.get(keyByUser(userid));
+}
