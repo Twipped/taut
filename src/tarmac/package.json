@@ -27,7 +27,10 @@
     "gulp": "~3.9.0",
     "gulp-eslint": "~1.0.0",
     "gulp-jscs": "~3.0.0",
-    "merge-stream": "~1.0.0"
+    "merge-stream": "~1.0.0",
+    "object-contains": "~0.1.0",
+    "proxyquire": "~1.7.3",
+    "tape": "~4.2.2"
   },
   "bundledDependencies": [
     "taut.shared"
