@@ -37,7 +37,7 @@ var nickservPatterns = {
 	lastFailed: /^Last failed attempt from: (.+) on (.+)\./
 };
 
-module.exports = exports = function (user, doNotConnect) {
+module.exports = exports = function (user) {
 	if (user.toJSON) user = user.toJSON();
 	user = omit(user, function (v) {return !Boolean(v);});
 
@@ -49,7 +49,8 @@ module.exports = exports = function (user, doNotConnect) {
 		nickname: 'finner' + Math.round(Math.random() * 100),
 		username: 'username',
 		realname: 'realname',
-		password: null
+		password: null,
+		autoHandshake: false
 	}, user);
 
 	var connid = random(10);
@@ -113,8 +114,23 @@ module.exports = exports = function (user, doNotConnect) {
 		return mq.emit('irc:incoming', 'system', event, scopeData(event, data));
 	}
 
-	irc.on('connecting', debug.bind(null, 'connecting', connid));
-	irc.on('connect', debug.bind(null, 'connected', connid));
+	irc.on('connecting', function () {
+		radio.send('connection:starting', userid);
+		debug('opening connection', userid);
+	});
+
+	irc.on('connect', function () {
+		var identurl = config.tarmac.identurl
+			.replace('{{username}}', user.username || user.userid)
+			.replace('{{port}}', irc.stream.localPort);
+
+		request.get(identurl).end(function (err) {
+			if (err) debug.error('registering for ident failed', err);
+
+			irc.sendHandshake();
+		});
+	});
+
 	irc.on('error', debug.bind(null, 'error'));
 
 	irc.on('welcome', function (nickname) {
@@ -359,23 +375,6 @@ module.exports = exports = function (user, doNotConnect) {
 			if (fn) p.then(fn);
 		});
 	};
-
-	if (!doNotConnect) {
-		var identurl = config.tarmac.identurl
-			.replace('{{username}}', user.username || user.userid)
-			.replace('{{port}}', irc.options.port);
-
-		request.get(identurl).end(function (err) {
-			if (err) debug.error('registering for ident failed', err);
-
-			irc.connect(function (err2) {
-				if (err2) debug('error', err2, options);
-			});
-
-			radio.send('connection:starting', userid);
-			debug('opening connection', userid);
-		});
-	}
 
 	return irc;
 };

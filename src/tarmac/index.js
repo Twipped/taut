@@ -41,6 +41,8 @@ exports.connectUserID = function connectUserID (userid) {
 				delete connections[user.userid];
 			});
 
+			irc.connect();
+
 			return irc;
 		}
 	)
