@@ -343,6 +343,7 @@ module.exports = exports = function (user) {
 			});
 		} else {
 			irc.once('motd', function () {
+				clearTimeout(timeout);
 				irc.emit('ready');
 			});
 		}
