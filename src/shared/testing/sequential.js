@@ -31,5 +31,14 @@ module.exports = function (expected) {
 		return stub.onCall(2, fn);
 	};
 
+	stub.reset = function (newsteps) {
+		step = 0;
+		if (Array.isArray(newsteps)) {
+			steps = newsteps;
+		} else if (newsteps === true) {
+			steps = [];
+		}
+	};
+
 	return stub;
 };
