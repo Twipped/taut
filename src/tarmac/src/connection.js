@@ -16,18 +16,10 @@ var Timer      = require('taut.shared/lib/timer');
 var radio      = require('./radio');
 var request    = require('superagent');
 
-var model = {
-	user: {
-		connection: require('taut.shared/models/user/irc/connection'),
-	},
-	connection: {
-		user: require('taut.shared/models/connection'),
-		channels: require('taut.shared/models/connection/channels')
-	},
-	channel: {
-		connections: require('taut.shared/models/channel/connections')
-	}
-};
+var UserConnection = require('taut.shared/models/user/irc/connection');
+var ConnectionUser = require('taut.shared/models/connection');
+var ConnectionChannels = require('taut.shared/models/connection/channels');
+var ChannelConnections = require('taut.shared/models/channel/connections');
 
 var nickservPatterns = {
 	requested: /^This nickname is registered. Please choose a different nickname/,
@@ -66,8 +58,8 @@ module.exports = exports = function (user) {
 
 	var heartbeat = new Timer(config.tarmac.heartbeat * 1000, function () {
 		debug('heartbeat', irc.nick);
-		model.user.connection.set(userid, connid);
-		model.connection.user.set(connid, userid);
+		UserConnection.set(userid, connid);
+		ConnectionUser.set(connid, userid);
 	}).repeating();
 
 	var receiver = mq.subscribe('irc:outgoing:' + userid, function (action) {
@@ -151,8 +143,8 @@ module.exports = exports = function (user) {
 		if (ev.isSelf) {
 			radio.send('connection:joinChannel', userid, ev.target);
 			Promise.all([
-				model.connection.channels.add(connid, ev.target),
-				model.channel.connections.add(ev.target, connid)
+				ConnectionChannels.add(connid, ev.target),
+				ChannelConnections.add(ev.target, connid)
 			]).then(function () {
 				emitSystem('join', ev);
 			});
@@ -167,8 +159,8 @@ module.exports = exports = function (user) {
 		if (ev.isSelf) {
 			radio.send('connection:leaveChannel', userid, ev.target);
 			Promise.all([
-				model.connection.channels.remove(connid, ev.target),
-				model.channel.connections.remove(ev.target, connid)
+				ConnectionChannels.remove(connid, ev.target),
+				ChannelConnections.remove(ev.target, connid)
 			]).then(function () {
 				emitSystem('part', ev);
 			});
@@ -180,8 +172,8 @@ module.exports = exports = function (user) {
 		if (ev.isSelf) {
 			radio.send('connection:leaveChannel', userid, ev.target);
 			Promise.all([
-				model.connection.channels.remove(connid, ev.target),
-				model.channel.connections.remove(ev.target, connid)
+				ConnectionChannels.remove(connid, ev.target),
+				ChannelConnections.remove(ev.target, connid)
 			]).then(function () {
 				emitSystem('kick', ev);
 			});
@@ -300,14 +292,14 @@ module.exports = exports = function (user) {
 		receiver.close();
 		radio.send('connection:offline', userid);
 
-		model.connection.channels.get(connid).then(function (channels) {
+		ConnectionChannels.get(connid).then(function (channels) {
 			return Promise.map(channels, function (channel) {
-				return model.channel.connections.remove(channel, connid);
+				return ChannelConnections.remove(channel, connid);
 			});
 		}).then(function () {
 			return Promise.all([
-				model.user.connection.clear(userid),
-				model.connection.user.clear(connid)
+				UserConnection.clear(userid),
+				ConnectionUser.clear(connid)
 			]);
 		}).then(function () {
 			emitSystem('ended');
