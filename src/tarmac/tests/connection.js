@@ -93,6 +93,7 @@ test('connection.js', function (t) {
 	var irc = factory(mockUser);
 
 	irc.join = hook(irc.join, sequence.bind(null, 'irc.join'));
+	irc.getModes = hook(irc.getModes, sequence.bind(null, 'irc.getModes'));
 
 	t.equal(typeof irc.id, 'string', 'irc.id');
 	t.same(irc.user, {
@@ -198,6 +199,54 @@ test('connection.js', function (t) {
 
 		irc.emit('welcome', mockUser.nickname);
 		irc.emit('motd', 'MOTD');
+	});
+
+	t.test('join a channel', function (t) {
+		sequence.reset(true);
+		sequence.add(function (evt, cmd, userid, target) {
+			t.equal(evt, 'radio.send', 'Sequence: radio.send');
+			t.equal(cmd, 'connection:joinChannel');
+			t.equal(userid, mockUser.userid);
+			t.equal(target, '#Node.js');
+		});
+		sequence.add(function (evt, bus, type, event, data) {
+			t.equal(evt, 'mq.emit', 'Sequence: mq.emit');
+			t.equal(bus, 'irc:incoming');
+			t.equal(type, 'system');
+			t.equal(event, 'join');
+			t.contains(data, {
+				event: 'join',
+				userid: mockUser.userid,
+				target: '#Node.js',
+			});
+		});
+		sequence.add(function (evt, channel) {
+			t.equal(evt, 'irc.getModes', 'Sequence: irc.getModes');
+			t.equal(channel, '#Node.js');
+		});
+		sequence.add(function (evt, bus, type, event, userid, data) {
+			t.equal(evt, 'mq.emit', 'Sequence: mq.emit');
+			t.equal(bus, 'irc:incoming');
+			t.equal(type, 'public');
+			t.equal(event, 'join');
+			t.contains(data, {
+				event: 'join',
+				userid: mockUser.userid,
+				target: '#Node.js'
+			});
+			t.end();
+		});
+		sequence.add(function (evt) {
+			t.fail('Received ' + evt);
+		});
+
+		irc.emit('join', {
+			'nick':'iotest43',
+			'host':'~username@ip72-197-194-125.sd.sd.cox.net',
+			'target':'#Node.js',
+			'isSelf':true
+		});
+
 	});
 
 
