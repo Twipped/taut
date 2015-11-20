@@ -46,19 +46,6 @@ test('connection.js', function (t) {
 			'clear': sequence.bind(null, 'UserConnection.clear')
 		},
 
-		'taut.shared/models/connection': {
-			'set': sequence.bind(null, 'ConnectionUser.set'),
-			'clear': sequence.bind(null, 'ConnectionUser.clear')
-		},
-		'taut.shared/models/connection/channels': {
-			'add': sequence.bind(null, 'ConnectionChannels.add'),
-			'remove': sequence.bind(null, 'ConnectionChannels.remove')
-		},
-		'taut.shared/models/channel/connections': {
-			'add': sequence.bind(null, 'ChannelConnections.add'),
-			'remove': sequence.bind(null, 'ChannelConnections.remove')
-		},
-
 		'taut.shared/alert': sequence.bind(null, 'alert'),
 
 		'taut.shared/lib/timer': function (time, fn) {

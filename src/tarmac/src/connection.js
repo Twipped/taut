@@ -1,7 +1,6 @@
 'use strict';
 
 var config     = require('taut.shared/config');
-var Promise    = require('bluebird');
 var assign     = require('lodash/object/assign');
 var omit       = require('lodash/object/omit');
 var each       = require('lodash/collection/each');
@@ -17,9 +16,6 @@ var radio      = require('./radio');
 var request    = require('superagent');
 
 var UserConnection = require('taut.shared/models/user/irc/connection');
-var ConnectionUser = require('taut.shared/models/connection');
-var ConnectionChannels = require('taut.shared/models/connection/channels');
-var ChannelConnections = require('taut.shared/models/channel/connections');
 
 var nickservPatterns = {
 	requested: /^This nickname is registered. Please choose a different nickname/,
@@ -30,7 +26,6 @@ var nickservPatterns = {
 };
 
 module.exports = exports = function (user) {
-	if (user.toJSON) user = user.toJSON();
 	user = omit(user, function (v) {return !Boolean(v);});
 
 	var options = assign({
@@ -59,7 +54,6 @@ module.exports = exports = function (user) {
 	var heartbeat = new Timer(config.tarmac.heartbeat * 1000, function () {
 		debug('heartbeat', irc.nick);
 		UserConnection.set(userid, connid);
-		ConnectionUser.set(connid, userid);
 	}).repeating();
 
 	var receiver = mq.subscribe('irc:outgoing:' + userid, function (action) {
@@ -142,12 +136,7 @@ module.exports = exports = function (user) {
 	irc.on('join', function (ev) {
 		if (ev.isSelf) {
 			radio.send('connection:joinChannel', userid, ev.target);
-			Promise.all([
-				ConnectionChannels.add(connid, ev.target),
-				ChannelConnections.add(ev.target, connid)
-			]).then(function () {
-				emitSystem('join', ev);
-			});
+			emitSystem('join', ev);
 
 			// request channel modes when joining
 			irc.write('MODE ' + ev.target);
@@ -158,12 +147,8 @@ module.exports = exports = function (user) {
 	irc.on('part', function (ev) {
 		if (ev.isSelf) {
 			radio.send('connection:leaveChannel', userid, ev.target);
-			Promise.all([
-				ConnectionChannels.remove(connid, ev.target),
-				ChannelConnections.remove(ev.target, connid)
-			]).then(function () {
-				emitSystem('part', ev);
-			});
+
+			emitSystem('part', ev);
 		}
 		emitPublic('part', ev);
 	});
@@ -171,12 +156,8 @@ module.exports = exports = function (user) {
 	irc.on('kick', function (ev) {
 		if (ev.isSelf) {
 			radio.send('connection:leaveChannel', userid, ev.target);
-			Promise.all([
-				ConnectionChannels.remove(connid, ev.target),
-				ChannelConnections.remove(ev.target, connid)
-			]).then(function () {
-				emitSystem('kick', ev);
-			});
+
+			emitSystem('kick', ev);
 		}
 		emitPublic('kick', ev);
 	});
@@ -292,16 +273,7 @@ module.exports = exports = function (user) {
 		receiver.close();
 		radio.send('connection:offline', userid);
 
-		ConnectionChannels.get(connid).then(function (channels) {
-			return Promise.map(channels, function (channel) {
-				return ChannelConnections.remove(channel, connid);
-			});
-		}).then(function () {
-			return Promise.all([
-				UserConnection.clear(userid),
-				ConnectionUser.clear(connid)
-			]);
-		}).then(function () {
+		UserConnection.clear(userid).then(function () {
 			emitSystem('ended');
 		});
 	});
