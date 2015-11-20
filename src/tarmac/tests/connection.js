@@ -94,7 +94,7 @@ test('connection.js', function (t) {
 		isAgent: false,
 		activeChannels: [
 			'#channela',
-			'#channelb',
+			{ name: '#channelb' },
 			'#channelc'
 		]
 	};
@@ -114,7 +114,7 @@ test('connection.js', function (t) {
 		username: 'USERNAME',
 		activeChannels: [
 			'#channela',
-			'#channelb',
+			{ name: '#channelb' },
 			'#channelc'
 		]
 	}, 'irc.user');
