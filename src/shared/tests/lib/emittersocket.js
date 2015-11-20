@@ -2,9 +2,9 @@
 var test = require('tape').test;
 var emittersocket = require('../../lib/emitter-socket');
 
-test('emitter socket', function (tmain) {
+test('emitter socket', function (t) {
 
-	test('connects and sends messages both ways', function (t) {
+	t.test('connects and sends messages both ways', function (t) {
 		t.plan(10);
 
 		var server = emittersocket.createServer(function (socket) {
@@ -75,5 +75,5 @@ test('emitter socket', function (tmain) {
 	// 	});
 	// });
 
-	tmain.end();
+	t.end();
 });
