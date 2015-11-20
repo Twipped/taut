@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "node ./bin/taut-tarmac --userid=FINNERY",
     "start": "node ./bin/taut-tarmac",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tape tests/**/*.js",
+    "cover": "istanbul cover tape tests/**/*.js"
   },
   "author": "Jarvis Badgley <chiper@chipersoft.com> (http://chipersoft.com/)",
   "license": "MIT",
@@ -27,6 +28,7 @@
     "gulp": "~3.9.0",
     "gulp-eslint": "~1.0.0",
     "gulp-jscs": "~3.0.0",
+    "istanbul": "~0.4.0",
     "merge-stream": "~1.0.0",
     "object-contains": "~0.1.0",
     "proxyquire": "~1.7.3",
