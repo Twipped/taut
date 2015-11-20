@@ -3,6 +3,7 @@
 var tape       = require('tape');
 var test       = require('taut.shared/testing/preflight')(tape);
 var sequential = require('taut.shared/testing/sequential');
+var hook = require('taut.shared/testing/hook');
 var proxyquire = require('proxyquire').noCallThru();
 var contains   = require('object-contains');
 
@@ -82,6 +83,7 @@ test('connection.js', function (t) {
 
 	var mockStream = {
 		localPort: 1234,
+		write: function () {},
 		end: sequence.bind(null, 'stream.end')
 	};
 
@@ -89,7 +91,12 @@ test('connection.js', function (t) {
 		userid: 'USERID',
 		nickname: 'NICKNAME',
 		username: 'USERNAME',
-		isAgent: false
+		isAgent: false,
+		activeChannels: [
+			'#channela',
+			'#channelb',
+			'#channelc'
+		]
 	};
 
 	sequence.add(function (evt) {
@@ -98,23 +105,30 @@ test('connection.js', function (t) {
 
 	var irc = factory(mockUser);
 
+	irc.join = hook(irc.join, sequence.bind(null, 'irc.join'));
+
 	t.equal(typeof irc.id, 'string', 'irc.id');
 	t.same(irc.user, {
 		userid: 'USERID',
 		nickname: 'NICKNAME',
-		username: 'USERNAME'
+		username: 'USERNAME',
+		activeChannels: [
+			'#channela',
+			'#channelb',
+			'#channelc'
+		]
 	}, 'irc.user');
 	t.equal(typeof irc.shutdown, 'function', 'irc.shutdown');
 
 	t.test('connection established', function (t) {
 		sequence.reset(true);
 		sequence.add(function (evt, cmd, userid) {
-			t.equal(evt, 'radio.send');
+			t.equal(evt, 'radio.send', 'Sequence: radio.send');
 			t.equal(cmd, 'connection:starting');
 			t.equal(userid, 'USERID');
 		});
 		sequence.add(function (evt, url) {
-			t.equal(evt, 'superagent.get');
+			t.equal(evt, 'superagent.get', 'Sequence: superagent.get');
 			t.equal(url, 'URL/USERNAME/1234', 'precheck registered');
 			return {
 				end: function () {
@@ -132,14 +146,14 @@ test('connection.js', function (t) {
 	t.test('welcome/ready', function (t) {
 		sequence.reset(true);
 		sequence.add(function (evt) {
-			t.equal(evt, 'heartbeat.start');
+			t.equal(evt, 'heartbeat.start', 'Sequence: heartbeat.start');
 		});
 		sequence.add(function (evt, cmd) {
-			t.equal(evt, 'radio.send');
+			t.equal(evt, 'radio.send', 'Sequence: radio.send');
 			t.equal(cmd, 'connection:online');
 		});
 		sequence.add(function (evt, bus, type, event, userid, data) {
-			t.equal(evt, 'mq.emit');
+			t.equal(evt, 'mq.emit', 'Sequence: mq.emit');
 			t.equal(bus, 'irc:incoming');
 			t.equal(type, 'private');
 			t.equal(event, 'welcome');
@@ -151,7 +165,7 @@ test('connection.js', function (t) {
 			});
 		});
 		sequence.add(function (evt, bus, type, event, userid, data) {
-			t.equal(evt, 'mq.emit');
+			t.equal(evt, 'mq.emit', 'Sequence: mq.emit');
 			t.equal(bus, 'irc:incoming');
 			t.equal(type, 'private');
 			t.equal(event, 'motd');
@@ -162,11 +176,23 @@ test('connection.js', function (t) {
 			});
 		});
 		sequence.add(function (evt, cmd) {
-			t.equal(evt, 'radio.send');
+			t.equal(evt, 'radio.send', 'Sequence: radio.send');
 			t.equal(cmd, 'connection:ready');
 		});
+		sequence.add(function (evt, channel) {
+			t.equal(evt, 'irc.join', 'Sequence: irc.join');
+			t.equal(channel, '#channela');
+		});
+		sequence.add(function (evt, channel) {
+			t.equal(evt, 'irc.join', 'Sequence: irc.join');
+			t.equal(channel, '#channelb');
+		});
+		sequence.add(function (evt, channel) {
+			t.equal(evt, 'irc.join', 'Sequence: irc.join');
+			t.equal(channel, '#channelc');
+		});
 		sequence.add(function (evt, bus, type, event, data) {
-			t.equal(evt, 'mq.emit');
+			t.equal(evt, 'mq.emit', 'Sequence: mq.emit');
 			t.equal(bus, 'irc:incoming');
 			t.equal(type, 'system');
 			t.equal(event, 'ready');
@@ -176,7 +202,7 @@ test('connection.js', function (t) {
 			});
 		});
 		sequence.add(function (evt) {
-			t.equal(evt, 'receiver.start');
+			t.equal(evt, 'receiver.start', 'Sequence: receiver.start');
 			t.end();
 		});
 		sequence.add(function (evt) {
