@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "node ./bin/taut-tarmac --userid=FINNERY",
     "start": "node ./bin/taut-tarmac",
-    "test": "tape tests/**/*.js",
+    "test": "DEBUG='' tap tests",
     "cover": "istanbul cover tape tests/**/*.js"
   },
   "author": "Jarvis Badgley <chiper@chipersoft.com> (http://chipersoft.com/)",
@@ -32,6 +32,7 @@
     "merge-stream": "~1.0.0",
     "object-contains": "~0.1.0",
     "proxyquire": "~1.7.3",
+    "tap": "~2.3.0",
     "tape": "~4.2.2"
   },
   "bundledDependencies": [
