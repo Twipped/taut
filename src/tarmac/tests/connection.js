@@ -242,7 +242,95 @@ test('connection.js', function (t) {
 
 		irc.emit('join', {
 			'nick':'iotest43',
-			'host':'~username@ip72-197-194-125.sd.sd.cox.net',
+			'host':'~username@hostname.net',
+			'target':'#Node.js',
+			'isSelf':true
+		});
+
+	});
+
+	t.test('part a channel', function (t) {
+		sequence.reset(true);
+		sequence.add(function (evt, cmd, userid, target) {
+			t.equal(evt, 'radio.send', 'Sequence: radio.send');
+			t.equal(cmd, 'connection:leaveChannel');
+			t.equal(userid, mockUser.userid);
+			t.equal(target, '#Node.js');
+		});
+		sequence.add(function (evt, bus, type, event, data) {
+			t.equal(evt, 'mq.emit', 'Sequence: mq.emit');
+			t.equal(bus, 'irc:incoming');
+			t.equal(type, 'system');
+			t.equal(event, 'part');
+			t.contains(data, {
+				event: 'part',
+				userid: mockUser.userid,
+				target: '#Node.js',
+			});
+		});
+		sequence.add(function (evt, bus, type, event, userid, data) {
+			t.equal(evt, 'mq.emit', 'Sequence: mq.emit');
+			t.equal(bus, 'irc:incoming');
+			t.equal(type, 'public');
+			t.equal(event, 'part');
+			t.contains(data, {
+				event: 'part',
+				userid: mockUser.userid,
+				target: '#Node.js'
+			});
+			t.end();
+		});
+		sequence.add(function (evt) {
+			t.fail('Received ' + evt);
+		});
+
+		irc.emit('part', {
+			'nick':'iotest43',
+			'host':'~username@hostname.net',
+			'target':'#Node.js',
+			'isSelf':true
+		});
+
+	});
+
+	t.test('kicked from a channel', function (t) {
+		sequence.reset(true);
+		sequence.add(function (evt, cmd, userid, target) {
+			t.equal(evt, 'radio.send', 'Sequence: radio.send');
+			t.equal(cmd, 'connection:leaveChannel');
+			t.equal(userid, mockUser.userid);
+			t.equal(target, '#Node.js');
+		});
+		sequence.add(function (evt, bus, type, event, data) {
+			t.equal(evt, 'mq.emit', 'Sequence: mq.emit');
+			t.equal(bus, 'irc:incoming');
+			t.equal(type, 'system');
+			t.equal(event, 'kick');
+			t.contains(data, {
+				event: 'kick',
+				userid: mockUser.userid,
+				target: '#Node.js',
+			});
+		});
+		sequence.add(function (evt, bus, type, event, userid, data) {
+			t.equal(evt, 'mq.emit', 'Sequence: mq.emit');
+			t.equal(bus, 'irc:incoming');
+			t.equal(type, 'public');
+			t.equal(event, 'kick');
+			t.contains(data, {
+				event: 'kick',
+				userid: mockUser.userid,
+				target: '#Node.js'
+			});
+			t.end();
+		});
+		sequence.add(function (evt) {
+			t.fail('Received ' + evt);
+		});
+
+		irc.emit('kick', {
+			'nick':'iotest43',
+			'host':'~username@hostname.net',
 			'target':'#Node.js',
 			'isSelf':true
 		});
