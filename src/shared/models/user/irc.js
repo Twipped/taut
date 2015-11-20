@@ -38,6 +38,8 @@ exports.get = function (userid, hashkey) {
 				return result;
 			});
 		}
+
+		return result;
 	});
 };
 

@@ -40,6 +40,38 @@ test('models/user/irc', function (tr) {
 			.then(t.end);
 	});
 
+	tr.test('.get(userid) has username', function (t) {
+		t.plan(3);
+
+		var EXPECTED = { userid: 'USERID', username: 'USERNAME' };
+
+		var Model = proxyquire('../../../models/user/irc', {
+			'./irc/keepalive': {
+				'@noCallThru': true
+			},
+			'../../io/redis': {
+				'hgetall': function (key, target) {
+					t.equal(key, 'user:USERID:irc');
+					t.notOk(target, 'Hash target was not supplied');
+					return Promise.resolve(EXPECTED);
+				},
+				'@noCallThru': true
+			}
+		});
+
+		Model.set = function (userid, key, value) {
+			t.fail('should not have called .set');
+			return Promise.resolve();
+		};
+
+		Model.get('USERID')
+			.then(function (result) {
+				t.same(result, EXPECTED);
+			})
+			.catch(t.fail)
+			.then(t.end);
+	});
+
 	tr.test('.get(userid, hashkey)', function (t) {
 		t.plan(3);
 
