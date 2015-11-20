@@ -139,7 +139,7 @@ module.exports = exports = function (user) {
 			emitSystem('join', ev);
 
 			// request channel modes when joining
-			irc.write('MODE ' + ev.target);
+			irc.getModes(ev.target);
 		}
 		emitPublic('join', ev);
 	});
