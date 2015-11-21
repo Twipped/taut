@@ -24,7 +24,7 @@ define(['jquery', 'lodash', 'backbone', 'feed-manager', 'scroller'], function ($
 
 			var fragment = $(document.createDocumentFragment());
 			var rows = cv.toRows();
-			
+
 			_.each(rows, function (row) {
 				row.$el = $(row.html);
 				fragment.append(row.$el);
@@ -38,7 +38,7 @@ define(['jquery', 'lodash', 'backbone', 'feed-manager', 'scroller'], function ($
 			this.listenTo(cv, 'row:replace', this.onRowReplace);
 		},
 
-		remove: function() {
+		remove: function () {
 			FeedMan.unsubscribe(this.feed);
 			this.cv = null;
 			this._removeElement();
