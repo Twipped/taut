@@ -52,7 +52,7 @@ function pull (port) {
 	var i = -1;
 	while (++i < queue.length) {
 		if (queue[i].port === port) {
-			var uname = queue[i].username
+			var uname = queue[i].username;
 			queue.splice(i, 1);
 			return uname;
 		}
