@@ -82,6 +82,8 @@ exports.create = function (forcedID) {
 			is_agent: false
 		};
 
-		return exports.set(userid, user);
+		return exports.set(userid, user).then(function () {
+			return exports.get(userid);
+		});
 	});
 };
