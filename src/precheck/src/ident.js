@@ -14,7 +14,7 @@ exports.start = function (listenPort) {
 			if (!line) return;
 
 			// console.log('received [', line, ']');
-			var port = line.split(',')[1];
+			var port = line.split(',')[0];
 			port = port && String(port).trim();
 			port = parseFloat(port);
 
@@ -51,7 +51,11 @@ function pull (port) {
 	cleanup();
 	var i = -1;
 	while (++i < queue.length) {
-		if (queue[i].port === port) return queue[i].username;
+		if (queue[i].port === port) {
+			var uname = queue[i].username
+			queue.splice(i, 1);
+			return uname;
+		}
 	}
 	return false;
 }
