@@ -1,6 +1,5 @@
 
 var config = require('taut.shared/config');
-var debug = require('taut.shared/debug')('frequent-fliers');
 
 var passengers = {};
 
@@ -25,4 +24,4 @@ module.exports = function (userid) {
 
 	stack.push(Date.now());
 	return false;
-}
+};
