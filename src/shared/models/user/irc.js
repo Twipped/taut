@@ -31,6 +31,8 @@ exports.get = function (userid, hashkey) {
 		// user doesn't exist, pass that on.
 		if (!result) return result;
 
+		result.userid = userid;
+
 		// if the username is empty, we need to generate and save one before returning the user
 		if (!result.username) {
 			result.username = random.username();
