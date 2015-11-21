@@ -6,6 +6,7 @@ var isFrequentFlier = require('../is-frequent-flier');
 
 module.exports = function auditStandbyList () {
 	var waiting = standby.getLength();
+	flights.waiting = waiting;
 	if (!waiting) return;
 
 	var availability = flights.availability();
@@ -29,4 +30,6 @@ module.exports = function auditStandbyList () {
 			}
 		}
 	}
+
+	flights.waiting = waiting;
 };

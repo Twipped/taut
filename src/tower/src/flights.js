@@ -164,7 +164,6 @@ function flightOnline (flightid, socket, metadata, radio) {
 	// wait for the first counts call before triggering a passenger audit
 	radio.once('counts', function () {
 		if (exports.waiting) {
-			exports.waiting--;
 			auditActivePassengers();
 		}
 	});
