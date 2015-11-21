@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node ./bin/taut-tower",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"No tests specified\" && exit 0"
   },
   "author": "Jarvis Badgley <chiper@chipersoft.com> (http://chipersoft.com/)",
   "license": "MIT",
@@ -17,13 +17,6 @@
     "taut.shared": "../shared",
     "lodash": "~3.10.0",
     "proxmis": "~0.2.0"
-  },
-  "devDependencies": {
-    "forever-monitor": "~1.7.0",
-    "gulp": "~3.9.0",
-    "gulp-eslint": "~1.0.0",
-    "gulp-jscs": "~3.0.0",
-    "merge-stream": "~1.0.0"
   },
   "bundledDependencies": [
     "taut.shared"

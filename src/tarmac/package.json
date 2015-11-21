@@ -24,12 +24,7 @@
     "taut.shared": "../shared"
   },
   "devDependencies": {
-    "forever-monitor": "~1.7.0",
-    "gulp": "~3.9.0",
-    "gulp-eslint": "~1.0.0",
-    "gulp-jscs": "~3.0.0",
     "istanbul": "~0.4.0",
-    "merge-stream": "~1.0.0",
     "object-contains": "~0.1.0",
     "proxyquire": "~1.7.3",
     "tap": "~2.3.0",

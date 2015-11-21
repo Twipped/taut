@@ -7,7 +7,8 @@
   },
   "scripts": {
     "start": "node ./bin/taut-concourse",
-    "build": "gulp"
+    "build": "gulp",
+    "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
     "amdefine": "~1.0.0",
