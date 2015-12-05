@@ -112,6 +112,7 @@ module.exports = exports = function (user) {
 
 		request.get(identurl).end(function (err) {
 			if (err) debug.error('registering for ident failed', err);
+			else debug('registered for ident', user.username || user.userid, irc.stream.localPort);
 
 			irc.sendHandshake();
 		});
