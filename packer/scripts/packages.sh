@@ -20,17 +20,18 @@ apt-get -y install nodejs
 npm install -g npm@3
 
 # Configure mysql root password and install mysql
-debconf-set-selections <<< 'mysql-server mysql-server/root_password password vagrant'
-debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password vagrant'
-apt-get install -y mysql-client-5.6 mysql-server-5.6
+#debconf-set-selections <<< 'mysql-server mysql-server/root_password password vagrant'
+#debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password vagrant'
+#apt-get install -y mysql-client-5.6 mysql-server-5.6
 
 # Setup vagrant mysql user
-mysql -uroot -pvagrant -e "CREATE USER 'vagrant'@'%' IDENTIFIED BY 'vagrant';GRANT ALL PRIVILEGES ON *.* TO 'vagrant'@'%';FLUSH PRIVILEGES"
+#mysql -uroot -pvagrant -e "CREATE USER 'vagrant'@'%' IDENTIFIED BY 'vagrant';GRANT ALL PRIVILEGES ON *.* TO 'vagrant'@'%';FLUSH PRIVILEGES"
 
 #apt-get install -y nginx
 #apt-get install -y imagemagick
 
 apt-get install -y redis-server
+
 # copy over redis config that does not bind to localhost
 cp /tmp/redis.conf /etc/redis/redis.conf
 
