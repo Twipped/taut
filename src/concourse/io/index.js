@@ -1,62 +1,101 @@
 
-var debug           = require('taut.shared/debug')('io');
-var each            = require('lodash/collection/each');
-var channelTracking = require('../controllers/channel-tracking');
-var channelCache    = require('../controllers/rolling-cache');
-var metrics         = require('taut.shared/metrics');
+var debug = require('taut.shared/debug')('io');
+var each = require('lodash/collection/each');
+var Promise = require('bluebird');
 
 var socketio = require('socket.io');
 
 var io = socketio();
 
-io.connectionCounter = 0;
+var globalHooks = {};
+io.onDirective = function (name, fn) {
+	if (globalHooks[name]) {
+		globalHooks[name].handler = fn;
+		return;
+	}
+
+	globalHooks[name] = {
+		name: name,
+		handler: fn
+	};
+};
 
 io.on('connection', function (socket) {
 	debug('socket connection', socket.id);
-	var subscribed = {};
 
-	io.connectionCounter++;
-	metrics.measure('websockets.open', io.connectionCounter);
-
-	socket.on('feed.subscribe', function (feed) {
-		// if this socket is already subbed to that feed, ignore the request
-		if (subscribed[feed]) return;
-		subscribed[feed] = true;
-
-		debug('feed.subscribe', feed, socket.id);
-		socket.join(feed.toLowerCase());
-
-		if (feed.substr(0, 12) === 'irc:channel:') {
-			var channel = feed.substr(12);
-
-			channelTracking.addSubscriber(channel);
-			channelCache.get(channel).forEach(function (event) {
-				socket.emit(feed, event);
-			});
+	var lastDirectiveId = 0;
+	var hooks = {};
+	socket.onDirective = function (name, fn) {
+		if (hooks[name]) {
+			hooks[name].handler = fn;
+			return;
 		}
 
+		var hook;
+		if (typeof name === 'object') {
+			hook = name;
+		} else {
+			hook = {
+				name: name,
+				handler: fn
+			};
+		}
+
+		hooks[name] = hook;
+
+		socket.on('directive-request:' + hook.name, function (dir) {
+			var args = [socket].concat(dir.arguments);
+
+			Promise.try(function () {
+				return hook.handler.apply(socket, args);
+			}).then(function (result) {
+				socket.emit('directive-reply:' + dir.name + ':' + dir.id, [true, result]);
+			}).catch(function (error) {
+				debug.error('Directive rejected', error);
+				socket.emit('directive-reply:' + dir.name + ':' + dir.id, [false, error]);
+			});
+		});
+	};
+
+	socket.sendDirective = function (name) {
+		var args = Array.prototype.slice.call(arguments, 1);
+		var dir = {
+			name: name,
+			id: ++lastDirectiveId,
+			arguments: args
+		};
+
+		var p = new Promise(function (resolve, reject) {
+			socket.once('directive-reply:' + name + ':' + dir.id, function (packet) {
+				if (packet[0]) {
+					return resolve(packet[1]);
+				}
+
+				return reject(packet[1]);
+			});
+		});
+
+		socket.emit('directive-request:' + name, dir);
+
+		return p;
+	};
+
+	each(globalHooks, function (hook) {
+		socket.onDirective(hook);
 	});
 
 	socket.on('disconnect', function () {
 		debug('socket disconnected', socket.id);
-
-		io.connectionCounter--;
-		metrics.measure('websockets.open', io.connectionCounter);
-
-		each(subscribed, function (t, feed) {
-			if (!t) return;
-
-			if (feed.substr(0, 12) === 'irc:channel:') {
-				channelTracking.removeSubscriber(feed.substr(12));
-			}
-		});
 	});
 
+	var onevent = socket.onevent;
+	socket.onevent = function (packet) {
+		onevent.apply(socket, arguments);
+		console.log.apply(console, packet.data || []);
+	};
 });
 
-channelTracking.on('_all', function (channel, event) {
-	channel = channel.toLowerCase();
-	io.to('irc:channel:' + channel).emit('irc:channel:' + channel, event);
-});
+require('./connection-counter')(io);
+require('./feeds')(io);
 
 module.exports = io;

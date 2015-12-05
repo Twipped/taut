@@ -22,8 +22,10 @@ define(['lodash', 'backbone', 'chatview/backbone', 'socket'], function (_, Backb
 
 		cv.socketHook = function (event) {cv.add(event);};
 
+		var lastEvent = cv.events.array[cv.events.array.length - 1];
+
 		socket.on(feed, cv.socketHook);
-		socket.subscribe(feed);
+		socket.subscribe(feed, lastEvent && lastEvent.timestamp);
 
 		feeds[feed] = cv;
 		return cv;
