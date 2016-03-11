@@ -1,4 +1,54 @@
-#Taut Freenode Client Service
+#Taut Freenode Gateway
+
+[Taut.us](http://taut.us) is a web frontend for accessing the [Freenode](http://freenode.net) IRC network. It aims to resolve many of the issues with IRC that are driving communities to private discussion forums such as Slack.  Namely:
+
+- **Approachability**: Getting on IRC requires a degree of domain knowledge; installing a client, configuring the client, knowing what servers to connect to, etc.  Web based clients like irccloud have helped with this a lot, but because they aim to be general purpose IRC clients, they cannot avoid the larger warts. Due to differences between implementations of the IRC protocol, IRC clients must conform to the most common feature set and rely on user knowledge to fill in for network specific functionality.
+
+  The solution to this problem is to create not a general purpose IRC client, but a client targeted at only one network. Then the client can have a reasonable expectation of what features and behaviors to tailor for.  It has the added benefit of eliminating the need for the user to configure any more than their personal information.
+
+  Furthermore, it makes it possible to go directly to any channel on the network with little more than a URL.  Any channel which has opted in to public logging will be previewable by visitors without having to join that channel.  Visit [https://taut.us/c/node.js](https://taut.us/c/node.js) for an example of this behavior.
+
+  Channels are linkable by simple and fairly short urls which can be shared easily. When someone visits the channel url directly they will (assuming the channel has opted in to logging) be able to view the current activity in that channel for the last hour (or 1000 events) and be presented with a simple oauth login if they wish to join the conversation. Currently planning support for Twitter, Facebook, and Github accounts. Accounts must be older than 30 days to be usable (this is an anti abuse mechanism).
+
+- **Discoverability**: Finding topical channels on any IRC network is a chore at best. Most channels are not found through user discovery, but by word of mouth. The results of `/list` is enormous and completely useless. Even if you know the command exists (which most people don't), trying to find anything in the output is a needle and haystack situation.
+
+  Taut will sport an indexed list of channels generated automatically from the usage of people on the site.  Any public channel either in use by a member of the site, or being logged by the site via opt-in, will appear on this list.
+
+- **Searchable Indexing**: All channel activity seen by Taut is actively logged into Taut's historical database. Any user which was on the channel at the time the activity occurred will be able to search and view that history.  Channels which opt-in to public logging may be searched by any member of the site (this will eventually be configurable by the channel mods).
+
+- **User Experience**: The goal is to have a fully configurable presentation for users of the site. By default the output presents with an aesthetically pleasing layout reminiscent of Slack and Hipchat, but the user will have the option of choosing from (and hopefully creating) a variety of UI themes to even make the output look like an old-school ircii output if that's what they like.
+
+  Taut will also feature content embedding for automatic previews of links, limited markdown parsing, join/part aggregation, netsplit suppression, snippet pasting and image uploading.
+
+- **User Safety**: By default all users on the Taut system will connect to Freenode with the +R and +g user modes. This means that Taut users can only be privately contacted by freenode users who are logged in to Freenode user services and have been whitelisted by the Taut user.
+
+## Current state of the app.
+
+At this moment all of the infrastucture is in place for tracking channels joined by members of the application. At present this is strictly one-way data flow, and none of the privacy enforcements are in place. The next steps are to lock down the data flow so that only data coming from the Tauter agents will be publicly visible, and to teach the entire system how to obey channel privacy modes.  The next step after this is to build out the systems to allow for outgoing messages (these tasks are denoted with the `2-way Chat` milestone in GH Issues).
+
+## Application structure
+
+Taut is broken down into a set of five distinct services which manage different portions of the site infrastructure.  These services are named using an air travel metaphor.
+
+- **Tarmac**   
+  Tarmac manages the individual IRC connections that the Taut system makes with the Freenode network. An active connection is maintained for every user of the application and receives all communication sent to that user. All messages get pushed onto a message queue for digestion by the Gangway service.  Additionally this process listens to an outgoing message queue in order to relay commands to the IRC network. Tarmac is designed to be shardable as demand increases. When a Tarmac process launches it registers itself with the Tower process and launches new connections as instructed by the Tower.
+
+- **Precheck**   
+  In order to comply with Undernet requirements for identifying users, every connection made by the Taut system identifies itself with Freenode using the ident protocol, and Precheck is what acts as the identd.  When a new connection is opened by Tarmac, that connection's port is registered with Precheck before the connection logs in to the network.
+  Every user on the Taut system is assigned a randomly generated IRC username which identifies their account to Freenode. This is done to enable banning of abusive users without affecting the Taut system itself.  Precheck will only work if the OS has forwarded port 113 to 10113 and any NAT hardware has been configured for port forwarding. Without those requirements users will not be idented on login.
+
+- **Tower**   
+  The control tower for all active messages. Tracks what users are assigned to what Tarmac instances and automatically cleans up if a Tarmac instance crashes. It also dispatches channel events for marking gaps in channel logging when all connections have left a channel.
+
+- **Gangway**   
+  All incoming messages get pushed on to a message queue. Gangway is the consumer for that queue, aggregating all channel activity for the elasticsearch logging database and dispatching redis pubsub events for consumption by Concourse.
+
+- **Concourse**   
+  The user facing web portion of the Taut application. This contains the express and socket.io server as well as all of the front-end logic for driving the user experience.  The frontend logic is a collection of Backbone View components sourced via RequireJS. The styles are compiled from SCSS, built on top of Bootstrap 4.  All build tasks are managed via a Gulp build pipeline which has been setup with separate Development and Production workflows.
+
+All of these services live in the `/src` directory of the repo and inherit the `shared` dependency which is bundled into their builds.  The `shared` folder contains all IO interfaces and data models for the entire infrastructure, as well as any common library modules used by multiple services.
+
+The src folder contains a number of other utilities as well, such as the deployment tool used on the taut.us servers.
 
 ## Setting up your local dev environment.
 
@@ -71,15 +121,14 @@ The agent will receive a random username in the form of `finnerXX` if no nicknam
 src/utils/bin/user.setnickserv finnery@chipersoft.com NICKNAME PASSWORD
 ```
 
-# Deploying
+## Deploying
 
-**Please do not deploy without running it by Jarvis first.**
+**Collaborators: Please do not deploy without discussing it first.**
 
 All branches prefixed with `deploy/` on Origin will automatically kick off a CodeShip deployment for the service named on the branch.  CodeShip will checkout the repo, install the dependencies for that service, run tests (if applicable) and then pack the service into a tarball, which gets uploaded to S3 in incremental build numbers.  It then SSH's into the taut.us server and deploys the build.
 
 All services except for Tarmac are automatically restarted on deployment (deployer and utils do not have anything to restart).
 
-# Pushing code to github
+## Code Style
 
-Please refrain from frequently pushing to origin.  Because Taut is a private repo, CodeShip only grants me 50 builds per month, and performs a build on every push regardless of what branch you push to.  Note, if you add the message "[skip ci]" to your commit message or description, Codeship will not build that push.
-
+`.eslintrc` and `.jscsrc` files exist in the project root to define the expected code style for this project. However, only the Concourse project has a linting task setup to enforce these rules.
