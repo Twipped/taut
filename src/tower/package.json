@@ -15,7 +15,7 @@
   "dependencies": {
     "bluebird": "~2.10.1",
     "taut.shared": "../shared",
-    "lodash": "~3.10.0",
+    "lodash": "~3.10.0"
   },
   "bundledDependencies": [
     "taut.shared"
