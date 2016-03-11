@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "amdefine": "~1.0.0",
-    "binary-sorted-set": "ChiperSoft/binary-sorted-set#patch-1",
+    "binary-sorted-set": "~1.2.0",
     "bluebird": "~3.3.4",
     "body-parser": "~1.15.0",
     "connect-redis": "~3.0.2",
