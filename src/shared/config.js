@@ -91,9 +91,10 @@ var siteConfig = rc('taut', {
 
 	userEncryptionKey: 'ktiR9MQ87rPH4Kk6dtmLR6A9vpe8Y32T',
 
-	librato: {
-		email: '',
-		token: ''
+	newrelic: {
+		disabled: false,
+		NEW_RELIC_LICENSE_KEY: '',
+		NEW_RELIC_APP_NAME: pkg.name
 	}
 });
 
