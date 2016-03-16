@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
 var config    = require('taut.shared/config');
+
+require('taut.shared/metrics');
+
 var debug     = require('taut.shared/debug')();
 var app       = require('../app');
 var io        = require('../io');

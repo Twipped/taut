@@ -13,10 +13,9 @@
   "author": "Jarvis Badgley <chiper@chipersoft.com> (http://chipersoft.com/)",
   "license": "MIT",
   "dependencies": {
-    "bluebird": "~2.10.1",
+    "bluebird": "~3.3.4",
     "linkify-it": "~1.2.0",
     "lodash": "~3.10.1",
-    "proxmis": "~0.2.0",
     "taut.shared": "../shared"
   },
   "bundledDependencies": [

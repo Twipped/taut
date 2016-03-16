@@ -11,7 +11,7 @@ var concat       = require('gulp-concat-util');
 var insert       = require('gulp-insert');
 var scss         = require('gulp-sass');
 var prefixer     = require('gulp-autoprefixer');
-var minifyCSS    = require('gulp-minify-css');
+var cleanCSS     = require('gulp-clean-css');
 var uglify       = require('gulp-uglify');
 var clone        = require('gulp-clone');
 var rename       = require('gulp-rename');
@@ -315,7 +315,7 @@ gulp.task('scss-main', function () {
 
 		// minified
 		files.pipe(clone())
-			.pipe(minifyCSS())
+			.pipe(cleanCSS())
 	).pipe(gulp.dest('public/build/'));
 });
 
@@ -341,7 +341,7 @@ gulp.task('scss-pages', function () {
 
 		// minified
 		files.pipe(clone())
-			.pipe(minifyCSS())
+			.pipe(cleanCSS())
 	).pipe(gulp.dest('public/build/pages'));
 });
 

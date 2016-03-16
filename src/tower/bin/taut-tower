@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-'use strict';
+require('taut.shared/metrics');
 
 var debug    = require('taut.shared/debug')();
 var mq       = require('taut.shared/io/mq');

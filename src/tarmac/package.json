@@ -15,20 +15,19 @@
   "author": "Jarvis Badgley <chiper@chipersoft.com> (http://chipersoft.com/)",
   "license": "MIT",
   "dependencies": {
-    "bluebird": "~2.10.1",
+    "bluebird": "~3.3.4",
     "ircsock": "latest",
     "lodash": "~3.10.1",
     "minimist": "~1.2.0",
-    "proxmis": "~0.2.0",
-    "superagent": "~1.4.0",
+    "superagent": "~1.8.0",
     "taut.shared": "../shared"
   },
   "devDependencies": {
-    "istanbul": "~0.4.0",
+    "istanbul": "~0.4.2",
     "object-contains": "~0.1.0",
-    "proxyquire": "~1.7.3",
-    "tap": "~2.3.0",
-    "tape": "~4.2.2"
+    "proxyquire": "~1.7.4",
+    "tap": "~5.7.0",
+    "tape": "~4.5.1"
   },
   "bundledDependencies": [
     "taut.shared"
