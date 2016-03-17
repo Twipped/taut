@@ -2,6 +2,7 @@
   "name": "taut.precheck",
   "version": "1.0.0",
   "description": "Ident Service",
+  "private": true,
   "main": "index.js",
   "bin": {
     "taut-precheck": "./index.js"
@@ -11,7 +12,7 @@
     "test": "echo \"No tests specified\" && exit 0"
   },
   "author": "Jarvis Badgley <chiper@chipersoft.com> (http://chipersoft.com/)",
-  "license": "MIT",
+  "license" : "BSD-3-Clause",
   "dependencies": {
     "split": "~1.0.0"
   }

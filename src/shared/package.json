@@ -9,7 +9,7 @@
     "lint": "gulp lint-js"
   },
   "author": "Jarvis Badgley <chiper@chipersoft.com> (http://chipersoft.com/)",
-  "license": "MIT",
+  "license" : "BSD-3-Clause",
   "dependencies": {
     "JSONStream": "~1.1.1",
     "bcrypt": "~0.8.5",

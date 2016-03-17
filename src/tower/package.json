@@ -2,6 +2,7 @@
   "name": "taut.tower",
   "version": "1.0.0",
   "description": "Connection wrangler",
+  "private": true,
   "main": "index.js",
   "bin": {
     "taut-tower": "./bin/taut-tower"
@@ -11,7 +12,7 @@
     "test": "echo \"No tests specified\" && exit 0"
   },
   "author": "Jarvis Badgley <chiper@chipersoft.com> (http://chipersoft.com/)",
-  "license": "MIT",
+  "license" : "BSD-3-Clause",
   "dependencies": {
     "bluebird": "~2.10.1",
     "taut.shared": "../shared",

@@ -10,6 +10,7 @@
     "build": "gulp",
     "test": "echo \"No test specified\" && exit 0"
   },
+  "license" : "BSD-3-Clause",
   "dependencies": {
     "amdefine": "~1.0.0",
     "binary-sorted-set": "~1.2.0",
