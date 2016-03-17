@@ -249,7 +249,8 @@ test('models/user', function (tr) {
 
 		var clock = sinon.useFakeTimers(Date.now());
 
-		var userid, expected;
+		var userid;
+		var expected;
 		var Model = proxyquire('../../models/user', {
 			'./user/is-agent': {
 				'set': function (uid, value) {
