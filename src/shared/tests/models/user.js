@@ -245,11 +245,11 @@ test('models/user', function (tr) {
 	});
 
 	tr.test('.create()', function (t) {
-		t.plan(6);
+		t.plan(8);
 
 		var clock = sinon.useFakeTimers(Date.now());
 
-		var userid;
+		var userid, expected;
 		var Model = proxyquire('../../models/user', {
 			'./user/is-agent': {
 				'set': function (uid, value) {
@@ -266,13 +266,19 @@ test('models/user', function (tr) {
 					return Promise.resolve(null);
 				},
 				'hmset': function (key, actual) {
-					t.equal(key, 'user:' + userid, 'storing in the correct place');
-					t.same(actual, {
+					expected = {
 						userid: userid,
 						date_created: new Date(),
 						is_agent: false
-					});
+					};
+					t.equal(key, 'user:' + userid, 'storing in the correct place');
+					t.same(actual, expected);
 					return Promise.resolve();
+				},
+				'hgetall': function (key, target) {
+					t.equal(key, 'user:' + userid);
+					t.notOk(target, 'Hash target was not supplied');
+					return Promise.resolve(expected);
 				},
 				'@noCallThru': true
 			}
