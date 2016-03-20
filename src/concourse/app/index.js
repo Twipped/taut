@@ -14,7 +14,7 @@ app.use(require('serve-favicon')(path.join(__dirname, '../public/favicon.ico')))
 app.use(require('morgan-debug')(require('taut.shared/debug')('app'), 'dev'));
 app.use(require('./middleware/render-handlebars')(
 	path.join(__dirname, 'views'),
-	path.join(__dirname, '../public')
+	path.join(__dirname, '../ui')
 ));
 
 app.use(express.static(path.join(__dirname, '../public')));

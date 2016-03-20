@@ -1,7 +1,7 @@
 
 require([
-	'requirejs',
-	'require.config',
+	// 'requirejs',
+	// 'require.config',
 	'jquery',
 	'lodash',
 	'backbone',

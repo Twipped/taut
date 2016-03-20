@@ -2,5 +2,5 @@
 @import "../mixins";
 
 @if ($env = "production") {
-	@import "../../public/components/example/main.scss";
+	@import "../../ui/components/example/main.scss";
 }

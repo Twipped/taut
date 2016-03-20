@@ -8,7 +8,7 @@ var ChannelTopic = require('taut.shared/models/channel/topic');
 var ChannelNames = require('taut.shared/models/channel/names');
 var ChannelModes = require('taut.shared/models/channel/modes');
 var channelTracking = require('../../controllers/channel-tracking');
-var Chatview = require('../../public/assets/chatview');
+var Chatview = require('../../ui/chatview');
 
 router.get('/:channel', function (req, res, next) {
 	var channel = req.params.channel;

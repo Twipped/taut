@@ -4,7 +4,8 @@ define(['jquery'], function ($) {
 			var $div = $(div);
 
 			require(['components/' + $div.attr('data-component') + '/main'], function (Component) {
-				new Component({el: $div});
+				var c = new Component({ el: $div });
+				$div.data('component', c);
 				$div.addClass('js-component-bound');
 			});
 		});

@@ -3,6 +3,8 @@
 var pkg          = require('./package.json');
 
 var forever      = require('forever-monitor');
+var webpack      = require('webpack');
+
 var gulp         = require('gulp');
 var gutil        = require('gulp-util');
 var sequence     = require('run-sequence');
@@ -15,7 +17,6 @@ var cleanCSS     = require('gulp-clean-css');
 var uglify       = require('gulp-uglify');
 var clone        = require('gulp-clone');
 var rename       = require('gulp-rename');
-var requirejs    = require('requirejs');
 var del          = require('del');
 var jscs         = require('gulp-jscs');
 var eslint       = require('gulp-eslint');
@@ -71,7 +72,7 @@ gulp.task('clean', function (cb) {
 		'public/vendor',
 		'public/build',
 		'public/views/**/*.hbs.js',
-		'public/components/**/*.hbs.js',
+		'ui/**/*.hbs.js',
 		'public/assets/binary-sorted-set.js',
 		'public/assets/chatview/templates.js'
 	];
@@ -162,7 +163,7 @@ gulp.task('amd-version', function (cb) {
 
 gulp.task('chatview-templates', function () {
 	var templates = {};
-	return gulp.src('./public/assets/chatview/templates/**/*.hbs')
+	return gulp.src('./ui/chatview/templates/**/*.hbs')
 		.pipe(through2.obj(function (file, enc, done) {
 			var basename = path.basename(file.path, path.extname(file.path));
 			templates[basename] = file.contents.toString();
@@ -175,122 +176,16 @@ gulp.task('chatview-templates', function () {
 			done();
 		}))
 		.pipe(defineModule('hybrid'))
-		.pipe(gulp.dest('./public/assets/chatview/'));
-});
-
-/**
- * Compile all RequireJS dependencies into a single file and minify.
- * Uses gulp-clone to split the rjs output into two streams so we get both minified and plain.
- */
-gulp.task('requirejs', ['requirejs-main', 'requirejs-pages']);
-
-gulp.task('requirejs-main', function () {
-	var files = gulp.src('./requirejs/main.js')
-		.pipe(through2.obj(function (file, enc, done) {
-			var self = this;
-
-			var base = path.resolve(file.cwd, './public/assets');
-			var name = path.relative(base, file.path);
-			name = path.join(path.dirname(name), path.basename(name, path.extname(name)));
-
-			var options = {
-				mainConfigFile: 'requirejs/_config.js',
-				baseUrl: 'public/assets/',
-				preserveLicenseComments: false,
-				name: name,
-				allowSourceOverwrites: true,
-				optimize: 'none',
-				out: function (output) {
-					file.contents = new Buffer(output);
-					self.push(file);
-				}
-			};
-
-			requirejs.optimize(options, function () {done();}, function (err) {
-				self.emit('error', err);
-			});
-		}));
-
-	return merge(
-		// minified
-		files
-			.pipe(clone())
-			.pipe(uglify()),
-
-		// original
-		files
-			.pipe(clone())
-			.pipe(rename(function (fpath) {
-				fpath.basename += '.max';
-			}))
-	).pipe(gulp.dest('./public/build/'));
-});
-
-gulp.task('requirejs-pages', function () {
-	var files = gulp.src(['./requirejs/**/*.js', '!./requirejs/main.js', '!./requirejs/_config.js'])
-		.pipe(through2.obj(function (file, enc, done) {
-			var self = this;
-
-			var base = path.resolve(file.cwd, './public/assets');
-			var name = path.relative(base, file.path);
-			name = path.join(path.dirname(name), path.basename(name, path.extname(name)));
-
-			var options = {
-				mainConfigFile: 'requirejs/_config.js',
-				baseUrl: 'public/assets/',
-				preserveLicenseComments: false,
-				name: name,
-				allowSourceOverwrites: true,
-				optimize: 'none',
-				exclude: ['../../requirejs/main'],
-				out: function (output) {
-					file.contents = new Buffer(output);
-					self.push(file);
-				}
-			};
-
-			requirejs.optimize(options, function () {
-				done();
-			}, function (err) {
-				console.error(arguments);
-				self.emit('error', err);
-			});
-		}));
-
-	return merge(
-		// minified
-		files
-			.pipe(clone())
-			.pipe(uglify()),
-
-		// original
-		files
-			.pipe(clone())
-			.pipe(rename(function (fpath) {
-				fpath.basename += '.max';
-			}))
-	).pipe(gulp.dest('./public/build/pages/'));
+		.pipe(gulp.dest('./ui/chatview/'));
 });
 
 
-/*
-	Development requirejs stubs for use in gulp watch process.
-	requirejs-main-dev creates an unminified concatination of the main.js file containing only requirejs, config and the main rjs module.
-	requirejs-pages-dev copies the page optimization modules, so that we don't get 404 errors during dev.
- */
-gulp.task('requirejs-dev', ['requirejs-main-dev', 'requirejs-pages-dev']);
-
-gulp.task('requirejs-main-dev', function () {
-	return gulp.src(['./public/vendor/requirejs/require.js', './requirejs/_config.js', './requirejs/main.js'])
-		.pipe(concat('main.js'))
-		.pipe(gulp.dest('./public/build/'));
+gulp.task('webpack', function (cb) {
+	webpack(require('./webpack.config.js'), function (err) {
+		// console.log(arguments);
+		cb(err);
+	});
 });
-
-gulp.task('requirejs-pages-dev', function () {
-	return gulp.src(['./requirejs/**/*.js', '!./requirejs/main.js', '!./requirejs/_config.js'])
-		.pipe(gulp.dest('./public/build/pages'));
-});
-
 
 
 /**
@@ -503,13 +398,14 @@ gulp.task('default', function (cb) {
 		'clean',
 		[
 			'scss',
-			'vendor',
+			// 'vendor',
 			'fontawesome',
 			'views',
 			'chatview-templates',
 			'amd-version'
 		],
-		'requirejs',
+		// 'requirejs',
+		'webpack',
 		'rev',
 		cb
 	);
